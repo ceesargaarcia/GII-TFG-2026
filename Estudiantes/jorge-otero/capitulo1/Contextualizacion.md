@@ -250,6 +250,7 @@ Por tanto, la solución propuesta debe entenderse como un primer paso hacia la a
 Este enfoque permite evaluar el impacto de la automatización en el proceso actual sin necesidad de realizar cambios estructurales complejos en los sistemas existentes.
 
 ## 4.1 Hipótesis
+
 La hipótesis planteada en este proyecto es:
 
 *La implementación de un sistema automatizado de análisis y respuesta de correos mejorará la eficiencia operativa del buzón de variaciones, reduciendo los tiempos de respuesta y la carga de trabajo manual del personal*
