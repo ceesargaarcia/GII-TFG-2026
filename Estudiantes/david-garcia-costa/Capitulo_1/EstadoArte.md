@@ -8,7 +8,7 @@ A partir de esta información, el ingeniero de QA define planes de prueba que ac
 
 Este flujo de trabajo se apoya en herramientas ya existentes detalladas en la foto que se presenta a continuación y en la experiencia del personal de QA, pero mantiene una importante dependencia del análisis manual y de la intervención directa del ingeniero. 
 
-![Flujo QA Actual](../Capitulo_1//fotos/FlujoQA_Actual.svg)
+![Flujo QA Actual](/Estudiantes/david-garcia-costa/Capitulo_1/fotos/FlujoQA_Actual.svg)
 
  
 Por lo que para el ingeniero de QA supone un gran esfuerzo interpretar correctamente la documentación de entrada y traducirla a elementos útiles para validar el producto.
@@ -24,7 +24,7 @@ En el panorama actual del testing asistido por Inteligencia Artificial, han come
 El interés de esta solución reside en que plantea un modelo de trabajo en el que la IA no actúa solo como generador de texto, sino como un componente capaz de participar en varias fases del proceso de testing. A partir de una especificación inicial, el sistema analiza la información proporcionada, genera un plan de ejecución, construye el test correspondiente y posteriormente lo valida sobre la aplicación real. En caso de detectar errores durante la ejecución, la propia herramienta puede corregir automáticamente parte del código generado con autorreparación.
 
 
-![Flujo QA Actual](../Capitulo_1//fotos/quorvex.png)
+![Quorvex](/Estudiantes/david-garcia-costa/Capitulo_1/fotos/quorvex.png)
 
 
 Quorvex AI se apoya principalmente en Playwright como framework de automatización y en modelos de lenguaje para interpretar la especificación y la transforma en código ejecutable. Esto le permite convertir descripciones escritas en lenguaje natural en pruebas end-to-end para que las ejecute, esto reduce parte del esfuerzo manual que normalmente requiere la construcción inicial de los tests.
