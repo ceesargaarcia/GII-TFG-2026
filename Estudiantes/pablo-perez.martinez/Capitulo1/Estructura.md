@@ -1,3 +1,5 @@
+# Estructura
+
 El primer capítulo se centra en el análisis de requisitos del sistema, donde se estudia el 
 funcionamiento actual del módulo Visual Tracking, se identifican los datos teóricos y reales 
 necesarios para el cálculo del indicador OEE y se definen los requisitos funcionales y no 
