@@ -1,4 +1,4 @@
-# 1. Contexto 
+# 1. Introducción
 ## 1.1 Contexto del sector de las telecomunicaciones
 
 El sector de las telecomunicaciones constituye uno de los pilares fundamentales de la economía digital actual. Las infraestructuras de telecomunicaciones permiten el funcionamiento de servicios esenciales como el acceso a internet, la telefonía móvil, la transmisión de datos o los servicios digitales avanzados utilizados por empresas, administraciones públicas y ciudadanos.
@@ -13,7 +13,7 @@ En este contexto, las empresas operadoras deben gestionar numerosos expedientes 
 
 Como consecuencia, la gestión administrativa y técnica asociada a estas actuaciones genera un elevado volumen de documentación, consultas y comunicaciones que deben ser gestionadas de forma eficiente.
 
-## 1.1 Telefónica como organización del sector de las telecomunicaciones
+## 1.2 Telefónica como organización del sector de las telecomunicaciones
 
 ![](./imagenes/evolucion_logo.jpg)
 
@@ -25,9 +25,9 @@ Además de la provisión de servicios de conectividad, la compañía desarrolla 
 
 En el ámbito organizativo, Telefónica cuenta con diferentes áreas especializadas responsables de la planificación, despliegue, mantenimiento y evolución de la red de telecomunicaciones. Estas áreas gestionan tanto los aspectos técnicos de la infraestructura como los procesos administrativos asociados a la operación de la red.
 
-En noviembre de 2025 la compañía contaba con aproximadamente 24.000 trabajadores en España, cifra que se ha reducido a aproximadamente 22.000 empleados en marzo de 2026 tras los procesos de reorganización interna derivados de los últimos planes de ajuste. [1](enlaces.md)
+En noviembre de 2025 la compañía contaba con aproximadamente 24.000 trabajadores en España, cifra que se ha reducido a aproximadamente 22.000 empleados en marzo de 2026 tras los procesos de reorganización interna derivados de los últimos planes de ajuste. [3](enlaces.md)
 
-## 1.2 Contexto organizativo del proyecto
+## 1.3 Contexto organizativo del proyecto
 
 Dentro de la estructura organizativa de Telefónica, la gestión de la red se divide tradicionalmente en dos grandes áreas operativas: Planta Interna y Planta Externa.
 
@@ -39,9 +39,9 @@ El presente Trabajo de Fin de Grado se desarrolla dentro del ámbito de la Plant
 
 Este departamento tiene como función principal la gestión de solicitudes relacionadas con modificaciones en instalaciones existentes, afectaciones sobre la red o expedientes técnicos asociados a proyectos urbanísticos y obras civiles que puedan impactar sobre la infraestructura de telecomunicaciones.
 
-# 2. Estado del Arte
+# 2. Marco Teórico
 
-## 2.1 Análisis de la situación actual del proceso de gestión del buzón
+## 2.1 Estado del Arte
 
 El buzón analizado constituye uno de los principales canales de entrada de solicitudes relacionadas con expedientes, actuaciones y peticiones dentro del entorno operativo. Actualmente, este buzón recibe un volumen aproximado de 1.000 correos electrónicos diarios, procedentes de distintos interlocutores que solicitan información o requieren alguna gestión relacionada con expedientes concretos. Este volumen elevado de comunicaciones, unido a la diversidad de las consultas recibidas, genera una carga operativa significativa para el equipo encargado de su gestión.
 
@@ -96,7 +96,7 @@ La lógica de este enfoque consiste en incrementar la capacidad operativa del se
 
 Un ejemplo de este enfoque puede observarse en grandes centros de atención al cliente. Empresas como Amazon o Telefónica han incrementado en distintos momentos el número de agentes de soporte para hacer frente a picos de demanda en sus servicios de atención al cliente.
 
-Por ejemplo, Amazon ha ampliado en diversas ocasiones su plantilla de atención al cliente para poder gestionar el crecimiento del comercio electrónico y el aumento de consultas de usuarios, especialmente en periodos de alta demanda como campañas comerciales o eventos de venta online. [2](enlaces.md)
+Por ejemplo, Amazon ha ampliado en diversas ocasiones su plantilla de atención al cliente para poder gestionar el crecimiento del comercio electrónico y el aumento de consultas de usuarios, especialmente en periodos de alta demanda como campañas comerciales o eventos de venta online. [6](enlaces.md)
 
 **Ventajas**
 + Permite aumentar la capacidad de respuesta de forma inmediata.
@@ -114,7 +114,7 @@ Por ejemplo, Amazon ha ampliado en diversas ocasiones su plantilla de atención 
 
 ### Sistemas de ticketing o helpdesk
 
-![](./imagenes/ticket-workflow.png)
+![](./imagenes/ticket_workflow.png)
 
 Otra de las soluciones ampliamente adoptadas por las empresas consiste en implantar sistemas de ticketing, que permiten transformar los correos electrónicos recibidos en incidencias o solicitudes gestionadas mediante un sistema centralizado.
 
@@ -126,9 +126,15 @@ Entre las herramientas más utilizadas en el mercado destacan plataformas como Z
 
 Numerosas empresas utilizan sistemas de ticketing para gestionar sus servicios de soporte. Un ejemplo es la empresa tecnológica Cabify, que utiliza la plataforma Zendesk para gestionar las consultas de sus clientes y centralizar todas las solicitudes recibidas desde diferentes canales de comunicación.
 
-Gracias a esta herramienta, la empresa puede organizar las solicitudes en tickets, asignarlas a distintos equipos y realizar un seguimiento del estado de cada incidencia. [3](enlaces.md)
+Gracias a esta herramienta, la empresa puede organizar las solicitudes en tickets, asignarlas a distintos equipos y realizar un seguimiento del estado de cada incidencia. [14](enlaces.md)
 
 ![](./imagenes/ticket_cabify.png)
+
+En el caso de Telefónica, se desarrolló un portal interno basado en principios de gestión de servicios IT (IT Service Management) conocido como ITSM portal.
+
+Este portal actúa como punto centralizado para la gestión de solicitudes, incidencias y consultas relacionadas con distintos servicios internos de la compañía. A través de esta plataforma, los usuarios pueden registrar peticiones o incidencias que posteriormente son procesadas mediante sistemas de ticketing y asignadas a los equipos responsables de su resolución.
+
+El portal ITSM permite estructurar las solicitudes recibidas, registrar su estado de tramitación y mantener un seguimiento de las actuaciones realizadas, facilitando así la gestión coordinada de los distintos procesos internos. De este modo, herramientas como Argonauta o sistemas similares de gestión de incidencias se integran dentro de un entorno más amplio de gestión de servicios, permitiendo centralizar y organizar el flujo de trabajo asociado a la resolución de consultas y problemas operativos.
 
 **Ventajas**
 + Centralización de todas las solicitudes en una única plataforma.
@@ -148,15 +154,17 @@ Gracias a esta herramienta, la empresa puede organizar las solicitudes en ticket
 
 ### Automatización mediante inteligencia artificial
 
-En los últimos años, muchas empresas han comenzado a incorporar tecnologías de inteligencia artificial y procesamiento del lenguaje natural (NLP) en sus procesos de atención y gestión de correos electrónicos.
+En los últimos años, muchas empresas han comenzado a incorporar tecnologías de inteligencia artificial y procesamiento del lenguaje natural en sus procesos de atención y gestión de correos electrónicos.
 
 Estas soluciones permiten analizar automáticamente el contenido de los correos recibidos para identificar su temática, clasificar las solicitudes o dirigirlas al departamento correspondiente. En algunos casos, estas herramientas también pueden generar respuestas automáticas o sugerencias de respuesta para los agentes de soporte.
 
 El objetivo de estas tecnologías es reducir la carga de trabajo manual asociada a la lectura y clasificación de correos, permitiendo gestionar grandes volúmenes de solicitudes de forma más eficiente.
 
-Un ejemplo de aplicación de estas tecnologías se encuentra en Bosch Service Solutions, que ha implementado sistemas basados en inteligencia artificial para analizar y clasificar automáticamente los correos electrónicos recibidos por sus servicios de atención al cliente.
+Un ejemplo de aplicación de estas tecnologías se encuentra en Bosch Service Solutions, que ha implementado sistemas basados en inteligencia artificial para analizar y clasificar automáticamente los correos electrónicos recibidos por sus servicios de atención al cliente. [1](enlaces.md)
 
-Este sistema utiliza técnicas de aprendizaje automático para analizar el contenido de los correos y asignarlos automáticamente al departamento correspondiente. Gracias a esta automatización, la empresa ha conseguido reducir significativamente el tiempo necesario para procesar cada solicitud. [3](enlaces.md)
+![](./imagenes/Bosch.png)
+
+Este sistema utiliza técnicas de aprendizaje automático para analizar el contenido de los correos y asignarlos automáticamente al departamento correspondiente. Gracias a esta automatización, la empresa ha conseguido reducir significativamente el tiempo necesario para procesar cada solicitud.
 
 **Ventajas**
 + Reducción significativa del trabajo manual.
@@ -339,8 +347,26 @@ La hipótesis planteada en este proyecto es:
 
 En la situación actual, la gestión del buzón se realiza principalmente de forma manual. Cada correo recibido debe ser leído e interpretado por un técnico, quien posteriormente debe identificar si el mensaje hace referencia a algún número de expediente, actuación o petición. Una vez identificado, el técnico debe acceder a diferentes aplicaciones corporativas para consultar la información asociada y elaborar la respuesta correspondiente. Este procedimiento implica una serie de tareas repetitivas que consumen una parte significativa del tiempo de trabajo y que, además, incrementan la posibilidad de retrasos en la gestión de las solicitudes.
 
-La hipótesis de este trabajo plantea que la automatización de determinadas etapas del proceso puede mejorar significativamente la eficiencia del sistema. En concreto, mediante el uso de herramientas de automatización es posible analizar automáticamente el contenido de los correos entrantes, identificar los números de expediente mencionados, consultar la información necesaria en las bases de datos disponibles y generar una respuesta basada en plantillas predefinidas.
+En el contexto analizado, el buzón recibe aproximadamente 1000 correos electrónicos diarios, cuya gestión recae actualmente en un equipo formado por alrededor de 15 técnicos. En la situación actual, cada correo requiere un proceso manual que incluye la lectura del mensaje, la identificación del número de expediente o actuación, la consulta de información en diferentes aplicaciones corporativas y la elaboración de una respuesta adecuada.
 
-De esta forma, se espera que el sistema propuesto permita reducir el tiempo necesario para gestionar cada consulta, al eliminar gran parte de las tareas manuales asociadas al análisis inicial de los correos y a la recopilación de información. Además, la automatización de estas tareas contribuiría a disminuir la carga operativa del personal, permitiendo que los técnicos puedan centrarse en aquellos casos que requieren un análisis más complejo o una intervención manual.
+A partir de las observaciones realizadas durante el análisis del proceso, se estima que el tiempo medio necesario para gestionar cada correo se sitúa aproximadamente en 30 minutos. Esto implica que la gestión manual de 1000 correos diarios requeriría aproximadamente:
 
-Por tanto, el desarrollo e implementación de la solución propuesta permitirá evaluar si la automatización parcial del proceso puede optimizar la gestión del buzón de variaciones, mejorando los tiempos de respuesta y aumentando la eficiencia del proceso sin necesidad de incrementar los recursos humanos destinados a esta tarea.
++ 1000 correos × 15 minutos = 15.000 minutos
++ 15.000 minutos = 250 horas de trabajo diario
+
+Si esta carga de trabajo se distribuye entre 15 técnicos, cada uno debería dedicar aproximadamente 16.7 horas de trabajo para poder gestionar la totalidad de los correos recibidos en una jornada, lo que evidencia que el volumen actual de consultas supera la capacidad operativa del sistema manual.
+
+Además, en el contexto organizativo actual, marcado por procesos de optimización de recursos y reducción de plantilla, resulta especialmente relevante mejorar la eficiencia de los procesos operativos. En este escenario, el objetivo de la solución propuesta no consiste únicamente en reducir los tiempos de gestión de los correos, sino también en disminuir la dependencia de recursos humanos dedicados exclusivamente a la atención del buzón.
+
+La solución planteada busca automatizar gran parte del proceso de análisis y respuesta de los correos electrónicos mediante herramientas de automatización capaces de identificar automáticamente los números de expediente mencionados, consultar la información asociada en las bases de datos disponibles y generar respuestas basadas en plantillas predefinidas.
+
+Bajo esta hipótesis, se plantea que el sistema automatizado podría reducir el tiempo medio de procesamiento de los correos hasta aproximadamente 1 minuto por correo en aquellas consultas que puedan resolverse automáticamente.
+
+En este escenario, el tiempo total necesario para procesar los 1000 correos diarios se reduciría a:
+
++ 1000 correos × 1 minuto = 1000 minutos
++ 1000 minutos = 16,7 horas de trabajo diario
+
+Esto supondría una reducción aproximada del 96,7 % del tiempo dedicado al proceso de gestión de correos, pasando de 500 horas de trabajo manual a aproximadamente 16,7 horas.
+
+La automatización de este proceso permitiría que el buzón pudiera gestionarse prácticamente sin intervención humana directa en la mayoría de los casos, lo que permitiría reorientar al personal actualmente dedicado a esta tarea hacia otras actividades operativas de mayor valor dentro de la organización.
