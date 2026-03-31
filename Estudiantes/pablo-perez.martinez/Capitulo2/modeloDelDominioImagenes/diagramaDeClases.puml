@@ -1,86 +1,43 @@
 @startuml
 
-class EncargadoPlanificacion {
-   idEncargado
-}
-
-class Orden{
-   nombreOrden
-   infoOrden
-}
-
-class Actividad{
-   estacionDeTrabajo
-   material
-   objetivoProducción
-   dependencias
-   pautasDeControl
-}
-
-class EstaciónDeTrabajo{
-   puesto
-   tiempoTeoricoDeCiclo
-   tiempoTeoricoDeParada
-   tiempoTeoricoDeMicroparada
-}
-
-class ProducciónTeórica{
-   referencia
-   cantidad
-   unidadDeMedida
-}
-
-class AsignaciónOSplit{
+class AssignmentSplit{
    splitId
-   puesto
-   tiempoTeórico
-   producciónTeórica
-   datosEjecución
-}
-
-class Operario{
-   idOperario
-}
-
-class DatosEjecución{
-   unidadesProducidas
-   rechazos
-   duraciónParadas
-   duraciónMicroparadas
+   idPuestoDeTrabajo
+   splitInfoTeorica
+   splitInfoEjecución
 }
 
 class VisualTracking{
-   tiempoTeórico
-   producciónTeórica
-   datosEjecución
+   splitId
+   infoTeórica
+   infoEjecución
 }
 
-class Indicadores{
+class SplitIndexInfo{
+   splitId
+   infoPiezas
+   infoTiempos
+   infoIndicadores
+   infoCurvaVelocidad
+}
+
+class infoIndicadores{
    disponibilidad
    rendimiento
-   calidad
+   calidad 
    OEE
 }
+class Graficas {
+   curvaDeVelocidad
+   barrasDeIndicadores
+   tablaDeIndicadores
+}
 
-EncargadoPlanificacion--> Orden: crea
-EncargadoPlanificacion--> Actividad: añade a orden
-EncargadoPlanificacion--> EstaciónDeTrabajo: añade a actividad
-EncargadoPlanificacion--> ProducciónTeórica: establece
+VisualTracking -- AssignmentSplit: obtiene info de
+VisualTracking -- SplitIndexInfo: calcula
+VisualTracking -- Graficas: genera
 
-Orden--> Actividad: formada por
+infoIndicadores-- SplitIndexInfo
 
-Actividad--> EstaciónDeTrabajo: se desarrolla en
-Actividad--> AsignaciónOSplit: se divide en
-Actividad--> ProducciónTeórica: objetivo producir
-
-Operario--> DatosEjecución: imputa
-
-Operario--> AsignaciónOSplit: trabaja en
-
-DatosEjecución--> AsignaciónOSplit: proporciona info
-
-
-VisualTracking --> AsignaciónOSplit: obtiene info de
-VisualTracking --> Indicadores: calcula
 
 @enduml

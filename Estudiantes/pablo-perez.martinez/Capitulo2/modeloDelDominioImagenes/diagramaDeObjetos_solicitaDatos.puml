@@ -1,0 +1,34 @@
+@startuml
+
+object VisualTracking{
+   splitId: "78"
+   infoTeórica: []
+   infoEjecución: []
+}
+
+object  AssignmentSplit{
+   splitId: "78"
+   idPuestoDeTrabajo: "11"
+   splitInfoTeorica: [ objetivoPiezas: 1000,
+      objetivoTiempoDeCiclo: 120,
+      objetivoTiempoTotal: 120000
+   ]
+   splitInfoEjecución: [piezasBuenas: 973,
+      rechazos: 60,
+      piezasTotales: 1033,
+      tiempoDeCiclo: 125,
+      tiempoProductivo: 129125,
+      tiempoParadas: 5875,
+      tiempoTotal: 135000,
+      producciónPorHora: [27, 28, 29, 26, 
+      28, 27, 29, 28, 27, 26, 28, 29, 27, 
+      28, 26, 27, 29, 28, 27, 26, 28, 27, 
+      29, 28, 26, 27, 28, 29, 27, 26, 28, 
+      27, 29, 28, 27, 26, 28, 15]     
+   ]
+}
+
+
+VisualTracking -- AssignmentSplit: obtiene para splitId={78}
+
+@enduml

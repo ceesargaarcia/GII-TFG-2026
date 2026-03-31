@@ -1,0 +1,23 @@
+@startuml
+
+[*] --> PeticionRecibida
+
+PeticionRecibida --> ComprobandoDatos
+
+ComprobandoDatos --> DatosDisponibles : Datos cargados
+ComprobandoDatos --> EsperandoDatos : Solicitar datos
+
+EsperandoDatos --> DatosDisponibles : Datos recibidos
+EsperandoDatos --> Error : timeout(45s)
+
+DatosDisponibles --> Calculando : Iniciar calculo
+
+Calculando --> CalculoCompletado
+
+CalculoCompletado --> ResultadosGraficados: Graficar cálculos
+
+
+ResultadosGraficados--> [*]
+Error --> [*]
+
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+
+object VisualTracking{
+   infoTeórica: [ objetivoPiezas: 1000,
+      objetivoTiempoDeCiclo: 120,
+      objetivoTiempoTotal: 120000
+   ],
+   infoEjecución: [piezasBuenas: 973,
+      rechazos: 60,
+      piezasTotales: 1033,
+      tiempoDeCiclo: 125,
+      tiempoProductivo: 129125,
+      tiempoParadas: 5875,
+      tiempoTotal: 135000,
+      producciónPorHora: [27, 28, 29, 26, 
+      28, 27, 29, 28, 27, 26, 28, 29, 27, 
+      28, 26, 27, 29, 28, 27, 26, 28, 27, 
+      29, 28, 26, 27, 28, 29, 27, 26, 28, 
+      27, 29, 28, 27, 26, 28, 15]     
+   ]
+}
+
+object SplitIndexInfo{
+   splitId: "78",
+   infoPiezas: [
+      objetivoPiezas: 1000,
+      piezasBuenas: 973,
+      rechazos: 60,
+      piezasTotales: 1033
+   ],
+   infoTiempos: [
+      objetivoTiempoDeCiclo: 120,
+      objetivoTiempoTotal: 120000,
+      tiempoDeCiclo: 125,
+      tiempoProductivo: 129125,
+      tiempoParadas: 5875,
+      tiempoTotal: 135000
+   ],
+   infoIndicadores: [
+      disponibilidad: 0.95648,
+      rendimiento: 0.96000,
+      calidad: 0.94192,
+      oee: 0.86489
+   ]
+   
+}
+
+VisualTracking -- SplitIndexInfo: calcula
+
+@enduml
