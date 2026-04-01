@@ -24,10 +24,12 @@ En este caso, el dominio se sitúa en el entorno de producción de Visual Tracki
 
 ## Diagrama de estados
 #### Diagrama de estados
-![Diagrama de objetos 1](./imagenes/diagramaDeEstados.svg)
+![Diagrama de objetos](./imagenes/diagramaDeEstados.svg)
 
 
 ## Diagrama de actividad
+![Diagrama de actividad](./imagenes/diagramaDeActividad.svg)
+
 
 
 
