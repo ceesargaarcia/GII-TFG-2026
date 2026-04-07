@@ -1,0 +1,28 @@
+@startuml
+[*] --> NoAutenticado
+
+NoAutenticado --> ValidandoToken  : token en localStorage
+NoAutenticado --> Autenticando    : user_id / submit
+
+ValidandoToken --> SesionActiva   : token válido
+ValidandoToken --> NoAutenticado  : token inválido / expirado
+
+Autenticando --> ErrorAuth        : HTTP 404 / rol empleado
+Autenticando --> SesionActiva     : 200 OK + JWT válido\n[director | responsable]
+
+ErrorAuth --> NoAutenticado       : reintentar
+
+state SesionActiva {
+  [*] --> VistaOverview
+  VistaOverview --> CargandoPagina : navegar
+  CargandoPagina --> ErrorCarga    : 4xx / 5xx
+  ErrorCarga --> CargandoPagina    : reintentar
+  CargandoPagina --> VistaActiva   : carga OK
+  VistaActiva --> CargandoPagina   : navegar
+}
+
+SesionActiva --> TokenExpirado : cerrar sesión / HTTP 401
+TokenExpirado -up> NoAutenticado : limpiar localStorage\nredirigir /login
+
+NoAutenticado --> [*] : cerrar navegador / pestaña
+@enduml

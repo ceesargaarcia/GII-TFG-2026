@@ -1,10 +1,10 @@
-# 2.1 Modelo del Dominio
+# Modelo del Dominio
 
 El sistema se compone de una aplicación web analítica conectada a la base de datos del ERP en modo lectura, cuya función principal es consumir los datos del ERP Odoo, estructurarlos y transformarlos en información útil para la toma de decisiones. Por ello, el modelo del dominio no introduce nuevas entidades de negocio, sino que se apoya en las ya existentes en Odoo, garantizando coherencia con la base de datos corporativa y evitando inconsistencias.
 
 En las siguientes secciones se presentan los diferentes diagramas que conforman el modelo del dominio: el diagrama de clases, el diagrama de objetos, el diagrama de estados y el glosario de términos, proporcionando una visión completa de la estructura conceptual del sistema.
 
-## 2.1.1 Diagrama de Clases
+## Diagrama de Clases
 
 En el contexto de Netkia, el diagrama de clases está directamente alineado con la estructura de datos del ERP Odoo v16, lo que garantiza la consistencia entre la información almacenada en el sistema de gestión y los indicadores generados por el módulo analítico. Cada clase representa una entidad real del entorno organizativo, como clientes, proyectos, tareas, empleados o departamentos, y refleja los atributos necesarios para calcular métricas de productividad, carga de trabajo y rentabilidad.
 
@@ -12,7 +12,7 @@ En el contexto de Netkia, el diagrama de clases está directamente alineado con 
 
 Las relaciones entre las clases permiten entender la jerarquía y dependencia entre los elementos del sistema. Por ejemplo, un cliente puede tener múltiples proyectos, cada proyecto puede contener varias tareas, y cada tarea puede estar asociada a diferentes empleados y partes de horas. Esta estructura refleja el flujo natural del trabajo dentro de la empresa y facilita la obtención de indicadores agregados.
 
-## 2.1.2 Diagrama de Objetos
+## Diagrama de Objetos
 
 El diagrama de objetos complementa al diagrama de clases mostrando una instancia concreta del modelo del dominio en un escenario realista dentro de Netkia SL. Mientras que el diagrama de clases describe la estructura general del sistema, el diagrama de objetos permite observar cómo se materializan esas clases en situaciones reales de uso.
 
@@ -22,7 +22,7 @@ En este caso, se representa un proyecto real con sus correspondientes tareas, su
 
 El objetivo principal de este diagrama es ilustrar el flujo de información desde el cliente hasta las tareas y los registros de horas, permitiendo visualizar de forma clara la interacción entre los distintos elementos del dominio. De esta forma, se puede entender cómo el sistema es capaz de generar métricas a partir de los datos reales de trabajo, como la productividad, la carga de trabajo o la eficiencia de los proyectos.
 
-## 2.1.3 Diagrama de Estados
+## Diagrama de Estados
 
 En este apartado se presentan dos diagramas de estados: el primero describe el comportamiento general del sistema de métricas y dashboards, mientras que el segundo representa el ciclo de vida de una tarea dentro del sistema de gestión de proyectos.
 
@@ -47,12 +47,52 @@ Este diagrama refleja las transiciones más comunes dentro de su ciclo de vida, 
 Aunque el módulo de métricas no gestiona directamente la creación o modificación de tareas, las métricas y dashboards dependen del estado en el que se encuentran, por lo que es necesario comprender su evolución.
 Este diagrama permite interpretar correctamente los datos obtenidos de la base de datos y entender cómo influyen en los indicadores mostrados en el sistema.
 
-## 2.1.4 Glosario de términos
+## Requisitos del Sistema
+
+### Requisitos Funcionales
+
+| ID | Descripción | Actor | Prioridad |
+|---|---|---|---|
+| RF-01 | El sistema debe mostrar el número total de proyectos, empleados y tareas activas. | Director | Alta |
+| RF-02 | El sistema debe mostrar las tareas creadas y completadas en los últimos 7 días. | Director | Alta |
+| RF-03 | El sistema debe calcular y mostrar la carga de trabajo actual de cada empleado. | Resp. Dpto. | Alta |
+| RF-04 | El sistema debe mostrar el número de tareas WIP de un empleado y emitir una recomendación. | Empleado | Alta |
+| RF-05 | El sistema debe permitir filtrar la vista de tareas por estado, etapa, proyecto, departamento y rango de fechas de deadline. | Empleado | Alta |
+| RF-06 | El sistema debe mostrar las tareas pendientes de un empleado con horas trabajadas, pendientes e indicador de vencimiento. | Empleado | Alta |
+| RF-07 | El sistema debe mostrar las tareas completadas de un empleado con indicador de entrega a tiempo y productividad individual. | Empleado | Alta |
+| RF-08 | El sistema debe calcular el índice de eficiencia de un proyecto (horas planificadas vs reales). | Resp. Dpto. | Alta |
+| RF-09 | El sistema debe calcular el índice de riesgo de un proyecto (tareas vencidas o próximas a vencer). | Resp. Dpto. | Media |
+| RF-10 | El sistema debe calcular la rentabilidad de un proyecto usando el coste por hora de los empleados. | Director | Media |
+| RF-11 | El sistema debe calcular la tasa de retrabajo (tareas cerradas y reabiertas) a partir del historial de cambios de etapa. | Resp. Dpto. | Media |
+| RF-12 | El sistema debe mostrar la distribución de horas facturables por cliente en un período seleccionable. | Director | Media |
+| RF-13 | El sistema debe mostrar la evolución temporal de tareas (creadas, completadas, vencidas) agrupada por semana o mes. | Director | Media |
+| RF-14 | El sistema debe mostrar la comparativa de horas estimadas vs reales agrupada por empleado o por proyecto. | Director | Media |
+| RF-15 | El sistema debe mostrar las horas registradas agrupadas por departamento. | Resp. Dpto. | Media |
+| RF-16 | El sistema debe permitir la búsqueda global de tareas, proyectos y empleados por nombre o código. | Todos | Baja |
+| RF-17 | El sistema debe mostrar el detalle completo de una tarea, incluyendo subtareas, horas, empleados asignados y responsable. | Empleado | Alta |
+| RF-18 | El sistema debe soportar paginación y ordenación en todas las listas de entidades. | Todos | Alta |
+
+### Requisitos No Funcionales (Suplementarios)
+
+| ID | Categoría | Descripción |
+|---|---|---|
+| RNF-01 | **Seguridad** | El módulo accede a la base de datos de Odoo únicamente en modo lectura. Ninguna operación de escritura, actualización o eliminación está permitida desde el módulo analítico. |
+| RNF-02 | **Rendimiento** | Las consultas individuales de métricas deben responder en menos de 2 segundos en condiciones normales de carga (hasta 20 usuarios concurrentes). Las consultas de gráficos complejos pueden admitir hasta 5 segundos. |
+| RNF-03 | **Disponibilidad** | El sistema debe estar disponible durante el horario laboral de Netkia SL (08:00–20:00 h, L–V). Se acepta mantenimiento programado fuera de este horario. |
+| RNF-04 | **Mantenibilidad** | El backend sigue una arquitectura en capas (`routes → services → data_access`) que permite ampliar métricas sin modificar rutas ni esquemas existentes. |
+| RNF-05 | **Extensibilidad** | El sistema debe permitir añadir nuevas métricas creando únicamente un nuevo servicio y registrando su ruta, sin modificar el código existente. |
+| RNF-06 | **Compatibilidad** | El módulo es compatible con Odoo v16 Enterprise y PostgreSQL 14+. No se soportan versiones anteriores de Odoo. |
+| RNF-07 | **Usabilidad** | La interfaz debe ser operable en navegadores modernos (Chrome, Firefox, Edge en sus dos últimas versiones) sin instalación de software adicional por parte del usuario. |
+| RNF-08 | **Internacionalización** | Los nombres de proyectos y etapas almacenados como JSONB en Odoo (`{es_ES: ..., en_US: ...}`) se muestran en español por defecto, con fallback a inglés. |
+| RNF-09 | **Trazabilidad** | El cálculo del retrabajo y los tiempos por estado se basa en el historial auditado de Odoo (`mail_tracking_value`), garantizando la inmutabilidad de los datos de origen. |
+| RNF-10 | **Configuración** | La cadena de conexión a la base de datos y los parámetros del servidor se gestionan exclusivamente mediante variables de entorno (fichero `.env`), sin credenciales en código fuente. |
+
+## Glosario
 
 Con el objetivo de facilitar la comprensión del modelo del dominio, se presentan dos glosarios: uno general que describe los conceptos del sistema y del ERP, y otro específico que define las métricas utilizadas en los dashboards analíticos.
 
 
-### 2.1.4.1 Glosario general
+### Glosario general
 | Término | Definición  |
 | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **ERP Odoo** | Sistema de planificación de recursos empresariales utilizado por la empresa para gestionar proyectos, tareas, empleados, clientes y registros de horas. El módulo analítico consume sus datos en modo lectura. |
@@ -74,7 +114,7 @@ Con el objetivo de facilitar la comprensión del modelo del dominio, se presenta
 | **KPI** | Indicador clave de rendimiento utilizado para medir la eficiencia de empleados, tareas o proyectos.  |
 | **Métrica**  | Valor calculado a partir de los datos del ERP que permite analizar el rendimiento del sistema o de la organización. |
 
-### 2.1.4.2 Glosario de métricas
+### Glosario de métricas
 | Métrica  | Definición |
 | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Asistencia (Attendance)** | Compara las horas fichadas por los empleados con las horas trabajadas en tareas para medir el nivel real de actividad y presencia en el sistema.|

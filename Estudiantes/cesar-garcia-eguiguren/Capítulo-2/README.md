@@ -1,0 +1,33 @@
+# Capítulo 2
+
+## Indice
+- [Modelo de Dominio](ModeloDelDominio.md#modelo-del-dominio)
+  - [Diagrama de Clases](ModeloDelDominio.md#diagrama-de-clases)
+  - [Diagrama de Objetos](ModeloDelDominio.md#diagrama-de-objetos)
+  - [Diagrama de Estados](ModeloDelDominio.md#diagrama-de-estados)
+     - [Diagrama de Estados del Sistema](ModeloDelDominio.md#diagrama-de-estados-del-sistema)
+     - [Diagrama de Estados de una tarea](ModeloDelDominio.md#diagrama-de-estados-de-una-tarea)
+  - [Requisitos del Sistema](ModeloDelDominio.md#requisitos-del-sistema)
+    - [Requisitos Funcionales](ModeloDelDominio.md#requisitos-funcionales)
+    - [Requisitos No Funcionales](ModeloDelDominio.md#requisitos-no-funcionales-(suplementarios))
+
+- [Disciplina de Requisitos](DisciplinaDeRequisitos.md#disciplina-de-requisitos)
+    - [Encontrar Actores y Casos de Uso](DisciplinaDeRequisitos.md#1-encontrar-actores-y-casos-de-uso)
+        - [Identificación de Actores](DisciplinaDeRequisitos.md#11-identificación-de-actores)
+        - [Identificación de Casos de Uso](DisciplinaDeRequisitos.md#13-identificación-de-casos-de-uso)
+            - [Diagramas de Actor](DisciplinaDeRequisitos.md#14-diagramas-de-actor)
+                - [Diagrama de casos de uso – Director](DisciplinaDeRequisitos.md#141-diagrama-de-casos-de-uso--director)   
+                - [Diagrama de casos de uso – Responsable](DisciplinaDeRequisitos.md#142-diagrama-de-casos-de-uso--responsable)    
+    - [Priorizar Casos de Uso](DisciplinaDeRequisitos.md#2-priorizar-casos-de-uso)
+    - [Detallar Casos de Uso](DisciplinaDeRequisitos.md#3-detallar-casos-de-uso)
+    - [Prototipar Casos de Uso](DisciplinaDeRequisitos.md#4-prototipar-casos-de-uso)
+    - [Estructurar el Modelo de Casos de Uso](DisciplinaDeRequisitos.md#5-estructurar-el-modelo-de-casos-de-uso)
+        - [Diagrama de Contexto (Director)](DisciplinaDeRequisitos.md#51-diagrama-de-contexto--director)
+        - [Diagrama de Contexto (Responsable)](DisciplinaDeRequisitos.md#52-diagrama-de-contexto--responsable)
+        - [Relaciones entre Casos de Uso](DisciplinaDeRequisitos.md#53-relaciones-include--extend-del-modelo)
+            - [Relaciones Include](DisciplinaDeRequisitos.md#1-relaciones-de-inclusión-include)
+            - [Relaciones Extend](DisciplinaDeRequisitos.md#2-relaciones-de-extensión-extend)
+
+- [Glosario](ModeloDelDominio.md#glosario)
+  - [Glosario general](ModeloDelDominio.md#glosario-general)
+  - [Glosario de métricas](ModeloDelDominio.md#glosario-de-métricas)

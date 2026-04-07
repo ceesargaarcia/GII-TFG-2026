@@ -1,0 +1,64 @@
+@startuml
+
+class Cliente {
+  +id : Integer
+  +nombre : String
+  +email : String
+  +telefono : String
+  +activo : Boolean
+}
+
+class Proyecto {
+  +id : Integer
+  +nombre : String
+  +codigo : String
+  +fechaInicio : Date
+  +fechaFin : Date
+  +activo : Boolean
+}
+
+class Tarea {
+  +id : Integer
+  +nombre : String
+  +codigo : String
+  +etapa: String
+  +horasPlanificadas : Float
+  +horasEfectivas : Float
+  +fechaFinEstimada : Date
+  +fechaFinReal : DateTime
+  +cerrada : Boolean
+  +activo : Boolean
+  +prioridad : String
+  +padre: Integer
+}
+
+class ParteDeHoras {
+  +id : Integer
+  +descripcion : String
+  +cantidad : Float
+  +fecha : Date
+}
+
+class Empleado {
+  +id : Integer
+  +nombre : String
+  +costePorHora : Float
+  +activo : Boolean
+}
+
+class Departamento {
+  +id : Integer
+  +padre: Integer
+  +nombre : String
+  +activo : Boolean
+}
+
+' ── Relaciones ────────────────────────────────
+Cliente        "1"   --o{ "0..*" Proyecto       : tiene
+Proyecto       "1"   --o{ "0..*" Tarea           : contiene
+Empleado       "0..*" }--  "0..1" Departamento   : pertenece a
+Empleado       "0..*" }--o{ "0..*" Tarea         : asignado a
+ParteDeHoras   "0..*" }--  "1"   Empleado        : registrada por
+ParteDeHoras   "0..*" }-  "0..1" Tarea          : imputable a
+
+@enduml
