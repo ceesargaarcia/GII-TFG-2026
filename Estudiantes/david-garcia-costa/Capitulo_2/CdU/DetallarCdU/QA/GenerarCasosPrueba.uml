@@ -1,0 +1,48 @@
+@startuml generarCasosPrueba
+
+skinparam linetype polyline
+
+state generarCasosPrueba as "generarCasosPrueba()" {
+
+    state " " as MostrandoEscenarios
+    state " " as SeleccionandoEscenarios
+    state " " as GenerandoCasos
+
+    [*] -[#green]-> MostrandoEscenarios
+    note on link
+    Se solicita generar casos de prueba
+    end note
+
+    MostrandoEscenarios -[#green]-> SeleccionandoEscenarios
+    note on link
+    <b>Sistema</b> presenta escenarios disponibles
+    • Identificador
+    • Nombre
+    • Estado
+    Se muestra/selecciona los escenarios de partida
+    end note
+
+    SeleccionandoEscenarios -[#green]-> GenerandoCasos
+    note on link
+    <b>Sistema</b> procesa los escenarios
+    y prepara la transformación
+    end note
+
+    GenerandoCasos -[#green]-> [*]
+    note on link
+    <b>Sistema</b> genera los casos de prueba
+    y los deja disponibles para revisión o publicación
+    end note
+}
+
+generarCasosPrueba -[#green]-> CASOS_PRUEBA_ABIERTO
+note on link
+completarGeneracion()
+end note
+
+generarCasosPrueba -[#red]-> ESCENARIOS_ABIERTO
+note on link
+rechazarGeneracion()
+end note
+
+@enduml

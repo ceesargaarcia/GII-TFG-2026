@@ -1,0 +1,57 @@
+@startuml Actor_Responsable
+left to right direction
+skinparam actorStyle awesome
+
+actor Responsable as R
+
+
+usecase "CU-01 Autenticarse" as CU01
+usecase "CU-02 Overview del sistema" as CU02
+usecase "CU-03 Panel Manager" as CU03
+usecase "CU-04 Listar empleados\n[scope]" as CU04
+usecase "CU-05 Resumen de empleado\n[scope]" as CU05
+usecase "CU-06 Listar departamentos\n[sus depart.]" as CU06
+usecase "CU-07 Resumen de departamento\n[sus depart.]" as CU07
+usecase "CU-08 Listar proyectos\n[sus proyectos]" as CU08
+usecase "CU-09 Resumen de proyecto\n[sus proyectos]" as CU09
+usecase "CU-10 Consultar tareas\n[sus proyectos]" as CU10
+usecase "CU-11 Detalle de tarea\n[sus proyectos]" as CU11
+usecase "CU-12 Productividad" as CU12
+usecase "CU-13 Cumplimiento" as CU13
+usecase "CU-14 Carga / WIP" as CU14
+usecase "CU-15 Riesgo" as CU15
+usecase "CU-16 Retrabajo" as CU16
+usecase "CU-17 Exactitud estimación" as CU17
+usecase "CU-18 Lead Time" as CU18
+usecase "CU-19 Tiempo por Estado" as CU19
+usecase "CU-20 Tareas Canceladas" as CU20
+usecase "CU-21 Tiempo por Prioridad" as CU21
+usecase "CU-22 Gráficos [scope]" as CU22
+usecase "CU-23 Asistencia [equipo]" as CU23
+usecase "CU-25 Búsqueda global\n[scope]" as CU25
+
+R --> CU01
+R --> CU02  
+R --> CU03
+R --> CU04  
+R --> CU05
+R --> CU06  
+R --> CU07
+R --> CU08  
+R --> CU09
+R --> CU10  
+R --> CU11
+R --> CU12  
+R --> CU13  
+R --> CU14  
+R --> CU15
+R --> CU16  
+R --> CU17  
+R --> CU18
+R --> CU19  
+R --> CU20  
+R --> CU21
+R --> CU22  
+R --> CU23
+R --> CU25
+@enduml

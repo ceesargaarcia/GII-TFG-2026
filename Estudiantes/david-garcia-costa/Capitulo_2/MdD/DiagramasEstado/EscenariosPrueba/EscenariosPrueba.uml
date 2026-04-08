@@ -1,0 +1,24 @@
+@startuml
+title Diagrama de estados - EscenarioPrueba
+
+state "EscenarioPrueba" as EscenarioPrueba {
+
+  [*] --> Generado
+
+  Generado --> PendienteRevision : guardar borrador
+  PendienteRevision --> Modificado : añadir feedback / editar
+  Modificado --> PendienteRevision : guardar cambios
+  PendienteRevision --> Aprobado : aprobar escenario
+  Modificado --> Aprobado : aprobar escenario
+  Aprobado --> Publicado : publicar en Kiwi
+
+  Generado --> Eliminado : eliminar borrador
+  PendienteRevision --> Eliminado : eliminar borrador
+  Modificado --> Eliminado : eliminar borrador
+
+  Publicado --> [*]
+  Eliminado --> [*]
+
+}
+
+@enduml

@@ -1,0 +1,58 @@
+@startuml
+top to bottom direction
+
+rectangle "Diagrama de Clases" {
+  class Documentacion {
+    +id: UUID
+    +titulo: String
+    +tipo: String
+    +contenido: Text
+    +version: String
+    +project_name: String
+  }
+
+  class CasoDeUso {
+    +id: String
+    +nombre: String
+    +descripcion: Text
+    +project_name: String
+  }
+
+  class RequisitoFuncional {
+    +id: String
+    +descripcion: Text
+    +citaOrigen: String
+    +project_name: String
+  }
+
+  class EscenarioPrueba {
+    +id: UUID
+    +nombre: String
+    +descripcion: Text
+    +gherkin: Text
+    +estado: String
+    +version: String
+    +feedback: Text
+    +project_name: String
+  }
+
+  class CasoPrueba {
+    +id: UUID
+    +resumen: String
+    +descripcion: Text
+    +estado: String
+    +project_name: String
+  }
+}
+
+class KiwiTCMS <<sistema externo participante>>
+
+Documentacion o-- CasoDeUso
+Documentacion o-- RequisitoFuncional
+CasoDeUso -- RequisitoFuncional : asocia
+EscenarioPrueba --> CasoDeUso : verifica
+EscenarioPrueba --> RequisitoFuncional : cubre
+CasoPrueba o-- EscenarioPrueba
+CasoPrueba --> KiwiTCMS : publicar / sincronizar en
+
+@enduml

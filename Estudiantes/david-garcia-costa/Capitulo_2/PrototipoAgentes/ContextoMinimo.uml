@@ -1,0 +1,15 @@
+@startuml
+left to right direction
+skinparam backgroundColor white
+skinparam packageStyle rectangle
+
+actor "Actor" as Actor
+rectangle "Sistema Multiagente\nde Generación de Casos de Prueba" as MAS
+rectangle "Kiwi TCMS" as KIWI
+
+Actor--> MAS : Proporciona documentación\nsolicita procesamiento
+MAS --> Actor : Devuelve resultados,\nborradores y estado
+MAS --> KIWI : Publica / consulta /\nactualiza casos de prueba
+KIWI --> MAS : Respuesta de publicación\ny consulta
+
+@enduml

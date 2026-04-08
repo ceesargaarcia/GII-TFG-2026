@@ -1,0 +1,107 @@
+@startuml
+
+object "cliente1 : Cliente" as c1 {
+  id = 1
+  nombre = "ACME Corp"
+  email = "contacto@acme.com"
+  telefono = "942000111"
+  activo = true
+}
+
+object "proyecto1 : Proyecto" as p1 {
+  id = 10
+  nombre = "Implantación ERP Netkia"
+  codigo = "ERP-10"
+  fechaInicio = 2024-01-10
+  fechaFin = null
+  activo = true
+}
+
+object "tarea1 : Tarea" as t1 {
+  id = 100
+  nombre = "Análisis funcional"
+  codigo = "T-100"
+  etapa = "En progreso"
+  horasPlanificadas = 40
+  horasEfectivas = 20
+  fechaFinEstimada = 2024-02-15
+  cerrada = false
+  activo = true
+  prioridad = "Alta"
+}
+
+object "subtarea1 : Tarea" as st1 {
+  id = 101
+  nombre = "Reuniones cliente"
+  codigo = "T-101"
+  etapa = "Cerrada"
+  horasPlanificadas = 10
+  horasEfectivas = 12
+  fechaFinReal = 2024-02-01
+  cerrada = true
+  activo = true
+  prioridad = "Media"
+  padre = 100
+}
+
+object "empleado1 : Empleado" as e1 {
+  id = 5
+  nombre = "Ana García"
+  costePorHora = 45
+  activo = true
+}
+
+object "empleado2 : Empleado" as e2 {
+  id = 6
+  nombre = "Carlos López"
+  costePorHora = 35
+  activo = true
+}
+
+object "departamento1 : Departamento" as d1 {
+  id = 2
+  nombre = "Consultoría"
+  activo = true
+}
+
+object "usuario1 : Usuario" as u1 {
+  id = 50
+  login = "agarcia"
+  activo = true
+}
+
+object "parte1 : ParteDeHoras" as ph1 {
+  id = 200
+  descripcion = "Kickoff proyecto"
+  cantidad = 8
+  fecha = 2024-02-01
+}
+
+object "parte2 : ParteDeHoras" as ph2 {
+  id = 201
+  descripcion = "Documentación"
+  cantidad = 6
+  fecha = 2024-02-02
+}
+
+' ── Relaciones ────────────────────────────────
+c1 --> p1 : tiene
+
+p1 --> t1 : contiene
+t1 --> st1 : subtarea
+
+e1 --> d1 : pertenece a
+e2 --> d1 : pertenece a
+
+e1 --> u1 : accede como
+
+e1 --> t1 : asignado a
+e2 --> t1 : asignado a
+
+ph1 --> e1 : registrada por
+ph1 --> t1 : imputable a
+
+ph2 --> e2 : registrada por
+ph2 --> t1 : imputable a
+
+@enduml

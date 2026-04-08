@@ -1,0 +1,49 @@
+@startuml incorporarDocumentacion
+
+skinparam linetype polyline
+
+state incorporarDocumentacion as "incorporarDocumentacion()" {
+
+    state " " as MostrandoFormulario
+    state " " as ValidandoDocumentacion
+    state " " as RegistrandoDocumentacion
+
+    [*] -[#green]-> MostrandoFormulario
+    note on link
+    Se solicita incorporar documentación
+    end note
+
+    MostrandoFormulario -[#green]-> ValidandoDocumentacion
+    note on link
+    <b>Sistema</b> presenta formulario de incorporación
+    • Proyecto
+    • Tipo de documentación
+    • Contenido documental
+    Se introduce la información requerida
+    end note
+
+    ValidandoDocumentacion -[#green]-> RegistrandoDocumentacion
+    note on link
+    <b>Sistema</b> valida la documentación
+    • Verifica contenido
+    • Verifica asociación a proyecto
+    end note
+
+    RegistrandoDocumentacion -[#green]-> [*]
+    note on link
+    <b>Sistema</b> registra la documentación
+    y la deja disponible para su tratamiento
+    end note
+}
+
+incorporarDocumentacion -[#green]-> DOCUMENTACION_ABIERTA
+note on link
+completarGestion()
+end note
+
+incorporarDocumentacion -[#red]-> DOCUMENTACION_ABIERTA
+note on link
+rechazarIncorporacion()
+end note
+
+@enduml

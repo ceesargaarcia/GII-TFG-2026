@@ -1,0 +1,47 @@
+@startuml generarEscenariosPrueba
+
+skinparam linetype polyline
+
+state generarEscenariosPrueba as "generarEscenariosPrueba()" {
+
+    state " " as MostrandoInformacionFuncional
+    state " " as SeleccionandoArtefactos
+    state " " as GenerandoEscenarios
+
+    [*] -[#green]-> MostrandoInformacionFuncional
+    note on link
+    Se solicita generar escenarios de prueba
+    end note
+
+    MostrandoInformacionFuncional -[#green]-> SeleccionandoArtefactos
+    note on link
+    <b>Sistema</b> presenta información funcional disponible
+    • Casos de uso
+    • Requisitos funcionales
+    Se selecciona los artefactos de partida
+    end note
+
+    SeleccionandoArtefactos -[#green]-> GenerandoEscenarios
+    note on link
+    <b>Sistema</b> procesa la selección realizada
+    y prepara la generación
+    end note
+
+    GenerandoEscenarios -[#green]-> [*]
+    note on link
+    <b>Sistema</b> genera escenarios en formato Gherkin
+    y los almacena para su revisión
+    end note
+}
+
+generarEscenariosPrueba -[#green]-> ESCENARIOS_ABIERTO
+note on link
+completarGeneracion()
+end note
+
+generarEscenariosPrueba -[#red]-> REQUISITOS_FUNCIONALES_ABIERTO
+note on link
+rechazarGeneracion()
+end note
+
+@enduml

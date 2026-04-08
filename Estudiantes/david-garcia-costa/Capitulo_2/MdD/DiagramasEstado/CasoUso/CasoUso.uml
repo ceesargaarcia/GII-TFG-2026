@@ -1,20 +1,23 @@
 @startuml
-state CasoDeUso {
-  [*] --> Creado
+title Diagrama de estados - CasoDeUso
 
-  state Creado
-  state EnEdicion
-  state Validado
-  state Eliminado
+state "CasoDeUso" as CasoDeUso {
 
-  Creado --> EnEdicion : editarCasoUso()
-  EnEdicion --> Validado : validarCasoUso()
+  [*] --> Identificado
 
-  Creado --> Eliminado : eliminarCasoUso()
-  EnEdicion --> Eliminado : eliminarCasoUso()
-  Validado --> Eliminado : eliminarCasoUso()
+  Identificado --> Revisado : validar contenido
+  Revisado --> Modificado : actualizar caso de uso
+  Modificado --> Revisado : guardar cambios
+  Revisado --> Aprobado : aprobar
+  Modificado --> Aprobado : aprobar
 
-  Validado --> [*]
+  Identificado --> Eliminado : eliminar
+  Revisado --> Eliminado : eliminar
+  Modificado --> Eliminado : eliminar
+
+  Aprobado --> [*]
   Eliminado --> [*]
+
 }
+
 @enduml

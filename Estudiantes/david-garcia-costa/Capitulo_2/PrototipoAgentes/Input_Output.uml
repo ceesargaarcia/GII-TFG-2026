@@ -1,0 +1,34 @@
+@startuml
+actor "Actor" as Actor
+participant "Orchestrator" as ORCH
+participant "Extract UC/RF Agent" as EXTRACT
+participant "Requirements Manager Agent" as REQ
+participant "Gherkin Generator Agent" as GHERKIN
+participant "Review & Publish Agent" as REVIEW
+participant "Kiwi Case Manager Agent" as KIWI_AGENT
+participant "Kiwi TCMS" as KIWI
+
+Actor -> ORCH : Enviar documentación de entrada
+ORCH -> EXTRACT : Procesar documentación
+EXTRACT --> ORCH : UC + RF extraídos
+
+ORCH -> REQ : Guardar / gestionar UC y RF
+REQ --> ORCH : Confirmación / datos persistidos
+
+ORCH -> GHERKIN : Generar escenarios Gherkin
+GHERKIN --> ORCH : EscenarioPrueba (draft)
+
+ORCH -> REVIEW : Revisar escenario / aplicar feedback
+REVIEW --> ORCH : Escenario validado
+
+alt Escenario aceptado
+  ORCH -> KIWI_AGENT : Publicar caso de prueba
+  KIWI_AGENT -> KIWI : Crear / actualizar test case
+  KIWI --> KIWI_AGENT : Resultado publicación
+  KIWI_AGENT --> ORCH : CasoPrueba publicado
+else Escenario rechazado
+  REVIEW --> ORCH : Feedback para regeneración
+end
+
+ORCH --> Actor : Respuesta final / estado
+@enduml

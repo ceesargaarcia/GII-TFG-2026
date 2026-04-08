@@ -1,15 +1,17 @@
 @startuml
-
 left to right direction
+title Casos de uso - Kiwi TCMS
 
 actor "Kiwi TCMS" as Kiwi
 
-rectangle "Testing" {
-  usecase "Recibir escenarios\nde prueba" as UC1
-  usecase "Almacenar escenarios\nde prueba" as UC2
+rectangle "Sistema" {
+  usecase "Recibir casos\nde prueba" as CU01
+  usecase "Almacenar casos\nde prueba" as CU02
+  usecase "Permitir consulta\nde casos de prueba" as CU03
 }
 
-Kiwi --> UC1
-Kiwi --> UC2
+Kiwi --> CU01
+Kiwi --> CU02
+Kiwi --> CU03
 
 @enduml

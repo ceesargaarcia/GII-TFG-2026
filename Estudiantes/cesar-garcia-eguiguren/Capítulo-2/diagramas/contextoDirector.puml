@@ -1,0 +1,66 @@
+@startuml Contexto_Director
+skinparam componentStyle rectangle
+skinparam component {
+  BackgroundColor #E8F4FD
+  BorderColor #2980B9
+  FontSize 11
+}
+
+actor Director as D #LightSkyBlue
+
+component "CU-01\nAutenticarse" as CU01 #FFE4B5
+component "CU-02\nOverview" as CU02 #D5E8D4
+component "CU-03\nPanel Manager" as CU03 #D5E8D4
+component "CU-04\nListar Empleados" as CU04 #E0F2F7
+component "CU-05\nResumen Empleado" as CU05 #E0F2F7
+component "CU-06\nListar Departamentos" as CU06 #E0F2F7
+component "CU-07\nResumen Departamento" as CU07 #E0F2F7
+component "CU-08\nListar Proyectos" as CU08 #E0F2F7
+component "CU-09\nResumen Proyecto" as CU09 #E0F2F7
+component "CU-10\nListar Tareas" as CU10 #E0F2F7
+component "CU-11\nDetalle Tarea" as CU11 #E0F2F7
+
+component "CU-12 Productividad\nCU-13 Cumplimiento\nCU-14 Carga/WIP\nCU-15 Riesgo\nCU-16 Retrabajo\nCU-17 Exactitud\nCU-18 Lead Time\nCU-19 Tiempo Estado\nCU-20 Canceladas\nCU-21 Tiempo Prioridad" as METRICS_KPI #FFF8DC
+
+component "CU-22\nGráficos Analíticos\n" as VISUAL #F0FFF0
+component "CU-23\nAsistencia vs Imputaciones" as CU23 #FFF5EE
+component "CU-24\nRentabilidad Financiera\n(Director exclusive)" as CU24 #FFE4E1
+component "CU-26 Líneas Proyecto\nCU-27 Líneas Cliente" as CU26_27 #FFE4E1
+
+component "CU-25\nBúsqueda Global" as CU25 #FFF5EE
+
+D --> CU01 : accede a la app
+CU01 --> CU02 : auth OK
+
+CU02 --> CU03 : Panel Manager
+CU02 --> CU04 : Empleados
+CU02 --> CU06 : Departamentos
+CU02 --> CU08 : Proyectos
+CU02 --> CU10 : Tareas
+CU02 --> VISUAL : Análisis Visual
+CU02 --> CU24 : Rentabilidad
+CU02 --> CU25 : Búsqueda
+CU02 --> METRICS_KPI : Consultar métricas
+CU03 --> CU05 : click empleado
+CU04 --> CU05 : click empleado
+CU06 --> CU07 : click departamento
+CU07 --> CU05 : click empleado
+CU08 --> CU09 : click proyecto
+
+CU05 ---> CU10 : tareas del empleado\n(filtro contextual)
+CU09 --> CU10 : tareas del proyecto\n(filtro contextual)
+CU10 --> CU11 : click en tarea
+CU11 --> CU09 : link proyecto
+CU11 --> CU05 : link empleado
+
+CU03 .> METRICS_KPI : KPIs de carga
+CU05 .> METRICS_KPI : WIP, productividad
+CU09 .> METRICS_KPI : indice de eficiencia, riesgo, rentabilidad
+CU02 --> CU23 : consultar asistencia
+CU07 .> METRICS_KPI : carga de trabajo de empleados
+CU24 --> CU26_27 : ver detalles
+CU24 --> CU10 : panel estado equipo
+CU25 --> CU05 : resultado empleado
+CU25 --> CU09 : resultado proyecto
+CU25 --> CU11 : resultado tarea
+@enduml

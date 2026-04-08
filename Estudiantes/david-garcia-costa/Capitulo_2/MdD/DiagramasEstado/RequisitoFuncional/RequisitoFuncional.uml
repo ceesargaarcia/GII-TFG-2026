@@ -1,20 +1,23 @@
 @startuml
-state RequisitoFuncional {
-  [*] --> Creado
+title Diagrama de estados - RequisitoFuncional
 
-  state Creado
-  state EnEdicion
-  state Validado
-  state Eliminado
+state "RequisitoFuncional" as RequisitoFuncional {
 
-  Creado --> EnEdicion : editarRequisitoFuncional()
-  EnEdicion --> Validado : validarRequisitoFuncional()
+  [*] --> Identificado
 
-  Creado --> Eliminado : eliminarRequisitoFuncional()
-  EnEdicion --> Eliminado : eliminarRequisitoFuncional()
-  Validado --> Eliminado : eliminarRequisitoFuncional()
+  Identificado --> Revisado : validar contenido
+  Revisado --> Modificado : actualizar requisito
+  Modificado --> Revisado : guardar cambios
+  Revisado --> Aprobado : aprobar
+  Modificado --> Aprobado : aprobar
 
-  Validado --> [*]
+  Identificado --> Eliminado : eliminar
+  Revisado --> Eliminado : eliminar
+  Modificado --> Eliminado : eliminar
+
+  Aprobado --> [*]
   Eliminado --> [*]
+
 }
+
 @enduml

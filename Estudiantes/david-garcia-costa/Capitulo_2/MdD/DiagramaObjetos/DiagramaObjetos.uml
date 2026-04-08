@@ -1,0 +1,110 @@
+@startuml
+top to bottom direction
+
+rectangle "Diagrama de Objetos" {
+  object proyecto1 {
+    id = "PR-001"
+    nombre = "Portal de Clientes"
+    descripcion = "Sistema para gestión de clientes y cargas"
+  }
+
+  object documentacionDRF {
+    id = "DOC-001"
+    titulo = "DRF-12 Registro de cargas"
+    tipo = "DRF"
+    contenido = "Especificación funcional del registro de cargas"
+    version = "1.0"
+    project_name = "Portal de Clientes"
+  }
+
+  object documentacionDDS {
+    id = "DOC-002"
+    titulo = "DDS Registro de cargas"
+    tipo = "DDS"
+    contenido = "Diseño detallado del registro de cargas"
+    version = "1.0"
+    project_name = "Portal de Clientes"
+  }
+
+  object casoDeUso1 {
+    id = "UC-01"
+    nombre = "Registrar carga"
+    descripcion = "Permite registrar una nueva carga en el sistema"
+    project_name = "Portal de Clientes"
+  }
+
+  object requisitoFuncional1 {
+    id = "RF-01"
+    descripcion = "Registrar los datos obligatorios de la carga"
+    citaOrigen = "DRF-12 sección 3.1"
+    project_name = "Portal de Clientes"
+  }
+
+  object requisitoFuncional2 {
+    id = "RF-02"
+    descripcion = "Evitar registros duplicados"
+    citaOrigen = "DRF-12 sección 3.2"
+    project_name = "Portal de Clientes"
+  }
+
+  object escenarioPrueba1 {
+    id = "EP-001"
+    nombre = "Alta correcta de carga"
+    descripcion = "Validar alta con datos válidos"
+    gherkin = "Given datos válidos When registro la carga Then se almacena correctamente"
+    estado = "pendiente_revision"
+    version = "1"
+    feedback = ""
+    project_name = "Portal de Clientes"
+  }
+
+  object escenarioPrueba2 {
+    id = "EP-002"
+    nombre = "Intento de alta duplicada"
+    descripcion = "Validar rechazo de cargas duplicadas"
+    gherkin = "Given una carga existente When intento registrar la misma Then el sistema rechaza la operación"
+    estado = "pendiente_revision"
+    version = "1"
+    feedback = ""
+    project_name = "Portal de Clientes"
+  }
+
+  object casoPrueba1 {
+    id = "CP-001"
+    resumen = "CP-UC-01 Registro de carga"
+    descripcion = "Caso de prueba publicado en KiwiTCMS para validar el registro de carga"
+    estado = "publicado"
+    project_name = "Portal de Clientes"
+  }
+}
+
+object kiwiTCMS {
+  sistema = "KiwiTCMS"
+}
+
+proyecto1 o-- documentacionDRF
+proyecto1 o-- documentacionDDS
+
+documentacionDRF o-- casoDeUso1
+documentacionDDS o-- casoDeUso1
+
+documentacionDRF o-- requisitoFuncional1
+documentacionDRF o-- requisitoFuncional2
+documentacionDDS o-- requisitoFuncional1
+documentacionDDS o-- requisitoFuncional2
+
+casoDeUso1 -- requisitoFuncional1 : asocia
+casoDeUso1 -- requisitoFuncional2 : asocia
+
+escenarioPrueba1 --> casoDeUso1 : verifica
+escenarioPrueba1 --> requisitoFuncional1 : cubre
+
+escenarioPrueba2 --> casoDeUso1 : verifica
+escenarioPrueba2 --> requisitoFuncional2 : cubre
+
+casoPrueba1 o-- escenarioPrueba1
+casoPrueba1 o-- escenarioPrueba2
+
+casoPrueba1 --> kiwiTCMS : publicar / sincronizar en
+
+@enduml

@@ -1,22 +1,30 @@
 @startuml
 
-rectangle Proyecto
-rectangle Documentacion
-rectangle DRF
-rectangle DDS
-rectangle CasoDeUso
-rectangle RequisitoFuncional
-rectangle EscenarioPrueba
+rectangle "Contexto organizativo" {
+  rectangle Proyecto
+}
 
-Proyecto o-- Documentacion : contiene
+rectangle "Modelo de Dominio" {
+  rectangle Documentacion
+  rectangle CasoDeUso
+  rectangle RequisitoFuncional
+  rectangle EscenarioPrueba
+  rectangle CasoPrueba
 
-Documentacion <|-- DRF
-Documentacion <|-- DDS
+  Documentacion o-- CasoDeUso
+  Documentacion o-- RequisitoFuncional
 
-Documentacion *-- CasoDeUso : incluye
-Documentacion *-- RequisitoFuncional : incluye
+  CasoDeUso -- RequisitoFuncional : asocia
 
-EscenarioPrueba -- CasoDeUso : valida
-EscenarioPrueba -- RequisitoFuncional : valida
+  EscenarioPrueba --> CasoDeUso : verifica
+  EscenarioPrueba --> RequisitoFuncional : cubre
+
+  CasoPrueba o-- EscenarioPrueba 
+}
+
+Proyecto o-- Documentacion 
+
+rectangle "KiwiTCMS\n[sistema externo participante]" as KiwiTCMS
+CasoPrueba --> KiwiTCMS : publicar / sincronizar en
 
 @enduml
