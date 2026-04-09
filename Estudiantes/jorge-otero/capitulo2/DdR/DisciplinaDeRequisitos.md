@@ -61,3 +61,5 @@ El flujo comienza con el cliente en espera de una respuesta. A continuación, el
 
 Finalmente, el cliente recibe y revisa la respuesta. En caso de necesitar aportar información adicional, podrá iniciar un nuevo caso de uso independiente mediante el formulario.
 
+### Caso de Uso - Ver Solicitudes Pendientes
+
