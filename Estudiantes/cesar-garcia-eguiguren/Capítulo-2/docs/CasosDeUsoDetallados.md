@@ -8,7 +8,7 @@
 | **Precondición** | El usuario tiene credenciales válidas (login y contraseña) en `res_users` con un `hr_employee` activo vinculado en Odoo. |
 | **Postcondición** | JWT almacenado en `localStorage`, cabecera `Authorization: Bearer` inyectada en el cliente Axios. Usuario redirigido a CU-02. |
  
-![Diagrama de flujo de autenticación](./imagenes/CdU/flujoCU01.png)
+![Diagrama de flujo de autenticación](../imagenes/CdU/flujoCU01.png)
  
 **Flujo principal:**
 1. El actor navega a `/login` e introduce su **usuario** (login) y **contraseña**.

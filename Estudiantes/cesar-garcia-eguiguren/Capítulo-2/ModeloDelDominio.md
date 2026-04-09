@@ -29,15 +29,15 @@ En este apartado se presentan dos diagramas de estados: el primero describe el c
 ### Diagrama de estados del sistema
 ![Diagrama de estados](./imagenes/diagramaDeEstados.png)
 
-Este diagrama representa el comportamiento general del sistema desde que se ejecuta el módulo hasta que el usuario navega por los distintos dashboards de métricas permitiendo comprender el flujo completo de funcionamiento del sistema, desde la conexión con la base de datos hasta la visualización de la información en los dashboards.
+Este diagrama representa el comportamiento general del sistema desde el punto de vista de la sesión del usuario, describiendo cómo transita entre los estados de autenticación, navegación activa y cierre de sesión.
 
-El sistema comienza en el estado SistemaIniciado, momento en el que se ejecuta el backend y el frontend. A continuación, el sistema pasa al estado ConectandoBD, donde se establece la conexión con la base de datos PostgreSQL. Si la conexión se realiza correctamente, el sistema pasa a BDConectada y queda en espera de peticiones del frontend en el estado EsperandoPeticionFront. En caso de error, se transita al estado ErrorConexion, desde donde se puede reintentar la conexión o cerrar el sistema.
+El sistema parte del estado **NoAutenticado**, que es el estado inicial siempre que no exista una sesión activa. Desde aquí se abren dos caminos: si el navegador detecta un token almacenado en `localStorage`, se pasa automáticamente al estado **ValidandoToken**, donde se comprueba si el JWT sigue siendo válido; si en cambio el usuario introduce sus credenciales y pulsa Acceder, se transita al estado **Autenticando**, donde el frontend realiza la llamada `POST /auth/token` al backend.
 
-Cuando el frontend solicita información mediante llamadas a los endpoints del backend, el sistema pasa al estado LlamadaEndpoint, donde se procesa la petición. Posteriormente, se accede a la base de datos en el estado ConsultandoBD, se calculan las métricas en GenerandoMetricas y finalmente se muestran los resultados en el estado MostrandoDashboard.
+Si la autenticación falla —por credenciales incorrectas, usuario inexistente o rol `empleado` sin acceso— el sistema pasa al estado **ErrorAuth**, donde se muestra el mensaje de error en el formulario de login sin perder los datos introducidos, permitiendo al usuario reintentar directamente. Si la autenticación es correcta, o si el token almacenado se valida con éxito, el sistema transita a **SesionActiva**.
 
-Dentro del estado MostrandoDashboard, el usuario puede navegar entre las distintas páginas del sistema mediante un desplegable, accediendo a los dashboards de métricas, empleados, departamentos, tareas, proyectos, rentabilidad y asistencia. Además, en cualquier momento se pueden refrescar los datos, lo que provoca una nueva llamada a los endpoints y una nueva consulta a la base de datos.
+Dentro de **SesionActiva** se modelan los estados propios de la navegación en la aplicación. El subestado inicial es **VistaOverview**, correspondiente a la página `/overview`. Cuando el usuario navega a cualquier otra ruta, el sistema pasa a **CargandoPagina**, estado en el que el frontend realiza las peticiones a los endpoints del backend. Si alguna petición devuelve un error 4xx o 5xx, se transita a **ErrorCarga**, desde donde el usuario puede reintentar la carga. Si las peticiones se resuelven correctamente, el sistema pasa a **VistaActiva**, estado en el que el usuario puede interactuar con los datos. Desde cualquier vista activa, navegar a otra sección reinicia el ciclo de carga.
 
-El sistema finaliza cuando el usuario cierra el módulo, pasando al estado final.
+La sesión activa finaliza por cierre de sesión voluntario (botón "Cerrar sesión").
 
 
 ### Diagrama de estados de una tarea
