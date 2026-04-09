@@ -17,14 +17,6 @@ El funcionamiento del sistema sigue una estructura cíclica, en la que, tras la 
 |![CdU_Cliente](./CdU/CdU_Cliente/imagen/CdU_Cliente.png)|![CdU_Tecnico](./CdU/CdU_Tecnico/imagen/CdU_Tecnico.png)|
 |[Ver código](./CdU/CdU_Cliente/codigo/CdU_Cliente.puml)|[Ver código](./CdU/CdU_Tecnico/codigo/CdU_Tecnico.puml)|
 
-## Diagrama de Contexto
-
-### Diagrama de Contexto   
-
-| Diagrama | Código |
-|---------|---------|
-|![Diagrama de Contexto](./DdC/imagen/DdC.png)|[Ver código](./DdC/codigo/DdC.puml)|
-
 ## Priorizar Casos de Uso 
 
 | Caso de uso                | Prioridad | Justificación                                                                              |
@@ -96,4 +88,34 @@ Este caso de uso describe el proceso mediante el cual el cliente aporta informac
 El flujo comienza cuando el cliente accede al formulario y completa los campos requeridos. A continuación, revisa la información introducida antes de enviarla. Si está conforme, el formulario es enviado al sistema. En caso contrario, puede modificar los datos antes de realizar el envío.
 
 Este proceso permite complementar la información de una solicitud previa de forma estructurada y controlada.
+
+## Prototipar Casos de Uso 
+
+### Caso de Uso - Enviar Solicitud
+
+![Prototipo](./Prototipar_CdU/EnviarSolicitud.png)
+
+### Caso de Uso - Recibir Respuesta
+
+![Prototipo](./Prototipar_CdU/RecibirRespuesta.png)
+
+### Caso de Uso - Ver Solicitudes Pendientes
+
+![Prototipo](./Prototipar_CdU/VerSolicitudesPendientes.png)
+
+### Caso de Uso - Actualizar Estado
+
+![Prototipo](./Prototipar_CdU/ActualizarEstado.png)
+
+### Caso de Uso - Completar Formulario
+
+![Prototipo](./Prototipar_CdU/CompletarFormulario.png)
+
+## Estructurar la Descripción de los Casos de Uso
+
+### Diagrama de Contexto   
+
+| Diagrama | Código |
+|---------|---------|
+|![Diagrama de Contexto](./DdC/imagen/DdC.png)|[Ver código](./DdC/codigo/DdC.puml)|
 
