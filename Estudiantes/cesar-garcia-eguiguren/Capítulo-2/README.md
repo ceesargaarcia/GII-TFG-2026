@@ -28,6 +28,6 @@
             - [Relaciones Include](DisciplinaDeRequisitos.md#1-relaciones-de-inclusión-include)
             - [Relaciones Extend](DisciplinaDeRequisitos.md#2-relaciones-de-extensión-extend)
 
-- [Glosario](ModeloDelDominio.md#glosario)
-  - [Glosario general](ModeloDelDominio.md#glosario-general)
-  - [Glosario de métricas](ModeloDelDominio.md#glosario-de-métricas)
+- [Glosario](./docs/Glosario.md#glosario)
+  - [Glosario general](./docs/Glosario.md#glosario-general)
+  - [Glosario de métricas](./docs/Glosario.md#glosario-de-métricas)

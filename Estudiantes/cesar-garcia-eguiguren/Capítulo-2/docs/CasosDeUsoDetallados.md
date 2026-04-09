@@ -1,27 +1,32 @@
 # Casos de Uso Detallados
 
 ## CU-01 – Autenticarse en el Sistema
-
+ 
 | Campo | Valor |
 |---|---|
 | **Actores** | Director, Responsable |
-| **Precondición** | El `user_id` tiene un `hr_employee` activo vinculado en Odoo. |
+| **Precondición** | El usuario tiene credenciales válidas (login y contraseña) en `res_users` con un `hr_employee` activo vinculado en Odoo. |
 | **Postcondición** | JWT almacenado en `localStorage`, cabecera `Authorization: Bearer` inyectada en el cliente Axios. Usuario redirigido a CU-02. |
-
+ 
 ![Diagrama de flujo de autenticación](../imagenes/CdU/flujoCU01.png)
-
+ 
 **Flujo principal:**
-1. El actor navega a `/login` e introduce su `res_users.id`.
-2. `POST /auth/token {user_id}` → el sistema localiza el empleado activo.
-3. `resolve_role_and_scope()` determina el rol: si `employee.parent_id == employee.id` → `director`; si gestiona departamentos o proyectos → `responsable`; en otro caso → `empleado` (sin acceso).
-4. Para el responsable, se calcula el scope mediante CTE recursivo: `employee_ids`, `department_ids`, `project_ids`.
-5. Se emite JWT `HS256` (8 h) con `{user_id, employee_id, role, employee_ids, department_ids, project_ids}`.
-6. El frontend almacena el token y redirige a `/`.
-
+1. El actor navega a `/login` e introduce su **usuario** (login) y **contraseña**.
+2. `POST /auth/token {username, password}` → el sistema valida las credenciales contra `res_users`.
+3. Si las credenciales son correctas, el sistema localiza el empleado activo vinculado (`res_users.id` → `hr_employee.user_id`).
+4. `resolve_role_and_scope()` determina el rol: si `employee.parent_id == employee.id` → `director`; si gestiona departamentos o proyectos → `responsable`; en otro caso → `empleado` (sin acceso).
+5. Para el responsable, se calcula el scope mediante CTE recursivo: `employee_ids`, `department_ids`, `project_ids`.
+6. Se emite JWT `HS256` (8 h) con `{user_id, employee_id, role, employee_ids, department_ids, project_ids}`.
+7. El frontend almacena el token y redirige a `/`.
+ 
 **Flujos alternativos:**
-- `FA-01`: Sin empleado activo para el `user_id` → HTTP 404, el actor permanece en el login.
-- `FA-02`: Rol `"empleado"` → acceso denegado, mensaje informativo.
-- `FA-03`: Token expirado en sesión activa → interceptor Axios detecta HTTP 401, limpia `localStorage` y redirige a `/login`.
+- `FA-01`: Credenciales incorrectas (usuario o contraseña) → HTTP 401, mensaje de error "Usuario o contraseña incorrectos", el actor permanece en el login.
+- `FA-02`: Sin empleado activo para el `user_id` autenticado → HTTP 404, el actor permanece en el login.
+- `FA-03`: Rol `"empleado"` → acceso denegado, mensaje informativo "Este usuario no tiene acceso al sistema de analítica".
+- `FA-04`: Token expirado en sesión activa → interceptor Axios detecta HTTP 401, limpia `localStorage` y redirige a `/login`.
+ 
+ 
+**Relaciones:** CU-01 es **precondición** del resto de casos de uso (sesión/JWT), se ejecuta una vez para iniciar sesión.
 
 ---
 
