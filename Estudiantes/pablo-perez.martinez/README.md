@@ -40,7 +40,7 @@
 
 ##### [Identificación y priorización de casos de uso](./Capitulo2/IdentificacionYPriorizacionCdU.md)
 
-##### [Descripción de casos de uso](./Capitulo2/descripcionCdU.md)
+##### [Descripción de casos de uso](./Capitulo2/DescripcionCdU.md)
 
 ##### [Prototipos](./Capitulo2/Prototipos.md)
 
