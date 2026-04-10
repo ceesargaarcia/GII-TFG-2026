@@ -4,31 +4,29 @@ skinparam actorStyle awesome
 
 actor Responsable as R
 
-usecase "CU-01 Autenticarse" as CU01
-usecase "CU-02 Overview del sistema" as CU02
-usecase "CU-03 Panel Manager" as CU03
-usecase "CU-04 Listar empleados\n[scope]" as CU04
-usecase "CU-05 Resumen de empleado\n[scope]" as CU05
-usecase "CU-06 Listar departamentos\n[sus depart.]" as CU06
-usecase "CU-07 Resumen de departamento\n[sus depart.]" as CU07
-usecase "CU-08 Listar proyectos\n[sus proyectos]" as CU08
-usecase "CU-09 Resumen de proyecto\n[sus proyectos]" as CU09
-usecase "CU-10 Listar tareas\n[sus proyectos]" as CU10
-usecase "CU-11 Detalle de tarea\n[sus proyectos]" as CU11
-usecase "CU-12 Productividad" as CU12
-usecase "CU-13 Cumplimiento" as CU13
-usecase "CU-14 WIP de Empleado" as CU14
-usecase "CU-28 Workload de Empleado" as CU28
-usecase "CU-15 Riesgo de Proyecto" as CU15
-usecase "CU-16 Retrabajo" as CU16
-usecase "CU-17 Exactitud estimación" as CU17
-usecase "CU-18 Lead Time" as CU18
-usecase "CU-19 Tiempo por Estado" as CU19
-usecase "CU-20 Tareas Canceladas" as CU20
-usecase "CU-21 Tiempo por Prioridad" as CU21
-usecase "CU-22 Gráficos [scope]" as CU22
-usecase "CU-23 Asistencia [equipo]" as CU23
-usecase "CU-25 Búsqueda global\n[scope]" as CU25
+usecase "CU-01 Autenticarse en el Sistema" as CU01
+usecase "CU-02 Listar y Buscar Empleados\n[scope]" as CU02
+usecase "CU-03 Visualizar Resumen de Empleado\n[scope]" as CU03
+usecase "CU-04 Listar Departamentos\n[sus depart.]" as CU04
+usecase "CU-05 Visualizar Resumen de Departamento\n[sus depart.]" as CU05
+usecase "CU-06 Listar Proyectos\n[sus proyectos]" as CU06
+usecase "CU-07 Visualizar Resumen de Proyecto\n[sus proyectos]" as CU07
+usecase "CU-08 Listar y Filtrar Tareas\n[sus proyectos]" as CU08
+usecase "CU-09 Consultar Detalle de Tarea\n[sus proyectos]" as CU09
+usecase "CU-10 Consultar Métrica de Productividad" as CU10
+usecase "CU-11 Consultar Métrica de Cumplimiento de Plazos" as CU11
+usecase "CU-12 Consultar Métrica de WIP de Empleado" as CU12
+usecase "CU-13 Consultar Métrica de Carga de Trabajo de Empleado" as CU13
+usecase "CU-14 Consultar Métrica de Riesgo de Proyecto" as CU14
+usecase "CU-15 Consultar Métrica de Tasa de Retrabajo" as CU15
+usecase "CU-16 Consultar Métrica de Exactitud de Estimación" as CU16
+usecase "CU-17 Consultar Métrica de Lead Time" as CU17
+usecase "CU-18 Consultar Tiempo de Permanencia por Estado" as CU18
+usecase "CU-19 Consultar Métrica de Tareas Canceladas" as CU19
+usecase "CU-20 Consultar Tiempo Invertido por Prioridad" as CU20
+usecase "CU-21 Visualizar Gráficos Analíticos\n[scope]" as CU21
+usecase "CU-22 Analizar Asistencia vs Imputaciones\n[solo modo Equipo]" as CU22
+usecase "CU-26 Realizar Búsqueda Global\n[scope]" as CU26
 
 R --> CU01
 R --> CU02
@@ -44,7 +42,6 @@ R --> CU11
 R --> CU12
 R --> CU13
 R --> CU14
-R --> CU28
 R --> CU15
 R --> CU16
 R --> CU17
@@ -53,6 +50,5 @@ R --> CU19
 R --> CU20
 R --> CU21
 R --> CU22
-R --> CU23
-R --> CU25
+R --> CU26
 @enduml

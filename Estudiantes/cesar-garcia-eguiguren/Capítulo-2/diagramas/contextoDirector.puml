@@ -1,65 +1,121 @@
 @startuml Contexto_Director
-skinparam componentStyle rectangle
-skinparam component {
-  BackgroundColor #E8F4FD
-  BorderColor #2980B9
-  FontSize 11
+!theme plain
+
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam ArrowFontColor #8896A8
+skinparam ArrowFontSize 9
+
+skinparam usecase {
+  BackgroundColor #141824
+  BorderColor #2A3850
+  FontColor #E2E8F5
+  FontSize 10
 }
 
-actor Director as D #LightSkyBlue
+skinparam actor {
+  BackgroundColor #1E2840
+  BorderColor #38BDF8
+  FontColor #E2E8F5
+}
 
-component "CU-01\nAutenticarse" as CU01 #FFE4B5
-component "CU-02\nOverview" as CU02 #D5E8D4
-component "CU-03\nPanel Manager" as CU03 #D5E8D4
-component "CU-04\nListar Empleados" as CU04 #E0F2F7
-component "CU-05\nResumen Empleado" as CU05 #E0F2F7
-component "CU-06\nListar Departamentos" as CU06 #E0F2F7
-component "CU-07\nResumen Departamento" as CU07 #E0F2F7
-component "CU-08\nListar Proyectos" as CU08 #E0F2F7
-component "CU-09\nResumen Proyecto" as CU09 #E0F2F7
-component "CU-10\nListar Tareas" as CU10 #E0F2F7
-component "CU-11\nDetalle Tarea" as CU11 #E0F2F7
+skinparam package {
+  BackgroundColor #0D1018
+  BorderColor #2A3850
+  FontColor #38BDF8
+  FontSize 11
+  FontStyle bold
+}
 
-component "CU-12 Productividad\nCU-13 Cumplimiento\nCU-14 WIP (empleado)\nCU-28 Workload (empleado)\nCU-15 Riesgo (proyecto)\nCU-16 Retrabajo\nCU-17 Exactitud\nCU-18 Lead Time\nCU-19 Tiempo Estado\nCU-20 Canceladas\nCU-21 Tiempo Prioridad" as METRICS_KPI #FFF8DC
+top to bottom direction
 
-component "CU-22\nGráficos Analíticos\n(3 charts: evolución, distribución, clientes)" as VISUAL #F0FFF0
-component "CU-23\nAsistencia vs Imputaciones" as CU23 #FFF5EE
-component "CU-24\nRentabilidad Financiera\n(Director exclusivo)" as CU24 #FFE4E1
-component "CU-26 Líneas Proyecto\nCU-27 Líneas Cliente" as CU26_27 #FFE4E1
+actor Director as D
 
-component "CU-25\nBúsqueda Global" as CU25 #FFF5EE
+'── Autenticación ──────────────────────────────
+package "Autenticación" {
+  usecase "CU-01\nAutenticarse en el Sistema" as CU01
+}
 
-D --> CU01 : accede a la app
-CU01 --> CU02 : auth OK
+'── Empleados ──────────────────────────────────
+package "Empleados" {
+  usecase "CU-02\nListar y Buscar Empleados" as CU02
+  usecase "CU-03\nVisualizar Resumen de Empleado" as CU03
+  CU02 -down-> CU03 : selecciona un empleado\nde la lista
+}
 
-CU02 --> CU03 : Panel Manager
-CU02 --> CU04 : Empleados
-CU02 --> CU06 : Departamentos
-CU02 --> CU08 : Proyectos
-CU02 --> CU10 : Tareas
-CU02 --> VISUAL : Análisis Visual
-CU02 --> CU24 : Rentabilidad
-CU02 --> CU25 : Búsqueda
-CU02 --> METRICS_KPI : Consultar métricas
-CU02 --> CU23 : Asistencia
-CU03 --> CU05 : click empleado
-CU04 --> CU05 : click empleado
-CU06 --> CU07 : click departamento
-CU07 --> CU05 : click empleado
-CU08 --> CU09 : click proyecto
+'── Departamentos ──────────────────────────────
+package "Departamentos" {
+  usecase "CU-04\nListar Departamentos" as CU04
+  usecase "CU-05\nVisualizar Resumen de Departamento" as CU05
+  CU04 -down-> CU05 : selecciona un departamento\nde la cuadrícula
+}
 
-CU05 ---> CU10 : tareas del empleado\n(filtro contextual)
-CU09 --> CU10 : tareas del proyecto\n(filtro contextual)
-CU10 --> CU11 : click en tarea
-CU11 --> CU09 : link proyecto
-CU11 --> CU05 : link empleado
+'── Proyectos ──────────────────────────────────
+package "Proyectos" {
+  usecase "CU-06\nListar Proyectos" as CU06
+  usecase "CU-07\nVisualizar Resumen de Proyecto" as CU07
+  CU06 -down-> CU07 : selecciona un proyecto\nde la cuadrícula
+}
 
-CU03 .> METRICS_KPI : KPIs de carga
-CU05 .> METRICS_KPI : WIP, workload, productividad
-CU09 .> METRICS_KPI : eficiencia, riesgo, rentabilidad
-CU07 .> METRICS_KPI : workload de empleados
-CU24 --> CU26_27 : Ver Detalles
-CU25 --> CU05 : resultado empleado
-CU25 --> CU09 : resultado proyecto
-CU25 --> CU11 : resultado tarea
+'── Tareas ─────────────────────────────────────
+package "Tareas" {
+  usecase "CU-08\nListar y Filtrar Tareas" as CU08
+  usecase "CU-09\nConsultar Detalle de Tarea" as CU09
+  CU08 -down-> CU09 : selecciona una tarea\nde la tabla
+}
+
+'── Métricas ───────────────────────────────────
+package "Métricas Operativas (CU-10 a CU-20)" {
+  usecase "CU-10 Productividad · CU-11 Cumplimiento\nCU-12 WIP · CU-13 Carga de Trabajo\nCU-14 Riesgo · CU-15 Retrabajo\nCU-16 Exactitud · CU-17 Lead Time\nCU-18 Tiempo por Estado\nCU-19 Tareas Canceladas · CU-20 Tiempo por Prioridad" as METRICS
+}
+
+'── Análisis Visual ────────────────────────────
+package "Análisis Visual" {
+  usecase "CU-21\nVisualizar Gráficos Analíticos" as CU21
+  usecase "CU-22\nAnalizar Asistencia vs Imputaciones" as CU22
+}
+
+'── Rentabilidad ───────────────────────────────
+package "Rentabilidad  ★ Director exclusivo" #1A0A0A {
+  usecase "CU-23\nAnalizar Rentabilidad Financiera" as CU23
+  usecase "CU-24 Consultar Líneas de Proyecto\nCU-25 Consultar Líneas de Cliente" as CU24_25
+  CU23 -down-> CU24_25 : pulsa "Ver Detalles"\npara drill-down de líneas analíticas
+}
+
+'── Utilidades ─────────────────────────────────
+package "Utilidades" {
+  usecase "CU-26\nRealizar Búsqueda Global" as CU26
+}
+
+'══ Actor → secciones ═══════════════════════════
+D -down-> CU01 : inicia sesión con\nusuario y contraseña
+D --> CU02 : navega a la lista\nde empleados
+D --> CU04 : navega a la lista\nde departamentos
+D --> CU06 : navega a la lista\nde proyectos
+D --> CU08 : navega a la lista\nde tareas
+D --> METRICS : navega a la\npágina de métricas
+D --> CU21 : navega a la\npágina de gráficos
+D --> CU22 : navega a la\npágina de asistencia
+D --> CU23 : navega a la\npágina de rentabilidad
+D --> CU26 : navega a la\nbúsqueda global
+
+'══ Navegación cruzada entre paquetes ═══════════
+CU05 -right-> CU03 : pulsa sobre un empleado\nde la tabla del departamento
+CU07 -up-> CU03 : pulsa sobre un empleado\ndel equipo del proyecto
+CU03 -down-> CU08 : pulsa sobre una pestaña\nde tareas del empleado
+CU07 -down-> CU08 : pulsa sobre la pestaña\n"Tareas" del proyecto
+CU09 -up-> CU07 : pulsa el enlace\nal proyecto de la tarea
+CU09 -left-> CU03 : pulsa sobre el responsable\no un empleado asignado
+
+'══ Métricas consultadas en contexto (punteado) ══
+CU03 .down.> METRICS : accede a WIP, workload\ny productividad del empleado
+CU05 .down.> METRICS : accede al workload\nde cada empleado del departamento
+CU07 .down.> METRICS : accede a eficiencia,\nriesgo y rentabilidad del proyecto
+
+'══ Búsqueda global → resultados ════════════════
+CU26 --> CU03 : navega al resumen\ndel empleado encontrado
+CU26 --> CU07 : navega al resumen\ndel proyecto encontrado
+CU26 --> CU09 : navega al detalle\nde la tarea encontrada
+
 @enduml

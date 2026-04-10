@@ -4,34 +4,32 @@ skinparam actorStyle awesome
 
 actor Director as D
 
-usecase "CU-01 Autenticarse" as CU01
-usecase "CU-02 Overview del sistema" as CU02
-usecase "CU-03 Panel Manager" as CU03
-usecase "CU-04 Listar empleados" as CU04
-usecase "CU-05 Resumen de empleado" as CU05
-usecase "CU-06 Listar departamentos" as CU06
-usecase "CU-07 Resumen de departamento" as CU07
-usecase "CU-08 Listar proyectos" as CU08
-usecase "CU-09 Resumen de proyecto" as CU09
-usecase "CU-10 Listar tareas" as CU10
-usecase "CU-11 Detalle de tarea" as CU11
-usecase "CU-12 Productividad" as CU12
-usecase "CU-13 Cumplimiento" as CU13
-usecase "CU-14 WIP de Empleado" as CU14
-usecase "CU-28 Workload de Empleado" as CU28
-usecase "CU-15 Riesgo de Proyecto" as CU15
-usecase "CU-16 Retrabajo" as CU16
-usecase "CU-17 Exactitud estimación" as CU17
-usecase "CU-18 Lead Time" as CU18
-usecase "CU-19 Tiempo por Estado" as CU19
-usecase "CU-20 Tareas Canceladas" as CU20
-usecase "CU-21 Tiempo por Prioridad" as CU21
-usecase "CU-22 Gráficos analíticos" as CU22
-usecase "CU-23 Asistencia" as CU23
-usecase "CU-24 Rentabilidad financiera" as CU24
-usecase "CU-25 Búsqueda global" as CU25
-usecase "CU-26 Líneas analíticas proyecto" as CU26
-usecase "CU-27 Líneas analíticas cliente" as CU27
+usecase "CU-01 Autenticarse en el Sistema" as CU01
+usecase "CU-02 Listar y Buscar Empleados" as CU02
+usecase "CU-03 Visualizar Resumen de Empleado" as CU03
+usecase "CU-04 Listar Departamentos" as CU04
+usecase "CU-05 Visualizar Resumen de Departamento" as CU05
+usecase "CU-06 Listar Proyectos" as CU06
+usecase "CU-07 Visualizar Resumen de Proyecto" as CU07
+usecase "CU-08 Listar y Filtrar Tareas" as CU08
+usecase "CU-09 Consultar Detalle de Tarea" as CU09
+usecase "CU-10 Consultar Métrica de Productividad" as CU10
+usecase "CU-11 Consultar Métrica de Cumplimiento de Plazos" as CU11
+usecase "CU-12 Consultar Métrica de WIP de Empleado" as CU12
+usecase "CU-13 Consultar Métrica de Carga de Trabajo de Empleado" as CU13
+usecase "CU-14 Consultar Métrica de Riesgo de Proyecto" as CU14
+usecase "CU-15 Consultar Métrica de Tasa de Retrabajo" as CU15
+usecase "CU-16 Consultar Métrica de Exactitud de Estimación" as CU16
+usecase "CU-17 Consultar Métrica de Lead Time" as CU17
+usecase "CU-18 Consultar Tiempo de Permanencia por Estado" as CU18
+usecase "CU-19 Consultar Métrica de Tareas Canceladas" as CU19
+usecase "CU-20 Consultar Tiempo Invertido por Prioridad" as CU20
+usecase "CU-21 Visualizar Gráficos Analíticos" as CU21
+usecase "CU-22 Analizar Asistencia vs Imputaciones de Horas" as CU22
+usecase "CU-23 Analizar Rentabilidad Financiera" as CU23
+usecase "CU-24 Consultar Líneas Analíticas de Proyecto" as CU24
+usecase "CU-25 Consultar Líneas Analíticas de Cliente" as CU25
+usecase "CU-26 Realizar Búsqueda Global" as CU26
 
 D --> CU01
 D --> CU02
@@ -47,7 +45,6 @@ D --> CU11
 D --> CU12
 D --> CU13
 D --> CU14
-D --> CU28
 D --> CU15
 D --> CU16
 D --> CU17
@@ -60,5 +57,4 @@ D --> CU23
 D --> CU24
 D --> CU25
 D --> CU26
-D --> CU27
 @enduml
