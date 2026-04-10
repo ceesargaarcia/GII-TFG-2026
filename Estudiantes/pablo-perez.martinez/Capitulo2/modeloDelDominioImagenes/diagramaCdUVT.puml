@@ -1,0 +1,29 @@
+@startuml
+left to right direction
+
+actor VisualTracking
+
+package "Backend" {
+  usecase "CU-05 Filtrado de datos" as CU05
+  usecase "CU-03 Comunicación entre backend y frontend" as CU03
+  usecase "CU-02 Cálculo del OEE" as CU02
+  usecase "CU-01 Obtención de datos de producción" as CU01
+
+}
+
+package "Frontend" {
+  usecase "CU-05 Filtrado de datos" as CU05_Frontend
+  usecase "CU-04 Visualización de datos" as CU04
+  usecase "CU-03 Comunicación entre backend y frontend" as CU03_Frontend
+}
+
+VisualTracking --> CU01
+VisualTracking --> CU02
+VisualTracking --> CU03
+VisualTracking --> CU03_Frontend
+VisualTracking --> CU04
+VisualTracking --> CU05
+VisualTracking --> CU05_Frontend
+
+
+@enduml

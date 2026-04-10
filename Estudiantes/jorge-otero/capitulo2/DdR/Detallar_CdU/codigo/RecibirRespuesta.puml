@@ -1,0 +1,46 @@
+@startuml RecibirRespuesta
+
+skinparam linetype polyline
+
+state recibirRespuesta as "recibirRespuesta()" {
+
+state " " as EsperandoRespuesta
+state " " as GenerandoRespuesta
+state " " as RecibiendoRespuesta
+
+[*] -[#green]-> EsperandoRespuesta
+note on link
+<b>Cliente</b> queda a la espera
+de una respuesta
+end note
+
+EsperandoRespuesta -[#green]-> GenerandoRespuesta
+note on link
+<b>Sistema</b> procesa la solicitud
+y genera una respuesta
+end note
+
+GenerandoRespuesta -[#green]-> RecibiendoRespuesta
+note on link
+<b>Sistema</b> envía la respuesta
+al cliente
+end note
+
+RecibiendoRespuesta -[#green]-> [*]
+note on link
+<b>Cliente</b> revisa la respuesta
+recibida
+end note
+
+
+}
+
+recibirRespuesta -[#green]-> CLIENTE
+
+recibirRespuesta -[#red]-> FORMULARIO
+note on link
+<b>Cliente</b> decide aportar información adicional
+en un nuevo caso de uso
+end note
+
+@enduml

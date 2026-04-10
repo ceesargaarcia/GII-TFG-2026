@@ -1,33 +1,20 @@
 @startuml Actores
 
+left to right direction
+
 actor Cliente
 actor Tecnico
-actor PowerAutomate
-
-
-Cliente -right-> PowerAutomate : envia solicitud
-PowerAutomate -down-> Tecnico : asigna
-Tecnico -left-> PowerAutomate : resuelve
-PowerAutomate -up-> Cliente : responde
-
 
 note right of Cliente
-  **Cliente**:
-  Inicia el ciclo mediante solicitudes
-  y recibe respuestas del sistema.
+**Cliente**:
+Inicia el ciclo mediante solicitudes
+y recibe respuestas
 end note
 
 note right of Tecnico
-  **Tecnico**:
-  Interviene en el ciclo resolviendo
-  incidencias y actualizando informacion.
-end note
-
-note bottom of PowerAutomate
-  **PowerAutomate**:
-  Actua como nucleo del sistema,
-  coordinando el flujo de informacion
-  entre cliente y tecnico.
+**Tecnico**:
+Se encarga de ver los formularios 
+pendientes y resolverlos
 end note
 
 @enduml

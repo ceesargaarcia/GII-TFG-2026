@@ -1,0 +1,15 @@
+@startuml
+left to right direction
+
+actor ResponsableProducción
+
+package "Frontend" {
+  usecase "CU-05 Filtrado de datos" as CU05
+  usecase "CU-04 Visualización de datos" as CU04
+}
+
+ResponsableProducción--> CU04
+ResponsableProducción --> CU05
+
+
+@enduml

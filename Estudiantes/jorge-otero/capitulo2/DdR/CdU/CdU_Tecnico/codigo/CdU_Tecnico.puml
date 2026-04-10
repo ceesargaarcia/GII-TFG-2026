@@ -4,11 +4,9 @@ left to right direction
 actor Tecnico
 
     usecase "Ver solicitudes pendientes" as VerSolicitudes
-    usecase "Ver documentacion" as VerDocumentacion
     usecase "Actualizar estado" as ActualizarEstado
 
 Tecnico --> VerSolicitudes
-Tecnico --> VerDocumentacion
 Tecnico --> ActualizarEstado
 
 @enduml

@@ -1,0 +1,24 @@
+@startuml DdC
+
+top to bottom direction
+
+package "Proyecto" {
+
+rectangle Cliente
+rectangle Sistema
+rectangle Tecnico
+rectangle Formulario
+
+Cliente --> Sistema : Enviar solicitud
+Sistema --> Cliente : Recibir respuesta
+Cliente --> Formulario : Completar formulario
+
+Tecnico --> Sistema : Actualizar estado
+
+}
+
+rectangle Vista_Datos
+
+Tecnico --> Vista_Datos : Ver solicitudes pendientes
+
+@enduml

@@ -16,6 +16,8 @@ Calculando --> CalculoCompletado
 
 CalculoCompletado --> ResultadosGraficados: Graficar cálculos
 
+ResultadosGraficados--> FiltroSplitId
+FiltroSplitId--> PeticionRecibida 
 
 ResultadosGraficados--> [*]
 Error --> [*]

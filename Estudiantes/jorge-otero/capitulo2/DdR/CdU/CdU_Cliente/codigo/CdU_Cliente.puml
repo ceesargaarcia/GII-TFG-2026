@@ -4,7 +4,7 @@ left to right direction
 actor Cliente
 
     
-    usecase "Enviar solicitud por correo" as EnviarCorreo
+    usecase "Enviar solicitud" as EnviarCorreo
     usecase "Recibir respuesta" as RecibirRespuesta
     usecase "Completar formulario" as CompletarFormulario
 

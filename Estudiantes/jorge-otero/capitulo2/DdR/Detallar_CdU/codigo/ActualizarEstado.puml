@@ -1,0 +1,52 @@
+@startuml ActualizarEstado
+
+skinparam linetype polyline
+
+state actualizarEstado as "actualizarEstado()" {
+
+state " " as SeleccionandoSolicitud
+state " " as ModificandoEstado
+state " " as VerificandoFormulario
+state " " as GuardandoCambios
+
+[*] -[#green]-> SeleccionandoSolicitud
+note on link
+Tecnico selecciona una solicitud
+pendiente
+end note
+
+SeleccionandoSolicitud -[#green]-> ModificandoEstado
+note on link
+Tecnico marca el estado como resuelto
+end note
+
+ModificandoEstado -[#green]-> VerificandoFormulario
+note on link
+El Sistema verifica si existe
+el formulario asociado
+end note
+
+VerificandoFormulario -[#green]-> GuardandoCambios
+note on link
+Si existe, el Sistema registra
+el nuevo estado
+end note
+
+VerificandoFormulario -[#red]-> [*]
+note on link
+No existe formulario
+end note
+
+GuardandoCambios -[#green]-> [*]
+note on link
+El estado de la solicitud queda
+actualizado correctamente
+end note
+
+}
+
+actualizarEstado -[#green]-> SISTEMA
+
+actualizarEstado -[#red]-> ERROR_ACTUALIZACION
+
+@enduml
