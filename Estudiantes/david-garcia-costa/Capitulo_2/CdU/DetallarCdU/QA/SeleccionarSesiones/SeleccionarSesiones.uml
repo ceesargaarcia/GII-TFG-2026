@@ -1,0 +1,46 @@
+@startuml seleccionarSesiones
+
+skinparam linetype polyline
+
+state seleccionarSesiones as "seleccionarSesiones()" {
+
+    state " " as MostrandoSesiones
+    state " " as RecuperandoSesion
+    state " " as ActivandoSesion
+
+    [*] -[#green]-> MostrandoSesiones
+    note on link
+    Se muestran las sesiones
+    disponibles para el actor
+    end note
+
+    MostrandoSesiones -[#green]-> RecuperandoSesion
+    note on link
+    <b>Sistema</b> recibe la sesion
+    seleccionada por el actor
+    end note
+
+    RecuperandoSesion -[#green]-> ActivandoSesion
+    note on link
+    <b>Sistema</b> recupera el contexto
+    y los artefactos asociados
+    end note
+
+    ActivandoSesion -[#green]-> [*]
+    note on link
+    <b>Sistema</b> activa la sesion
+    seleccionada
+    end note
+}
+
+seleccionarSesiones -[#green]-> DOCUMENTACION_ABIERTA
+note on link
+completarSeleccion()
+end note
+
+seleccionarSesiones -[#red]-> SESIONES_ABIERTAS
+note on link
+rechazarSeleccion()
+end note
+
+@enduml

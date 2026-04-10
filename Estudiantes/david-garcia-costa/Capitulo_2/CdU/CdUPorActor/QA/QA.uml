@@ -10,7 +10,7 @@ rectangle "Sistema" {
 
   usecase "Introducir\ndocumentacion funcional" as CU03
   usecase "Asociar documentacion\na proyecto" as CU04
-  usecase "Consultar documentacion\nregistrada de un proyecto" as CU05
+  usecase "Consultar referencias de documentacion\nde un proyecto" as CU05
 
   usecase "Extraer\ncasos de uso" as CU06
   usecase "Listar\ncasos de uso" as CU07
@@ -41,6 +41,9 @@ rectangle "Sistema" {
   usecase "Publicar caso de prueba\nen Kiwi TCMS" as CU28
   usecase "Buscar casos de prueba\nen Kiwi TCMS" as CU29
   usecase "Ver caso de prueba\nen Kiwi TCMS" as CU30
+  usecase "Seleccionar\nsesiones" as CU31
+  usecase "Crear nueva\nsesion" as CU32
+  usecase "Guardar\nresultados" as CU33
 }
 
 QA --> CU01
@@ -73,5 +76,8 @@ QA --> CU27
 QA --> CU28
 QA --> CU29
 QA --> CU30
+QA --> CU31
+QA --> CU32
+QA --> CU33
 
 @enduml

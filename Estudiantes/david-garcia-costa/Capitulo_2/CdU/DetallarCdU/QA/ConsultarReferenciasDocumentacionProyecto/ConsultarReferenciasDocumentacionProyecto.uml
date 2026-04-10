@@ -1,0 +1,47 @@
+@startuml consultarReferenciasDocumentacionProyecto
+
+skinparam linetype polyline
+
+state consultarReferenciasDocumentacionProyecto as "consultarReferenciasDocumentacionProyecto()" {
+
+    state " " as SolicitandoProyecto
+    state " " as RecuperandoReferencias
+    state " " as MostrandoReferencias
+
+    [*] -[#green]-> SolicitandoProyecto
+    note on link
+    Se solicita consultar referencias
+    de documentacion de proyecto
+    end note
+
+    SolicitandoProyecto -[#green]-> RecuperandoReferencias
+    note on link
+    <b>Sistema</b> recibe el nombre del proyecto
+    y recupera las referencias asociadas
+    end note
+
+    RecuperandoReferencias -[#green]-> MostrandoReferencias
+    note on link
+    Se prepara la informacion
+    para su visualizacion
+    Identificador de documentacion/ Tipo de entrada / Referencia u origen documental
+    end note
+
+    MostrandoReferencias -[#green]-> [*]
+    note on link
+    <b>Sistema</b> muestra las referencias
+    de documentacion del proyecto
+    end note
+}
+
+consultarReferenciasDocumentacionProyecto -[#green]-> DOCUMENTACION_ABIERTA
+note on link
+completarConsulta()
+end note
+
+consultarReferenciasDocumentacionProyecto -[#red]-> DOCUMENTACION_ABIERTA
+note on link
+rechazarConsulta()
+end note
+
+@enduml

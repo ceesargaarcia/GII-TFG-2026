@@ -1,4 +1,4 @@
-@startuml buscarCasosPruebaKiwi
+@startuml
 
 skinparam linetype polyline
 

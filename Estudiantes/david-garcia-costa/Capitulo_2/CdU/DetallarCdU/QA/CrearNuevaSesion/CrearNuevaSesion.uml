@@ -1,0 +1,46 @@
+@startuml crearNuevaSesion
+
+skinparam linetype polyline
+
+state crearNuevaSesion as "crearNuevaSesion()" {
+
+    state " " as SolicitandoDatos
+    state " " as ValidandoSesion
+    state " " as ActivandoSesion
+
+    [*] -[#green]-> SolicitandoDatos
+    note on link
+    Se solicita crear
+    una nueva sesion
+    end note
+
+    SolicitandoDatos -[#green]-> ValidandoSesion
+    note on link
+    <b>Sistema</b> recibe los datos
+    basicos de la sesion
+    end note
+
+    ValidandoSesion -[#green]-> ActivandoSesion
+    note on link
+    <b>Sistema</b> valida y registra
+    la nueva sesion
+    end note
+
+    ActivandoSesion -[#green]-> [*]
+    note on link
+    <b>Sistema</b> activa la sesion
+    recien creada
+    end note
+}
+
+crearNuevaSesion -[#green]-> DOCUMENTACION_ABIERTA
+note on link
+completarCreacion()
+end note
+
+crearNuevaSesion -[#red]-> SESIONES_ABIERTAS
+note on link
+rechazarCreacion()
+end note
+
+@enduml

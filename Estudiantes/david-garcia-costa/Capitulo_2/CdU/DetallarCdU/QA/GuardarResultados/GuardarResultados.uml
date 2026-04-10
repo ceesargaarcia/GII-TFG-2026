@@ -1,0 +1,47 @@
+@startuml guardarResultados
+
+skinparam linetype polyline
+
+state guardarResultados as "guardarResultados()" {
+
+    state " " as IdentificandoResultados
+    state " " as ValidandoResultados
+    state " " as PersistiendoResultados
+
+    [*] -[#green]-> IdentificandoResultados
+    note on link
+    Se solicita guardar
+    los resultados de la sesion
+    end note
+
+    IdentificandoResultados -[#green]-> ValidandoResultados
+    note on link
+    <b>Sistema</b> identifica casos de uso,
+    requisitos funcionales y borradores
+    pendientes de guardado
+    end note
+
+    ValidandoResultados -[#green]-> PersistiendoResultados
+    note on link
+    <b>Sistema</b> valida la consistencia
+    de los artefactos
+    end note
+
+    PersistiendoResultados -[#green]-> [*]
+    note on link
+    <b>Sistema</b> persiste
+    los resultados
+    end note
+}
+
+guardarResultados -[#green]-> DOCUMENTACION_ABIERTA
+note on link
+completarGuardado()
+end note
+
+guardarResultados -[#red]-> DOCUMENTACION_ABIERTA
+note on link
+rechazarGuardado()
+end note
+
+@enduml

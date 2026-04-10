@@ -53,7 +53,15 @@ El sistema debe permitir buscar y ver casos de prueba en Kiwi TCMS.
 
 ## RF13. Trazabilidad funcional
 
-El sistema debe mantener trazabilidad entre proyecto, documentación, casos de uso, requisitos funcionales, escenarios Gherkin, borradores y casos de prueba.
+El sistema debe mantener trazabilidad entre proyecto, sesión, documentación, casos de uso, requisitos funcionales, escenarios Gherkin, borradores y casos de prueba.
+
+## RF14. Gestión de sesiones de trabajo
+
+El sistema debe permitir seleccionar sesiones existentes y crear nuevas sesiones para continuar o iniciar el trabajo en un contexto diferenciado.
+
+## RF15. Almacenar/Guardar los resultados
+
+El sistema debe permitir guardar los resultados generados o editados durante una sesión, incluyendo casos de uso, requisitos funcionales y borradores.
 
 ---
 

@@ -5,11 +5,11 @@ title Casos de uso - Kiwi TCMS
 actor "Kiwi TCMS" as Kiwi
 
 rectangle "Sistema" {
-  usecase "Registrar casos\nde prueba" as CU01
+  usecase "Registrar caso\nde prueba" as CU34
   
 }
 
-Kiwi --> CU01
+Kiwi --> CU34
 
 
 @enduml

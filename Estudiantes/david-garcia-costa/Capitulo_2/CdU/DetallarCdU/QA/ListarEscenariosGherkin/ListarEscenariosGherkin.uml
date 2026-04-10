@@ -15,7 +15,7 @@ state listarEscenariosGherkin as "listarEscenariosGherkin()" {
     RecuperandoEscenarios -[#green]-> MostrandoEscenarios
     note on link
     <b>Sistema</b> recupera los escenarios
-    registrados
+    registrados del borrador y cubriendo y trazando casos de uso.
     end note
 
     MostrandoEscenarios -[#green]-> [*]

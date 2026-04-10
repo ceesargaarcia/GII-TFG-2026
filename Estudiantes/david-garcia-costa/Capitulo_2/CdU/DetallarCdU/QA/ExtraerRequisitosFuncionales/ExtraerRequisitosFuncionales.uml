@@ -15,8 +15,8 @@ state extraerRequisitosFuncionales as "extraerRequisitosFuncionales()" {
 
     ProcesandoDocumentacion -[#green]-> IdentificandoRequisitos
     note on link
-    <b>Sistema</b> procesa la documentacion
-    e identifica los requisitos funcionales
+    Se procesa la documentacion
+    y se identifican los requisitos funcionales
     end note
 
     IdentificandoRequisitos -[#green]-> RegistrandoRequisitos
@@ -28,7 +28,7 @@ state extraerRequisitosFuncionales as "extraerRequisitosFuncionales()" {
     RegistrandoRequisitos -[#green]-> [*]
     note on link
     <b>Sistema</b> guarda los requisitos funcionales
-    en el sistema local
+  
     end note
 }
 

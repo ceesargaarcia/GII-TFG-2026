@@ -1,26 +1,45 @@
-|[ ← ActoresCdU](./ActoresCdU.md) |[ → DetallarCdU](./DetallarCdU.md) |
+﻿| [<- ActoresCdU](./3-ActoresCdU.md) | [-> DetallarCdU](./5-DetallarCdU.md) |
 
 # Priorizacion de Casos de Uso por Actor
 
 ## Tabla de prioridad
 
-| Caso de uso | Actor | Prioridad | Motivo |
+| ID | Caso de Uso | Actor(es) | Prioridad |q
 |---|---|---|---|
-| Incorporar documentación |Ingeniero de QA | Alta | Es el punto de entrada del sistema; sin documentación no existe flujo de trabajo. |
-| Asociar documentación a proyecto | Ingeniero de QA | Alta | Permite mantener la trazabilidad de los artefactos dentro del contexto organizativo. |
-| Extraer casos de uso | Ingeniero de QA | Alta | Permite obtener el comportamiento funcional a partir de la documentación. |
-| Extraer requisitos funcionales | Ingeniero de QA | Alta | Permite identificar las necesidades funcionales que deben validarse. |
-| Gestionar casos de uso | Ingeniero de QA | Alta | Permite revisar, corregir y mantener actualizados los casos de uso. |
-| Gestionar requisitos funcionales | Ingeniero de QA | Alta | Garantiza la consistencia y trazabilidad de los requisitos funcionales. |
-| Generar escenarios de prueba | Ingeniero de QA | Alta | Es una de las salidas principales del sistema y base para la validación funcional. |
-| Gestionar escenarios de prueba | Ingeniero de QA | Media | Permite refinar y mantener escenarios, pero depende de su generación previa. |
-| Incorporar feedback a escenarios | Ingeniero de QA | Media | Permite mejorar los escenarios, aunque no es el núcleo del flujo principal. |
-| Generar casos de prueba | Ingeniero de QA | Alta | Convierte los escenarios en un artefacto final listo para validación o publicación. |
-| Publicar casos de prueba en Kiwi TCMS | Ingeniero de QA | Alta | Cierra el flujo funcional integrando el sistema con la herramienta externa. |
-| Consultar casos de prueba en Kiwi TCMS | Ingeniero de QA | Media | Permite verificar y reutilizar casos ya publicados, pero no impulsa el flujo principal. |
-| Recibir casos de prueba | Kiwi TCMS | Alta | Sin esta capacidad no existe integración efectiva con el sistema externo. |
-| Almacenar casos de prueba | Kiwi TCMS | Alta | Garantiza la persistencia y reutilización de los casos de prueba. |
-| Permitir consulta de casos de prueba | Kiwi TCMS | Media | Facilita el acceso posterior a los casos, pero depende de su almacenamiento previo. |
+| CU03 | Introducir documentacion funcional | Ingeniero de QA | Alta |
+| CU06 | Extraer casos de uso | Ingeniero de QA | Alta |
+| CU12 | Extraer requisitos funcionales | Ingeniero de QA | Alta |
+| CU18 | Generar escenarios Gherkin | Ingeniero de QA | Alta |
+| CU28 | Publicar caso de prueba en Kiwi TCMS | Ingeniero de QA | Alta |
+| CU04 | Asociar documentacion a proyecto | Ingeniero de QA | Alta |
+| CU09 | Crear caso de uso | Ingeniero de QA | Alta |
+| CU10 | Actualizar caso de uso | Ingeniero de QA | Alta |
+| CU15 | Crear requisito funcional | Ingeniero de QA | Alta |
+| CU16 | Actualizar requisito funcional | Ingeniero de QA | Alta |
+| CU20 | Crear borrador de caso de prueba | Ingeniero de QA | Alta |
+| CU23 | Añadir feedback a borrador | Ingeniero de QA | Alta |
+| CU25 | Aceptar borrador | Ingeniero de QA | Alta |
+| CU27 | Generar caso de prueba a partir de borrador | Ingeniero de QA | Alta |
+| CU01 | Iniciar sesion | Ingeniero de QA | Alta |
+| CU31 | Seleccionar sesiones | Ingeniero de QA | Media |
+| CU32 | Crear nueva sesion | Ingeniero de QA | Media |
+| CU33 | Guardar resultados | Ingeniero de QA | Media |
+| CU02 | Cerrar sesion | Ingeniero de QA | Media |
+| CU05 | Consultar referencias de documentacion de proyecto | Ingeniero de QA | Media |
+| CU07 | Listar casos de uso | Ingeniero de QA | Media |
+| CU08 | Consultar caso de uso | Ingeniero de QA | Media |
+| CU11 | Eliminar caso de uso | Ingeniero de QA | Media |
+| CU13 | Listar requisitos funcionales | Ingeniero de QA | Media |
+| CU14 | Consultar requisito funcional | Ingeniero de QA | Media |
+| CU17 | Eliminar requisito funcional | Ingeniero de QA | Media |
+| CU19 | Listar escenarios Gherkin | Ingeniero de QA | Media |
+| CU21 | Listar borradores | Ingeniero de QA | Media |
+| CU22 | Consultar borrador | Ingeniero de QA | Media |
+| CU24 | Regenerar borrador | Ingeniero de QA | Media |
+| CU26 | Rechazar borrador | Ingeniero de QA | Media |
+| CU29 | Buscar casos de prueba en Kiwi TCMS | Ingeniero de QA | Media |
+| CU30 | Ver caso de prueba en Kiwi TCMS | Ingeniero de QA | Media |
+| CU34 | Registrar caso de prueba | Kiwi TCMS | Alta |
 
 ---
 
@@ -28,27 +47,14 @@
 
 ### Ingeniero de QA
 
-El actor `Ingeniero de QA` concentra el núcleo funcional del sistema.
+El actor `Ingeniero de QA` concentra el nucleo funcional del sistema. Se consideran especialmente representativos `CU03`, `CU06`, `CU12`, `CU18` y `CU28`, ya que reflejan el flujo principal del sistema: entrada de documentacion, extraccion de artefactos funcionales, generacion de escenarios verificables y publicacion final en la herramienta externa.
 
-Las funcionalidades `Incorporar documentación` y `Asociar documentación a proyecto` tienen prioridad `Alta`, ya que representan el punto de entrada del sistema y permiten establecer la trazabilidad desde el contexto organizativo externo.
+Dentro de los casos de uso con prioridad `Alta`, esos cinco casos de uso se sitúan en primer lugar por ser los más representativos del flujo principal. A continuacion aparecen el resto de casos de uso de prioridad alta necesarios para completar, mantener o consolidar dicho flujo, incluyendo la incorporacion de feedback al borrador como parte clave de la revision antes de generar el caso de prueba final.
 
-A partir de ahí, `Extraer casos de uso` y `Extraer requisitos funcionales` también tienen prioridad `Alta`, ya que constituyen la primera fase de transformación de la información documental en artefactos estructurados.
+Se consideran de prioridad `Media` los casos de uso orientados a consulta, listado, cierre de sesion o refinamiento incremental, ya que aportan soporte al proceso pero no desbloquean por si mismos la generacion principal de artefactos.
 
-Las funcionalidades `Gestionar casos de uso` y `Gestionar requisitos funcionales` se consideran igualmente de prioridad `Alta`, al permitir mantener la calidad, consistencia y corrección de la información funcional que servirá como base para la generación de pruebas.
-
-En la fase de generación, `Generar escenarios de prueba` y `Generar casos de prueba` tienen prioridad `Alta` porque representan las principales salidas del sistema. En particular, los escenarios actúan como paso intermedio y los casos de prueba como artefacto final.
-
-Por otro lado, `Gestionar escenarios de prueba` e `Incorporar feedback a escenarios` se clasifican como `Media`, ya que son actividades de refinamiento y mejora, importantes pero dependientes de la existencia previa de escenarios.
-
-Finalmente, `Publicar casos de prueba en Kiwi TCMS` tiene prioridad `Alta` al cerrar el flujo funcional completo, permitiendo integrar los artefactos generados con el sistema externo de testing. La funcionalidad `Consultar casos de prueba en Kiwi TCMS` se clasifica como `Media`, ya que aporta valor en la reutilización y verificación, pero no es imprescindible para la generación inicial.
-
----
+Ademas, `CU31`, `CU32` y `CU33` se consideran de prioridad `Media` porque aportan soporte a la continuidad del trabajo y a la persistencia de artefactos, pero no desbloquean por si mismos la generacion principal de resultados funcionales y de prueba.
 
 ### Kiwi TCMS
 
-El sistema `Kiwi TCMS` actúa como sistema externo participante que completa el flujo funcional del sistema.
-
-Las funcionalidades `Recibir casos de prueba` y `Almacenar casos de prueba` tienen prioridad `Alta`, ya que son imprescindibles para que la integración tenga efecto y los casos de prueba puedan persistir y ser utilizados.
-
-La funcionalidad `Permitir consulta de casos de prueba` se considera de prioridad `Media`, ya que facilita el acceso posterior a los artefactos, pero depende de que estos hayan sido previamente publicados y almacenados.
-
+El sistema `Kiwi TCMS` actua como sistema externo participante. Su caso de uso `Registrar caso de prueba` tiene prioridad `Alta` porque permite completar la integracion y materializar la publicacion final de los casos de prueba generados.

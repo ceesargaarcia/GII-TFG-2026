@@ -1,4 +1,4 @@
-## Modelo de Dominio
+﻿## Modelo de Dominio
 
 <p align="center">
   <img src="./ModeloDominio/MdD.svg" alt="Modelo de Dominio" width="900">
@@ -6,14 +6,18 @@
 
 #### Explicacion
 
+# Modelo de Dominio
 
-En el contexto organizativo, los proyectos agrupan la documentación, que constituye la entrada principal del sistema. Dicha documentación contiene la información necesaria para la obtención de los casos de uso y los requisitos funcionales, que describen el comportamiento esperado del sistema. Asimismo, el modelo establece una asociación entre casos de uso y requisitos funcionales con el objetivo de garantizar la trazabilidad funcional.
+## Descripción general
+En el contexto organizativo, el sistema parte de un **Proyecto**, que proporciona el marco al que debe quedar asociada toda **Documentación**. La documentación constituye el punto de entrada del sistema y puede presentarse en forma de texto libre, DRF, DDS o combinación de varias fuentes documentales.
 
-A partir de estos elementos se generan escenarios de prueba, los cuales permiten verificar el comportamiento definido en los casos de uso y asegurar la cobertura de los requisitos funcionales. Estos escenarios evolucionan hasta convertirse en casos de prueba, que representan el artefacto final gestionado por el sistema.
+A partir de la documentación se obtienen **Casos de Uso** y **Requisitos Funcionales**, que representan la base funcional del conocimiento extraído. Entre ambos se mantiene una relación de trazabilidad, ya que describen de forma complementaria el comportamiento esperado del sistema.
 
-Finalmente, los casos de prueba son publicados o sincronizados con el sistema externo participante, Kiwi TCMS, encargado de su almacenamiento, gestión y consulta.
+Sobre esta base se generan **Escenarios Gherkin**, que formalizan el comportamiento en un formato estructurado y verificable. Dichos escenarios se integran en un **Borrador**, que constituye el artefacto interno de revisión. El borrador permite ser consultado, revisado, versionado, aceptado o rechazado, pero no se registra directamente en Kiwi TCMS.
 
-De este modo, el modelo define una relación coherente entre todos los elementos del sistema, manteniendo la trazabilidad completa desde la documentación inicial hasta la validación final, independientemente de que el proceso se realice de forma manual o automatizada.
+Cuando un borrador es aceptado, el sistema deriva de él un **Caso de Prueba**, que representa el artefacto final del dominio. Este caso de prueba puede registrarse en **Kiwi TCMS**, que se modela como sistema externo participante. Kiwi TCMS no forma parte del núcleo del dominio, pero interviene en el flujo funcional global como repositorio externo de registro de casos de prueba.
+
+De este modo, el modelo mantiene la trazabilidad completa desde la documentación inicial hasta el caso de prueba final y por ende la publicacion posterior en Kiwi TCMS, distinguiendo claramente entre artefactos de análisis funcional, artefactos de revisión y artefactos finales de prueba.
 
 ## Diagrama de Clases
 
@@ -37,7 +41,7 @@ De este modo, el modelo define una relación coherente entre todos los elementos
 
 #### Explicacion
 
-El `CasoDeUso` nace en `Identificado`, pasa a `Revisado` cuando su contenido ha sido validado, puede entrar en `Modificado` si se actualiza y finalmente alcanza `Aprobado` cuando queda aceptado. Desde los estados intermedios tambien puede pasar a `Eliminado` si deja de ser necesario.
+El `CasoDeUso` nace en `Identificado` cuando se extrae o crea dentro del sistema. Pasa a `Revisado` cuando su contenido ha sido comprobado y puede entrar en `Modificado` si se actualiza posteriormente. Cuando queda validado para ser utilizado como base funcional alcanza el estado `Aprobado`. Desde los estados no finales tambien puede pasar a `Eliminado` si deja de ser necesario o deja de ser valido dentro del proyecto.
 
 ### Estados de `RequisitoFuncional`
 
@@ -47,16 +51,16 @@ El `CasoDeUso` nace en `Identificado`, pasa a `Revisado` cuando su contenido ha 
 
 #### Explicacion
 
-El `RequisitoFuncional` sigue una evolucion paralela a la del caso de uso. Parte de `Identificado`, avanza a `Revisado`, puede pasar por `Modificado` cuando se ajusta su contenido y termina en `Aprobado` cuando queda validado. Igual que en el caso anterior, puede acabar en `Eliminado` desde los estados no finales.
+El `RequisitoFuncional` sigue una evolucion paralela a la del caso de uso. Parte de `Identificado`, avanza a `Revisado`, puede pasar por `Modificado` cuando se ajusta su contenido y termina en `Aprobado` cuando queda validado para la generacion de escenarios y la trazabilidad posterior. Igual que en el caso anterior, puede acabar en `Eliminado` desde los estados no finales.
 
 Este diagrama refuerza la idea de control y trazabilidad sobre los requisitos funcionales, asegurando que antes de usarlos como base para pruebas o implementacion hayan pasado por una fase de revision y aprobacion.
 
-### Estados de `EscenarioPrueba`
+### Estados de `Borrador`
 
 <p align="center">
-  <img src="./DiagramasEstado/EscenariosPrueba/EscenariosPrueba.svg" alt="Diagrama de estado de Escenario de Prueba" width="700">
+  <img src="./DiagramasEstado/Borrador/Borrador.svg" alt="Diagrama de estado de Borrador" width="700">
 </p>
 
 #### Explicacion
 
-El `EscenarioPrueba` comienza en `Generado`, pasa a `PendienteRevision` cuando se guarda como borrador y puede entrar en `Modificado` si se incorpora feedback o se edita. Cuando el escenario queda conforme, pasa a `Aprobado`(se agrupa en Casos de Prueba) y posteriormente a `Publicado` al sincronizarse con KiwiTCMS . Si el borrador deja de ser valido, tambien puede terminar en `Eliminado`.
+El `Borrador` comienza en `Generado` cuando el sistema produce una primera propuesta a partir de los escenarios Gherkin. Pasa a `PendienteRevision` cuando queda disponible para el Ingeniero de QA y puede entrar en `Modificado` si se incorpora feedback o se regenera su contenido. Cuando el borrador queda conforme, alcanza el estado `Aprobado`, que habilita la generacion del caso de prueba derivado. Si finalmente se descarta o deja de ser util, tambien puede terminar en `Eliminado`.
