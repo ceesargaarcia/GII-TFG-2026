@@ -30,7 +30,7 @@
 
 ##### [Necesidades del sistema](./Capitulo2/Necesidades.md)
 
-##### Requisitos funcionales
+##### [Requisitos funcionales](./Capitulo2/RequisitosFuncionales.md)
 
 ##### [Requisitos no funcionales](./Capitulo2/RequisitosNoFuncionales.md)
 
@@ -38,9 +38,9 @@
 
 ##### [Identificación de actores](./Capitulo2/Actores.md)
 
-##### Identificación y priorización de casos de uso
+##### [Identificación y priorización de casos de uso](./Capitulo2/IdentificacionYPriorizacionCdU.md)
 
-##### Descripción de casos de uso
+##### [Descripción de casos de uso](./Capitulo2/DescripcionCdU.md)
 
 ##### [Prototipos](./Capitulo2/Prototipos.md)
 

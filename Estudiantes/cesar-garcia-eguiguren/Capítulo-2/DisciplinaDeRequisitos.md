@@ -207,29 +207,31 @@ Ambos actores comparten la mayoría de los casos de uso, pero el Director tiene 
 Todos los casos de uso existentes para esta solución están documentados aqui : [Disciplina de Requisitos – Casos de Uso Detallados](./docs/CasosDeUsoDetallados.md)
 
 ### CU-01 – Autenticarse en el Sistema
-
+ 
 | Campo | Valor |
 |---|---|
 | **Actores** | Director, Responsable |
-| **Precondición** | El `user_id` tiene un `hr_employee` activo vinculado en Odoo. |
+| **Precondición** | El usuario tiene credenciales válidas (login y contraseña) en `res_users` con un `hr_employee` activo vinculado en Odoo. |
 | **Postcondición** | JWT almacenado en `localStorage`, cabecera `Authorization: Bearer` inyectada en el cliente Axios. Usuario redirigido a CU-02. |
-
+ 
 ![Diagrama de flujo de autenticación](./imagenes/CdU/flujoCU01.png)
-
+ 
 **Flujo principal:**
-1. El actor navega a `/login` e introduce su `res_users.id`.
-2. `POST /auth/token {user_id}` → el sistema localiza el empleado activo.
-3. `resolve_role_and_scope()` determina el rol: si `employee.parent_id == employee.id` → `director`; si gestiona departamentos o proyectos → `responsable`; en otro caso → `empleado` (sin acceso).
-4. Para el responsable, se calcula el scope mediante CTE recursivo: `employee_ids`, `department_ids`, `project_ids`.
-5. Se emite JWT `HS256` (8 h) con `{user_id, employee_id, role, employee_ids, department_ids, project_ids}`.
-6. El frontend almacena el token y redirige a `/`.
-
+1. El actor navega a `/login` e introduce su **usuario** (login) y **contraseña**.
+2. `POST /auth/token {username, password}` → el sistema valida las credenciales contra `res_users`.
+3. Si las credenciales son correctas, el sistema localiza el empleado activo vinculado (`res_users.id` → `hr_employee.user_id`).
+4. `resolve_role_and_scope()` determina el rol: si `employee.parent_id == employee.id` → `director`; si gestiona departamentos o proyectos → `responsable`; en otro caso → `empleado` (sin acceso).
+5. Para el responsable, se calcula el scope mediante CTE recursivo: `employee_ids`, `department_ids`, `project_ids`.
+6. Se emite JWT `HS256` (8 h) con `{user_id, employee_id, role, employee_ids, department_ids, project_ids}`.
+7. El frontend almacena el token y redirige a `/`.
+ 
 **Flujos alternativos:**
-- `FA-01`: Sin empleado activo para el `user_id` → HTTP 404, el actor permanece en el login.
-- `FA-02`: Rol `"empleado"` → acceso denegado, mensaje informativo.
-- `FA-03`: Token expirado en sesión activa → interceptor Axios detecta HTTP 401, limpia `localStorage` y redirige a `/login`.
-
-
+- `FA-01`: Credenciales incorrectas (usuario o contraseña) → HTTP 401, mensaje de error "Usuario o contraseña incorrectos", el actor permanece en el login.
+- `FA-02`: Sin empleado activo para el `user_id` autenticado → HTTP 404, el actor permanece en el login.
+- `FA-03`: Rol `"empleado"` → acceso denegado, mensaje informativo "Este usuario no tiene acceso al sistema de analítica".
+- `FA-04`: Token expirado en sesión activa → interceptor Axios detecta HTTP 401, limpia `localStorage` y redirige a `/login`.
+ 
+ 
 **Relaciones:** CU-01 es **precondición** del resto de casos de uso (sesión/JWT), se ejecuta una vez para iniciar sesión.
 
 ---
@@ -573,256 +575,72 @@ Todos los casos de uso existentes para esta solución están documentados aqui :
 ## 4. Prototipar Casos de Uso
 
 ### Prototipo CU-01 – Autenticarse
-
-```
-┌─────────────────────────────────────────────────────┐
-│                                                     │
-│              ┌──────────────────────────────┐      │
-│              │  ⚡                           │      │
-│              │  Netkia Analytics             │      │
-│              │  Solo directores y responsables│     │
-│              │                              │      │
-│              │  ID de usuario               │      │
-│              │  ┌──────────────────────────┐│      │
-│              │  │  ej: 1                    ││      │
-│              │  └──────────────────────────┘│      │
-│              │                              │      │
-│              │  [  ↑ Acceder               ]│      │
-│              │                              │      │
-│              │  [⚠ Error si procede]         │      │
-│              └──────────────────────────────┘      │
-│                                                     │
-└─────────────────────────────────────────────────────┘
-```
-
+![Prototipo de autenticación](./imagenes/prototipado/CU-01.png)
 ---
 
 ### Prototipo CU-02 – Overview del Sistema
+![Prototipo de overview](./imagenes/prototipado/CU-02.png)
+---
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  ● Sistema activo   Buenos días · lunes, 7 de abril                 │
-│                                                                     │
-│  ⚠ [rojo]   3 tareas vencidas sin cerrar                  Ver >    │
-│  ⚠ [narj]  2 sobrecargados: Ana García, Pedro Ruiz       Ver >    │
-│                                                                     │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────┐  │
-│  │ 📁 Proyectos │ │ 👥 Empleados │ │ ✅ Abiertas  │ │ ⚠ Venc. │  │
-│  │      12      │ │      48      │ │     127      │ │    3     │  │
-│  │              │ │              │ │ +5 esta sem  │ │          │  │
-│  └──────────────┘ └──────────────┘ └──────────────┘ └──────────┘  │
-│                                                                     │
-│  ┌── Actividad 14 días ──────────────────┐  ┌── Salud ──────────┐ │
-│  │        ___                           │  │ Cumplimiento  85% │ │
-│  │    ___/   \___                       │  │ [████████──]      │ │
-│  │ __/          \____                   │  │ Retrabajo      6% │ │
-│  │ lun mar mié jue vie lun mar mié      │  │ [█──────────]     │ │
-│  └──────────────────────────────────────┘  │ Lead Time   4.2d  │ │
-│                                            │ Equipo: 35/2/5/3  │ │
-│  ┌── Por estado ─────────────────────────┐ └───────────────────┘ │
-│  │ ● En Progreso  ██████████████  72 57% │ ┌── Acceso rápido ───┐ │
-│  │ ● Nueva        ██████          38 30% │ │ 🎯 Manager        │ │
-│  │ ● Revisión     ████            12  9% │ │ 📁 Proyectos      │ │
-│  │ Total: 127                            │ │ 🏢 Departamentos  │ │
-│  └───────────────────────────────────────┘ └───────────────────┘ │
-└─────────────────────────────────────────────────────────────────────┘
-```
+### Prototipo CU-03 – Panel Manager
+![Prototipo de panel manager](./imagenes/prototipado/CU-03.png)
+
+---
+### Prototipo CU-04 – Listar Empleados
+![Prototipo de listar empleados](./imagenes/prototipado/CU-04.png)
 
 ---
 
 ### Prototipo CU-05 – Resumen de Empleado
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  ← Volver a empleados                                               │
-│                                                                     │
-│  ┌─┐  Ana García                         [Sobrecargado] 32.50 €/h  │
-│  │A│  Sr. Developer · Desarrollo · ana@empresa.com                 │
-│  └─┘                                                                │
-│                                                                     │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐  │
-│  │ 12 Pend.    │ │ 3 Vencidas  │ │ WIP: 6      │ │ Prod. 30d   │  │
-│  │ 94.5h pend. │ │ sin cerrar  │ │ sobrecargado│ │   112.3%    │  │
-│  └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘  │
-│                                                                     │
-│  ┌── Asignadas hoy ──────────────┐  ┌── Vencidas sin cerrar ────┐  │
-│  │ ✅ API autenticación       4h │  │ ⚠ Diseño UX portal   2d  │  │
-│  │ ✅ Tests unitarios backend  2h│  │ ⚠ Refactor DB         5d │  │
-│  └───────────────────────────────┘  └──────────────────────────┘  │
-│                                                                     │
-│  [Pendientes (12)] [Completadas (28)] [Asignadas (15)] [Resp. (8)] │
-│  Rango: [  fecha  ] → [  fecha  ]  [Todas][Abiertas][Cerradas]     │
-│  ┌─────────────────────┬──────────┬──────┬──────┬────────────────┐ │
-│  │ Tarea               │ Proyecto │ Est. │ Pend.│ Deadline       │ │
-│  ├─────────────────────┼──────────┼──────┼──────┼────────────────┤ │
-│  │ API autenticación   │ Portal   │  20h │  16h │ 10 abr 25 ⚠  │ │
-│  │ Diseño UX dashboard │ ERP Int. │  40h │  22h │ 25 abr 25     │ │
-│  └─────────────────────┴──────────┴──────┴──────┴────────────────┘ │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![Prototipo de resumen de empleado](./imagenes/prototipado/CU-05.png)
 
 ---
+### Prototipo CU-06 – Listar Departamentos
+![Prototipo de listar departamentos](./imagenes/prototipado/CU-06.png)
 
+---
 ### Prototipo CU-07 – Resumen de Departamento
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  ← Volver a departamentos                                           │
-│                                                                     │
-│  🏢 Desarrollo · Manager: Javier Torres                            │
-│                                                                     │
-│  ⚠ Sobrecargados: Ana García, Luis Martínez                        │
-│                                                                     │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────┐  │
-│  │ 12 Empleados │ │ 2 Sobrecarg. │ │ 3 Subcargad. │ │ 1 S.Tar. │  │
-│  └──────────────┘ └──────────────┘ └──────────────┘ └──────────┘  │
-│                                                                     │
-│  [Carga de trabajo]  [Empleados]                                    │
-│  ┌─────────────────┬──────┬──────────┬───────────────┬───────────┐ │
-│  │ Empleado        │ Pend.│ H.pend.  │ Carga         │ Estado    │ │
-│  ├─────────────────┼──────┼──────────┼───────────────┼───────────┤ │
-│  │ Ana García      │  12  │  94.5h   │ ████████ 165% │[Sobrecarg]│ │
-│  │ Carlos Ruiz     │   5  │  38.0h   │ ████──── 95%  │[Normal]   │ │
-│  │ María López     │   2  │  10.0h   │ ██────── 25%  │[Subcargad]│ │
-│  └─────────────────┴──────┴──────────┴───────────────┴───────────┘ │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![Prototipo de resumen de departamento](./imagenes/prototipado/CU-07.png)
 
 ---
+### Prototipo CU-08 – Listar Proyectos
+Esta página es similar al CU-06, mostrando tarjetas para cada proyecto.
 
+---
 ### Prototipo CU-09 – Resumen de Proyecto
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  ← Volver a proyectos                                               │
-│                                                                     │
-│  📁 Portal Clientes · Cliente: ACME S.A.  [Rentable] [Riesgo Bajo] │
-│                                                                     │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────┐  │
-│  │ Eficiencia   │ │ Riesgo       │ │ Rentabilidad │ │ 127 Tar. │  │
-│  │   92.4%      │ │   18.5%      │ │   +12.3%     │ │          │  │
-│  │ Desv. -8h    │ │ 4 en riesgo  │ │ Dif. +5.800€ │ │          │  │
-│  └──────────────┘ └──────────────┘ └──────────────┘ └──────────┘  │
-│                                                                     │
-│  Horas estimadas vs reales:                                         │
-│  Estimadas [████████████████████████████] 320h                     │
-│  Reales    [████████████████████████████] 312h                     │
-│                                                                     │
-│  [Tareas (127)]  [Equipo (8)]                                       │
-│  [Todas][Pendientes]  [Etapa ▾]                                     │
-│  ┌─────────────────────┬──────────┬───────┬────────────┬──────────┐ │
-│  │ Tarea               │ Etapa    │ Est.  │ Deadline   │ Estado   │ │
-│  ├─────────────────────┼──────────┼───────┼────────────┼──────────┤ │
-│  │ Diseño UX portal    │ Revisión │  40h  │ 15 abr 25  │[Abierta] │ │
-│  │ API auth login      │ En Curso │  20h  │ 10 abr 25  │[Abierta]⚠│ │
-│  └─────────────────────┴──────────┴───────┴────────────┴──────────┘ │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![Prototipo de resumen de proyecto](./imagenes/prototipado/CU-09.png)
 
 ---
-
 ### Prototipo CU-10 – Listar Tareas
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  Tareas · 127 tareas · pág. 1 de 6 · ordenado por Deadline ↑       │
-│                                                                     │
-│  [Todos los estados ▾] [Todas las etapas ▾] [Todos los proy. ▾]   │
-│  Deadline desde [fecha] – [fecha]   ☐ Solo tareas padre            │
-│  [Limpiar filtros ×]                                                │
-│                                                                     │
-│  ┌──────────────────────┬──────────┬───────┬────────────┬─────────┐ │
-│  │ Tarea ↑              │ Etapa    │ H.est │ Deadline   │ Estado  │ │
-│  ├──────────────────────┼──────────┼───────┼────────────┼─────────┤ │
-│  │ API auth login       │ En Curso │  20h  │ 10 abr 25  │⚠Abierta│ │
-│  │ Diseño UX portal     │ Revisión │  40h  │ 15 abr 25  │ Abierta │ │
-│  │ Tests E2E            │ Cerrada  │  15h  │ 01 abr 25  │ Cerrada │ │
-│  │ Migración base datos │ Nueva    │  60h  │ 30 abr 25  │ Abierta │ │
-│  └──────────────────────┴──────────┴───────┴────────────┴─────────┘ │
-│                   ‹ Anterior  [1] [2] [3]  Siguiente ›              │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![Prototipo de listar tareas](./imagenes/prototipado/CU-10.png)
 
 ---
-
-### Prototipo CU-11 - Detalle de Tarea
-
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ ← Volver                                                    │
-├─────────────────────────────────────────────────────────────┤
-│ API Autenticación                                           │
-│ [En progreso]  [Vencida] ⚠  [Subtarea]  [2 subtareas]      │
-├─────────────────────────────────────────────────────────────┤
-│ Información general                                         │
-│ ┌──────────────────────────────┬─────────────────────────┐ │
-│ │ Proyecto                     │ Ver proyecto #12        │ │
-│ │ Deadline                     │ 08 abr 26 ⚠             │ │
-│ │ Fecha fin                     │ 10 abr 26              │ │
-│ │ Asignada el                   │ 01 abr 26              │ │
-│ └──────────────────────────────┴─────────────────────────┘ │
-├─────────────────────────────────────────────────────────────┤
-│ Personas                                                    │
-│ Responsable: Ana García                                     │
-│ Asignados (3): Juan, Pedro, Luis                             │
-├─────────────────────────────────────────────────────────────┤
-│ Horas                                                       │
-│ ┌─────────────┬─────────────┬─────────────┐                  │
-│ │ Estimadas   │ Invertidas  │ Restantes   │                  │
-│ │ 20h         │ 16h         │ 4h          │                  │
-│ └─────────────┴─────────────┴─────────────┘                  │
-│ Progreso de horas: 80%                                       │
-│ Productividad: 125%                                          │
-├─────────────────────────────────────────────────────────────┤
-│ Subtareas (2)                                                │
-│ [✅] Tests unitarios backend       2h                       │
-│ [⚠] Diseño UX portal              2d                        │
-├──────────────────────────────────────────────────────────────┤
-│ Sidebar: Metadatos                                           │
-│ ID interno: #123                                           │
-│ Kanban: En desarrollo                                        │
-│ Prioridad: Urgente                                           │
-│ Tarea padre: #45                                             │
-└─────────────────────────────────────────────────────────────┘
-
-```
+### Prototipo CU-11 – Detalle de Tarea
+![Prototipo de detalle de tarea](./imagenes/prototipado/CU-11.png)
 
 ---
+### Prototipo P7 - Métricas Analíticas
+![Prototipo de métricas analíticas](./imagenes/prototipado/CU-P7.png)
 
+---
+### Prototipo CU-22 – Gráficos Analíticos
+![Prototipo de gráficos analíticos](./imagenes/prototipado/CU-22.png)
+
+---
+### Prototipo CU-23 – Asistencia vs Imputaciones
+![Prototipo de asistencia vs imputaciones](./imagenes/prototipado/CU-23.png)
+
+---
 ### Prototipo CU-24 – Rentabilidad Financiera
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  Rentabilidad · 2025-01-01 → 2025-06-30  [3m] [6m] [1a]           │
-│  Filtro: [Global] [Por proyecto] [Por responsable]                  │
-│                                                                     │
-│  ┌──────────┐ ┌──────────┐ ┌──────────────────┐ ┌───────────────┐ │
-│  │ 142.500€ │ │  98.200€ │ │    +44.300€       │ │    +31.1%     │ │
-│  │ Ingresos │ │  Gastos  │ │       Neto        │ │ Rentabilidad  │ │
-│  └──────────┘ └──────────┘ └──────────────────┘ └───────────────┘ │
-│                                                                     │
-│  [Por proyecto]  [Por cliente]                                      │
-│  ┌──────────────────┬──────────┬──────────┬─────────┬─────────────┐ │
-│  │ Proyecto         │ Ingr. €  │ Gasto €  │  Neto € │ Rentab.     │ │
-│  ├──────────────────┼──────────┼──────────┼─────────┼─────────────┤ │
-│  │ Portal Clientes  │  48.200  │  31.500  │ +16.700 │ [Ganancia]  │ │
-│  │ ERP Interno      │  32.100  │  35.800  │  -3.700 │ [Pérdida]   │ │
-│  └──────────────────┴──────────┴──────────┴─────────┴─────────────┘ │
-│                                                                     │
-│                                                                     │
-│                                                                     │
-│                                                                     │
-│                                                                     │
-│                                                                     │
-│                                                                     │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![Prototipo de rentabilidad financiera](./imagenes/prototipado/CU-24.png)
+---
+### Prototipo CU-26/27 – Líneas Analíticas por Proyecto/Cliente
+![Prototipo de líneas analíticas](./imagenes/prototipado/CU-26-27.png)
+---
+### Prototipo CU-25 – Búsqueda Global
+![Prototipo de búsqueda global](./imagenes/prototipado/CU-25.png)
 
 ---
-
-## 5. Estructurar el Modelo de Casos de Uso
 
 
 ### 5.1 Diagrama de Contexto – Director

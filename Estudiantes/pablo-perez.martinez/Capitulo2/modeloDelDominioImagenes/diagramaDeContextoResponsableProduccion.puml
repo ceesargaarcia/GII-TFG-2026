@@ -1,0 +1,11 @@
+@startuml
+
+[*] --> VISUALIZACION_DE_DATOS : navegación a pestaña rendimiento
+
+VISUALIZACION_DE_DATOS --> FILTRADO_DE_DATOS 
+FILTRADO_DE_DATOS  --> VISUALIZACION_DE_DATOS: cambiar SplitId o fechas
+
+VISUALIZACION_DE_DATOS --> [*]
+
+
+@enduml

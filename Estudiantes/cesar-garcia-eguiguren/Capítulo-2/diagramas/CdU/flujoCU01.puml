@@ -13,56 +13,60 @@ skinparam NoteBorderColor #38BDF8
 title CU-01 · Autenticarse en el Sistema
 
 start
-
 :Actor navega a **/login**;
-:Introduce **user_id** (res_users.id);
+:Introduce **usuario** (login) y **contraseña**;
+:Frontend → POST /auth/token {username, password};
 
-:Frontend → POST /auth/token {user_id};
-
-if (¿Existe hr_employee activo con ese user_id?) then (NO)
-  :HTTP 404;
-  :Mensaje de error en /login;
+if (¿Credenciales válidas en res_users?) then (NO)
+  :HTTP 401;
+  :Mensaje: "Usuario o contraseña incorrectos";
   stop
 else (SÍ)
-  :_is_director(): ¿employee.parent_id == employee.id?;
-
-  if (¿Director?) then (SÍ)
-    :role = "director"
-      employee_ids = "all"
-      department_ids = "all"
-      project_ids = "all";
-  else (NO)
-    :_get_managed_department_ids()
-     _get_managed_project_ids()
-     (por user_id en project_project.user_id);
-
-    if (¿Sin depts ni proyectos?) then (SÍ)
-      :role = "empleado";
-      :HTTP 403 (detectado en frontend);
-      :Mensaje informativo en /login;
-      stop
-    else (NO — responsable)
-      :role = "responsable"
-       employee_ids = CTE recursivo de subordinados
-         + empleados de depts gestionados
-         + empleados con timesheets en proyectos propios
-       department_ids, project_ids calculados;
+  if (¿Existe hr_employee activo con ese user_id?) then (NO)
+    :HTTP 404;
+    :Mensaje: "No hay empleado activo vinculado";
+    stop
+  else (SÍ)
+    :_is_director(): ¿employee.parent_id == employee.id?;
+    if (¿Director?) then (SÍ)
+      :role = "director"
+        employee_ids = [],
+        department_ids = [],
+        project_ids = [];
+      note right
+        Scope vacío = acceso global sin filtros
+      end note
+    else (NO)
+      :_get_managed_department_ids()
+       _get_managed_project_ids()
+       (por user_id en project_project.user_id);
+      if (¿Sin depts ni proyectos?) then (SÍ)
+        :role = "empleado";
+        :HTTP 403 (detectado en frontend);
+        :Mensaje: "Este usuario no tiene acceso
+        al sistema de analítica";
+        stop
+      else (NO — responsable)
+        :role = "responsable"
+         employee_ids = CTE recursivo de subordinados
+           + empleados de depts gestionados
+           + empleados con timesheets en proyectos propios
+         department_ids, project_ids calculados;
+      endif
     endif
+    :Emite JWT HS256 (8h)
+    {user_id, employee_id, role,
+     employee_ids, department_ids, project_ids};
+    :Frontend almacena token en localStorage;
+    :Axios inyecta Authorization: Bearer
+     en defaults.headers.common;
+    :Redirige a / (CU-02);
+    stop
   endif
-
-  :Emite JWT HS256 (8h)
-  {user_id, employee_id, role,
-   employee_ids, department_ids, project_ids};
-
-  :Frontend almacena token en localStorage;
-  :Axios inyecta Authorization: Bearer
-   en defaults.headers.common;
-  :Redirige a / (CU-02);
-  stop
 endif
 
 note right
-  FA-03 · Sesión expirada:
+  FA-04 · Sesión expirada:
   Interceptor Axios detecta HTTP 401
   → limpia localStorage
   → redirige a /login
