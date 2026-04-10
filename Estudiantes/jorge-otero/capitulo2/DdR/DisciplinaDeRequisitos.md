@@ -17,15 +17,27 @@ El funcionamiento del sistema sigue una estructura cíclica, en la que, tras la 
 |![CdU_Cliente](./CdU/CdU_Cliente/imagen/CdU_Cliente.png)|![CdU_Tecnico](./CdU/CdU_Tecnico/imagen/CdU_Tecnico.png)|
 |[Ver código](./CdU/CdU_Cliente/codigo/CdU_Cliente.puml)|[Ver código](./CdU/CdU_Tecnico/codigo/CdU_Tecnico.puml)|
 
+## Relación Casos de Uso con Requisitos Funcionales
+
+| Caso de Uso                    | Requisitos Funcionales relacionados                                                               |
+| ------------------------------ | ------------------------------------------------------------------------------------------------- |
+| CU1 Enviar solicitud           | RF1 Enviar solicitud, RF4 Registrar solicitudes                                                   |
+| CU2 Recibir respuesta          | RF2 Recibir respuesta, RF8 Procesar solicitudes, RF9 Identificar intención, RF10 Enviar respuesta |
+| CU3 Ver solicitudes pendientes | RF5 Ver solicitudes pendientes                                                                    |
+| CU4 Actualizar estado          | RF6 Actualizar estado, RF7 Validar existencia de formulario                                       |
+| CU5 Completar formulario       | RF3 Completar formulario, RF11 Solicitar información adicional                                    |
+
+
 ## Priorizar Casos de Uso 
 
-| Caso de uso                | Prioridad | Justificación                                                                              |
-| -------------------------- | --------- | ------------------------------------------------------------------------------------------ |
-| Enviar solicitud           | Alta      | Es el punto de entrada del sistema y condición necesaria para el resto de funcionalidades. |
-| Recibir respuesta          | Alta      | Constituye la finalidad principal del sistema: proporcionar respuesta al cliente.          |
-| Ver solicitudes pendientes | Media     | Permite la gestión por parte del técnico, pero depende de solicitudes previas.             |
-| Actualizar estado          | Media     | Necesario para la gestión interna, ligado al seguimiento de solicitudes.                   |
-| Completar formulario       | Baja      | Funcionalidad complementaria para aportar información adicional en casos específicos.      |
+| ID  | Caso de uso                | Prioridad | Justificación                                                                              |
+| --- | -------------------------- | --------- | ------------------------------------------------------------------------------------------ |
+| CU1 | Enviar solicitud           | Alta      | Es el punto de entrada del sistema y condición necesaria para el resto de funcionalidades. |
+| CU2 | Recibir respuesta          | Alta      | Constituye la finalidad principal del sistema: proporcionar respuesta al cliente.          |
+| CU3 | Ver solicitudes pendientes | Media     | Permite la gestión por parte del técnico, pero depende de solicitudes previas.             |
+| CU4 | Actualizar estado          | Media     | Necesario para la gestión interna, ligado al seguimiento de solicitudes.                   |
+| CU5 | Completar formulario       | Baja      | Funcionalidad complementaria para aportar información adicional en casos específicos.      |
+
 
 ## Detallar Casos de Uso
 
@@ -113,9 +125,11 @@ Este proceso permite complementar la información de una solicitud previa de for
 
 ## Estructurar la Descripción de los Casos de Uso
 
-### Diagrama de Contexto   
+### Diagramas de Contexto  
 
 | Diagrama | Código |
 |---------|---------|
-|![Diagrama de Contexto](./DdC/imagen/DdC.png)|[Ver código](./DdC/codigo/DdC.puml)|
+|![Diagrama de Contexto](./DdC/imagen/DdC_Tecnico.png)|[Ver código](./DdC/codigo/DdC_Tecnico.puml)|
+|![Diagrama de Contexto](./DdC/imagen/DdC_Cliente.png)|[Ver código](./DdC/imagen/DdC_Cliente.png)|
+
 
