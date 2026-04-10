@@ -1,0 +1,18 @@
+@startuml DdC_Tecnico
+
+top to bottom direction
+
+package "Proyecto" {
+
+rectangle Tecnico
+rectangle Sistema
+
+Tecnico --> Sistema : Actualizar estado
+
+}
+
+rectangle Vista_Datos
+
+Tecnico --> Vista_Datos : Ver solicitudes pendientes
+
+@enduml

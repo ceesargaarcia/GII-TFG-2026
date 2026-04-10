@@ -1,0 +1,19 @@
+@startuml Flujo_Formulario
+
+top to bottom direction
+
+[*] --> Formulario : Cliente decide detallar solicitud
+
+Formulario --> Completado : CA5 Completar formulario
+
+Completado --> Formulario_Pendiente : Sistema procesa formulario
+
+Formulario_Pendiente --> Vista_Formularios : CA3 Ver solicitudes pendientes
+
+Vista_Formularios --> En_Resolución : Tecnico procede a gestionar
+
+En_Resolución --> Resolucion_Formulario : CA4 Actualizar estado
+
+Resolucion_Formulario --> [*]
+
+@enduml

@@ -1,0 +1,13 @@
+@startuml Flujo_Solicitud
+
+top to bottom direction
+
+[*] --> Enviada : CA1 Enviar solicitud
+
+Enviada --> En_Proceso : Sistema consulta BBDD y procesa solicitud
+
+En_Proceso --> Respondida : CA2 Recibir respuesta
+
+Respondida --> [*]
+
+@enduml
