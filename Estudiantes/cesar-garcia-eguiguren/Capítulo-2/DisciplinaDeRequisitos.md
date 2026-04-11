@@ -52,7 +52,7 @@ Los CU de resumen son el "dashboard analítico" de cada entidad: agregan KPIs, m
 
 ### 1.3 Identificación de Casos de Uso
 
-A continuación se presenta la lista completa de los 24 casos de uso identificados, organizados en 8 paquetes.
+A continuación se presenta la lista completa de los 27 casos de uso identificados, organizados en 9 paquetes.
 
 #### Paquete 1 – Autenticación
 
@@ -629,12 +629,32 @@ Todos los casos de uso existentes para esta solución están documentados aquí:
 
 Los prototipos de baja fidelidad presentados a continuación representan la disposición visual de cada pantalla del sistema. Cada prototipo ilustra la estructura de la interfaz, la organización de los datos y los puntos de interacción disponibles para el usuario, sirviendo como referencia para la implementación del frontend en React.
 
+>Además de los prototipos asociados a casos de uso, el sistema incluye las siguientes pantallas de navegación y agregación que actúan como punto de entrada y supervisión global. No constituyen casos de uso en sí mismas, sino vistas compuestas que consolidan información procedente de múltiples casos de uso ya documentados.
+
+---
+
+### Pantalla de inicio — `/`
+
+Dashboard de bienvenida que actúa como punto de entrada al sistema tras completar CU-01. Muestra en la parte superior un banner de alertas activas (tareas vencidas sin cerrar y empleados sobrecargados) con navegación directa a los listados correspondientes. La sección central presenta cuatro KPIs globales (proyectos activos, empleados activos, tareas abiertas y tareas vencidas) y un gráfico de área con la evolución de horas imputadas en los últimos 14 días. En la parte inferior, un panel de salud operativa muestra los indicadores de cumplimiento de plazos, tasa de retrabajo y lead time con semáforo de color, junto a la distribución del equipo por estado de carga. Un panel de acceso rápido permite navegar directamente a cualquier sección del sistema.
+
+![Pantalla de inicio](./imagenes/prototipado/Vista-Overview.png)
+
+---
+
+### Pantalla de gestión de equipo — `/manager`
+
+Pantalla orientada a la supervisión de la distribución de carga de trabajo de toda la organización. Presenta cinco tarjetas numéricas con el total de empleados desglosado por estado (total, sobrecargado, normal, subcargado, sin tareas), cada una clickable para filtrar el listado inferior. La mitad derecha muestra un gráfico de barras horizontal con la distribución por estados, también interactivo. Al seleccionar un estado, se despliega un listado paginado de empleados con su porcentaje de carga, horas pendientes y barra de progreso, ordenable por cualquier columna con ordenación global server-side. Incluye un selector de departamento para restringir el análisis a un área concreta. Cada empleado del listado navega a CU-03.
+
+![Pantalla de gestión de equipo](./imagenes/prototipado/vista-Manager.png)
+
+---
+
 ### Prototipo CU-01 – Autenticarse
 Formulario de login centrado con campos de usuario y contraseña, botón de acceso y área de mensajes de error. Incluye el logo de la aplicación y la indicación de acceso restringido.
 
 ![Prototipo de autenticación](./imagenes/prototipado/CU-01.png)
----
 
+---
 ### Prototipo CU-02 – Listar Empleados
 Tabla paginada con barra de búsqueda por nombre, selector de departamento y toggle de empleados activos. Las columnas incluyen nombre, departamento, cargo, email, coste/h y badge de estado. Cada fila es clickable para acceder al resumen del empleado.
 
