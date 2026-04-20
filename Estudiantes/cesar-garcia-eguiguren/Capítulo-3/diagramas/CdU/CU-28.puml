@@ -1,0 +1,102 @@
+@startuml secuencia_cu28
+!theme plain
+skinparam backgroundColor #07090F
+skinparam sequenceArrowColor #38BDF8
+skinparam sequenceParticipantBackgroundColor #141824
+skinparam sequenceParticipantBorderColor #2A3850
+skinparam sequenceLifeLineBorderColor #1E2840
+skinparam noteBorderColor #2A3850
+skinparam noteBackgroundColor #141824
+skinparam noteFontColor #E2E8F5
+skinparam defaultFontColor #E2E8F5
+skinparam sequenceGroupBackgroundColor #0D1018
+skinparam sequenceGroupBorderColor #2A3850
+skinparam sequenceGroupFontColor #38BDF8
+skinparam sequenceGroupHeaderFontColor #38BDF8
+skinparam sequenceGroupBodyBackgroundColor #0D1018
+
+participant "React SPA" as FE
+participant "Route\n(Controlador)" as ROUTE
+participant "Auth\nMiddleware" as AUTH
+participant "Service\n(Lógica)" as SVC
+participant "Repository\n(Datos)" as REPO
+participant "PostgreSQL\n(Odoo)" as DB
+
+FE -> ROUTE : GET /dashboards/summary/manager\n?department_id=X&status=sobrecargado&page=1&sort_by=employee_name
+ROUTE -> AUTH : require_manager_or_above()
+AUTH -> AUTH : decode_token(token)\nextraer role, employee_ids, department_ids
+AUTH --> ROUTE : CurrentUser(role, employee_ids, department_ids)
+note right of AUTH
+  **CAPA 1 — Guard de rol**
+  Bloquea si role == "empleado"
+end note
+
+ROUTE -> SVC : DashboardService.get_manager_overview(cu,\n  department_id, status, page, sort_by, ...)
+
+SVC -> SVC : Determinar lista de empleados a mostrar
+note right of SVC
+  **CAPA 2 — Verificación de parámetro opcional**
+  Si department_id proporcionado:
+    verify_department_scope(cu, department_id)
+    → Responsable: department_id in cu.department_ids
+
+  **CAPA 3 — Filtrado de listado por scope**
+  if department_id given (ya validado):
+    employees = get_employees_by_department_query(department_id)
+  elif cu.is_responsable:
+    employees = get_filtered_employees_query(
+      employee_ids=cu.employee_ids)
+    ← Solo los empleados del JWT del responsable
+  else (director):
+    employees = get_all_employees_query()
+    ← Sin restricción
+end note
+
+alt Filtro por departamento
+  SVC -> REPO : get_employees_by_department_query(db, department_id)
+  REPO -> DB : SELECT hr_employee WHERE department_id = :id AND active = True
+  DB --> REPO : rows
+  REPO --> SVC : employees del departamento
+else Responsable sin filtro de departamento
+  SVC -> REPO : get_filtered_employees_query(db,\n  employee_ids=cu.employee_ids)
+  REPO -> DB : SELECT hr_employee WHERE id IN (:employee_ids)\nAND active = True
+  DB --> REPO : rows
+  REPO --> SVC : employees del scope JWT
+else Director sin filtros
+  SVC -> REPO : get_all_employees_query(db)
+  REPO -> DB : SELECT hr_employee WHERE active = True
+  DB --> REPO : rows
+  REPO --> SVC : todos los empleados
+end
+
+SVC -> REPO : get_pending_hours_per_employee(db)
+note right of REPO
+  Una única query agrupada:
+  JOIN hr_employee → res_users
+    → project_task_user_rel → project_task
+    → account_analytic_line (para horas reales)
+  WHERE task active AND stage open
+    AND planned_hours > 0
+  GROUP BY employee_id
+  Devuelve pending_hours y pending_tasks
+  para TODOS los empleados activos.
+  El servicio luego cruza con su lista filtrada.
+end note
+
+REPO -> DB : SELECT employee_id,\n  SUM(MAX(planned_hours - worked, 0)) pending_hours,\n  COUNT(task_id) pending_tasks\nGROUP BY employee_id
+DB --> REPO : pending_map { employee_id → {hours, tasks} }
+REPO --> SVC : pending_map
+
+SVC -> SVC : Para cada employee en la lista filtrada:\n  data = pending_map.get(emp.id, {0, 0})\n  pct = data.pending_hours / 40 * 100\n  clasificar estado (sobrecargado/normal/subcargado/without_tasks)
+note right of SVC
+  El cruce employees ∩ pending_map aplica
+  el scope: solo se calculan estados para
+  los empleados que pasaron el filtro de
+  scope JWT en el paso anterior.
+end note
+
+SVC -> SVC : top_overloaded = sort by pct desc → slice(5)\nfiltrar lista por status si se pidió\nsort_dicts + paginate_list
+
+SVC --> ROUTE : ManagerOverviewResponse {\n  team_summary, top_overloaded,\n  team_workload (paginado),\n  overloaded_employees, ... }
+ROUTE --> FE : 200 OK + JSON
+@enduml

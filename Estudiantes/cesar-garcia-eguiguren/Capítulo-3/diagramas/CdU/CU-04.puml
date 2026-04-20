@@ -1,0 +1,66 @@
+@startuml cu-04
+!theme plain
+skinparam backgroundColor #07090F
+skinparam sequenceArrowColor #38BDF8
+skinparam sequenceParticipantBackgroundColor #141824
+skinparam sequenceParticipantBorderColor #2A3850
+skinparam sequenceLifeLineBorderColor #1E2840
+skinparam noteBorderColor #2A3850
+skinparam noteBackgroundColor #141824
+skinparam noteFontColor #E2E8F5
+skinparam defaultFontColor #E2E8F5
+skinparam sequenceGroupBackgroundColor #0D1018
+skinparam sequenceGroupBorderColor #2A3850
+skinparam sequenceGroupFontColor #38BDF8
+skinparam sequenceGroupHeaderFontColor #38BDF8
+skinparam sequenceGroupBodyBackgroundColor #0D1018
+
+participant "React SPA" as FE
+participant "Route\n(Controlador)" as ROUTE
+participant "Auth\nMiddleware" as AUTH
+participant "Service\n(Lógica)" as SVC
+participant "Repository\n(Datos)" as REPO
+participant "PostgreSQL\n(Odoo)" as DB
+
+FE -> ROUTE : GET /departments/?search=X&sort_by=name&page=1&...
+ROUTE -> AUTH : require_manager_or_above()
+AUTH -> AUTH : decode_token(token)\nextraer role, department_ids, ...
+AUTH --> ROUTE : CurrentUser(role, department_ids, ...)
+note right of AUTH
+  **CAPA 1 — Guard de rol**
+  Bloquea si role == "empleado"
+end note
+
+ROUTE -> SVC : DepartmentService.list_departments(cu, search, sort_by, ...)
+
+SVC -> SVC : Determinar dept_ids según rol
+note right of SVC
+  **CAPA 3 — Filtrado de listado por scope**
+  if cu.is_responsable:
+    dept_ids = cu.department_ids
+    ← IDs precalculados en el login y
+      embebidos en el JWT
+      Solo ve sus departamentos gestionados
+  else (director):
+    dept_ids = None
+    ← Sin restricción, ve todos
+end note
+
+SVC -> REPO : get_filtered_departments_query(db,\n  dept_ids=dept_ids,\n  search=search,\n  sort_by=sort_by, sort_order=sort_order)
+note right of REPO
+  Si dept_ids is not None:
+    WHERE id IN (:dept_ids)
+  Si dept_ids is None:
+    sin filtro de scope
+  Además: WHERE active = True
+  AND (name ILIKE :search si hay búsqueda)
+  ORDER BY :sort_by
+end note
+REPO -> DB : SELECT hr_department\nWHERE [active=True]\nAND [id IN (:dept_ids)]\nAND [name ILIKE :search]\nORDER BY :sort_by
+DB --> REPO : rows
+REPO --> SVC : department rows (query sin paginar)
+
+SVC -> SVC : paginate(query, page, page_size)\nconvertir cada row a DepartmentDetail
+SVC --> ROUTE : PaginatedResponse[DepartmentDetail]
+ROUTE --> FE : 200 OK + JSON
+@enduml
