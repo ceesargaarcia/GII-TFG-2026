@@ -1,0 +1,16 @@
+@startuml VerSolicitudesPendientes
+title Diagrama de Secuencia - Ver Solicitudes Pendientes
+
+actor Tecnico
+participant "Power BI" as PowerBI
+participant "VerSolicitudesPendientesFlow" as Flow
+participant "Solicitud" as Solicitud
+
+Tecnico -> PowerBI : consultarSolicitudesPendientes()
+PowerBI -> Flow : solicitarPendientes()
+Flow -> Solicitud : obtenerPendientes()
+Solicitud --> Flow : listaSolicitudes
+Flow --> PowerBI : mostrarPendientes(listaSolicitudes)
+PowerBI --> Tecnico : visualizarSolicitudesPendientes()
+
+@enduml

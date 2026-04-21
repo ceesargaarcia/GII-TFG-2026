@@ -1,0 +1,139 @@
+@startuml Diagrama_Clases_Diseno
+top to bottom direction
+skinparam packageStyle rectangle
+hide empty members
+
+package "Interfaces" {
+
+  class CorreoEntradaOutlook {
+    + asunto: String
+    + remitente: String
+    + cuerpo: String
+    + fechaRecepcion: DateTime
+    + leerCorreo(): CorreoEntradaOutlook
+  }
+
+  class CorreoRespuestaOutlook {
+    + destinatario: String
+    + asunto: String
+    + cuerpo: String
+    + fechaEnvio: DateTime
+    + enviarCorreo(): void
+  }
+
+  class FormularioMicrosoftForms {
+    + idFormulario: String
+    + campos: String
+    + fechaEnvio: DateTime
+    + recogerRespuestas(): void
+  }
+
+  class PanelSolicitudesPowerBI {
+    + mostrarPendientes(): List<Solicitud>
+    + actualizarVista(): void
+  }
+
+  class VistaActualizarEstadoFormulario {
+    + seleccionarFormulario(id: int): Formulario
+    + enviarNuevoEstado(id: int, estado: String): void
+  }
+}
+
+package "Controladores" {
+
+  class EnviarSolicitudFlow {
+    + procesarCorreo(correo: CorreoEntradaOutlook): Solicitud
+    + clasificarSolicitud(asunto: String): String
+    + registrarSolicitud(solicitud: Solicitud): void
+  }
+
+  class RecibirRespuestaFlow {
+    + generarRespuesta(idSolicitud: int): Respuesta
+    + enviarRespuesta(respuesta: Respuesta): void
+  }
+
+  class CompletarFormularioFlow {
+    + recibirFormulario(formulario: Formulario): void
+    + asociarFormulario(idSolicitud: int, formulario: Formulario): void
+  }
+
+  class VerSolicitudesPendientesFlow {
+    + obtenerSolicitudesPendientes(): List<Solicitud>
+  }
+
+  class ActualizarEstadoFormularioFlow {
+    + actualizarEstadoFormulario(idFormulario: int, estado: String): void
+  }
+}
+
+package "Modelos" {
+
+  class Solicitud {
+    + idSolicitud: int
+    + asunto: String
+    + remitente: String
+    + descripcion: String
+    + fechaRecepcion: DateTime
+    + estado: String
+  }
+
+  class Formulario {
+    + idFormulario: int
+    + idSolicitud: int
+    + datos: String
+    + fechaEnvio: DateTime
+    + estadoFormulario: String
+    + fechaResolucion: DateTime
+  }
+
+  class Respuesta {
+    + idRespuesta: int
+    + idSolicitud: int
+    + destinatario: String
+    + mensaje: String
+    + fechaEnvio: DateTime
+  }
+}
+
+package "Servicios Externos" {
+
+  class OutlookService {
+    + leerBuzon(): CorreoEntradaOutlook
+    + enviarCorreo(respuesta: Respuesta): void
+  }
+
+  class FormsService {
+    + obtenerFormulario(idFormulario: String): Formulario
+  }
+
+  class PowerBIService {
+    + consultarPendientes(): List<Solicitud>
+    + refrescarPanel(): void
+    + actualizarEstadoFormulario(idFormulario: int, estado: String): void
+  }
+}
+
+CorreoEntradaOutlook --> EnviarSolicitudFlow
+CorreoRespuestaOutlook --> RecibirRespuestaFlow
+FormularioMicrosoftForms --> CompletarFormularioFlow
+PanelSolicitudesPowerBI --> VerSolicitudesPendientesFlow
+VistaActualizarEstadoFormulario --> ActualizarEstadoFormularioFlow
+
+EnviarSolicitudFlow --> Solicitud
+RecibirRespuestaFlow --> Solicitud
+RecibirRespuestaFlow --> Respuesta
+CompletarFormularioFlow --> Formulario
+CompletarFormularioFlow --> Solicitud
+VerSolicitudesPendientesFlow --> Solicitud
+ActualizarEstadoFormularioFlow --> Formulario
+
+Solicitud "1" -- "0..1" Formulario
+Solicitud "1" -- "0..1" Respuesta
+
+EnviarSolicitudFlow --> OutlookService
+RecibirRespuestaFlow --> OutlookService
+CompletarFormularioFlow --> FormsService
+VerSolicitudesPendientesFlow --> PowerBIService
+ActualizarEstadoFormularioFlow --> PowerBIService
+
+@enduml

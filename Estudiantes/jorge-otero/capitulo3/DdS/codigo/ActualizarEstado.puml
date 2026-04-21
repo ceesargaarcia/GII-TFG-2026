@@ -1,0 +1,26 @@
+@startuml ActualizarEstado
+title Diagrama de Secuencia - Actualizar Estado
+
+actor Tecnico
+participant "Power BI" as PowerBI
+participant "ActualizarEstadoFormularioFlow" as Flow
+participant "Formulario" as Formulario
+
+Tecnico -> PowerBI : seleccionarFormulario()
+PowerBI -> Flow : solicitarActualizacionEstado(idFormulario, estado)
+
+Flow -> PowerBI : obtenerFormulario(idFormulario)
+PowerBI --> Flow : datosFormulario
+
+Flow -> Formulario : validarExistencia(idFormulario)
+Formulario --> Flow : formularioValido
+
+Flow -> Formulario : actualizarEstado(estado)
+Formulario --> Flow : estadoActualizado
+
+Flow -> PowerBI : actualizarFormulario(idFormulario, estado)
+PowerBI --> Flow : actualizacionConfirmada
+
+PowerBI --> Tecnico : visualizarEstadoActualizado()
+
+@enduml

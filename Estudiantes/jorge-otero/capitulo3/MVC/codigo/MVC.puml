@@ -1,0 +1,29 @@
+@startuml MVC
+
+top to bottom direction
+skinparam packageStyle rectangle
+hide empty members
+
+package "Vistas" {
+  class EnvioSolicitudView
+  class RespuestaSolicitudView
+  class FormularioView
+  class SolicitudesPendientesView
+  class ActualizarEstadoView
+}
+
+package "Controladores" {
+  class EnviarSolicitudController
+  class RecibirRespuestaController
+  class CompletarFormularioController
+  class VerSolicitudesPendientesController
+  class ActualizarEstadoController
+}
+
+package "Modelos" {
+  class Solicitud
+  class Formulario
+  class Respuesta
+}
+
+@enduml

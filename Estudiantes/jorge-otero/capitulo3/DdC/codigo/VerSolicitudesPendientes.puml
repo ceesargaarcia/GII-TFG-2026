@@ -1,0 +1,22 @@
+@startuml VerSolicitudesPendientes
+top to bottom direction
+
+actor Tecnico
+
+package "VerSolicitudesPendientes()" {
+
+  rectangle "SolicitudesPendientesView" as View
+  rectangle "VerSolicitudesPendientesController" as Controller
+  rectangle "Solicitud" as Solicitud
+
+  Controller -[hidden]-> Solicitud
+  View -[hidden]right-> Solicitud
+
+  View --> Controller : solicitarPendientes()
+  Controller --> Solicitud : obtenerPendientes()
+
+}
+
+Tecnico --> View : verSolicitudesPendientes()
+
+@enduml
