@@ -48,12 +48,9 @@ else (SÍ)
 endif
 
 note right
-  **Clave del diseño:** el visor reconstruye
-  la visualización *como si fuera en vivo* a
-  partir del JSON guardado. No recalcula
-  nada contra PostgreSQL: el estado del día
-  en que se guardó queda íntegramente
-  preservado en MongoDB.
+  El visor reconstruye a partir del JSON guardado. 
+  No recalcula nada contra PostgreSQL: 
+  el estado del día en que se guardó queda registrado en MongoDB.
 end note
 
 @enduml

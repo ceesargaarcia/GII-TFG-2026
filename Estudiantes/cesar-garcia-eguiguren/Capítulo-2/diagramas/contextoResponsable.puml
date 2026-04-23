@@ -6,6 +6,7 @@ skinparam defaultFontColor #E2E8F5
 skinparam ArrowColor #10B981
 skinparam ArrowFontColor #8896A8
 skinparam ArrowFontSize 9
+skinparam NoteBackgroundColor #253346
 skinparam usecase {
   BackgroundColor #141824
   BorderColor #2A3850
@@ -28,61 +29,60 @@ skinparam package {
 top to bottom direction
 actor Responsable as R
 
-package "Autenticación" {
+package "P1 · Autenticación" {
   usecase "CU-01 Autenticarse" as CU01
   usecase "CU-16 Cerrar Sesión" as CU16
 }
 
-package "Empleados  [scope]" {
+package "P2 · Empleados  [scope]" {
   usecase "CU-02 Listar y Buscar Empleados" as CU02
   usecase "CU-03 Resumen de Empleado" as CU03
-  CU02 -down-> CU03
+  CU02 -down-> CU03 : selecciona un empleado
 }
 
-package "Departamentos  [scope]" {
+package "P3 · Departamentos  [scope]" {
   usecase "CU-04 Listar Departamentos" as CU04
   usecase "CU-05 Resumen de Departamento" as CU05
-  CU04 -down-> CU05
+  CU04 -down-> CU05 : selecciona un departamento
 }
 
-package "Proyectos  [scope]" {
+package "P4 · Proyectos  [scope]" {
   usecase "CU-06 Listar Proyectos" as CU06
   usecase "CU-07 Resumen de Proyecto" as CU07
-  CU06 -down-> CU07
+  CU06 -down-> CU07 : selecciona un proyecto
 }
 
-package "Tareas  [scope]" {
+package "P5 · Tareas  [scope]" {
   usecase "CU-08 Listar y Filtrar Tareas" as CU08
   usecase "CU-09 Detalle de Tarea" as CU09
-  CU08 -down-> CU09
+  CU08 -down-> CU09 : selecciona una tarea
 }
 
-package "Métricas Operativas" {
+package "P6 · Métricas Operativas  [scope]" {
   usecase "CU-10\nConsultar Métrica Operativa\n(scope aplicado)" as CU10
 }
 
-package "Análisis Visual" {
-  usecase "CU-11 Gráficos Analíticos  [scope]" as CU11
-  usecase "CU-12 Asistencia\n[solo modo Equipo]" as CU12
+package "P7 · Análisis Visual  [scope]" as AV{
+  usecase "CU-11 Ver Gráficos Analíticos  [scope]" as CU11
+  usecase "CU-12 Consultar Asistencia  [scope]" as CU12
 }
 
-package "Utilidades" {
+package "P9 · Utilidades" {
   usecase "CU-15 Búsqueda Global  [scope]" as CU15
 }
 
-package "Snapshots (MongoDB)" #0F1E2A {
+package "P10 · Snapshots (MongoDB)" #0F1E2A {
   usecase "CU-17 Guardar Snapshot" as CU17
   usecase "CU-18 Listar Snapshots" as CU18
   usecase "CU-19 Detalle Snapshot" as CU19
-  usecase "CU-20 Eliminar Snapshot" as CU20
 
   CU18 -down-> CU19
-  CU19 -right-> CU20
 }
 
+' ── Entradas del Responsable ──────────────────────────────────
 R -down-> CU01
 R -down-> CU16
-R --> CU02
+R --> CU02 
 R --> CU04
 R --> CU06
 R --> CU08
@@ -93,36 +93,47 @@ R --> CU15
 R --> CU17
 R --> CU18
 
-CU05 -right-> CU03
-CU07 -up-> CU03
-CU03 -down-> CU08
-CU07 -down-> CU08
-CU09 -up-> CU07
-CU09 -left-> CU03
+' ── Navegación lateral entre entidades ───────────────────────
+CU05 -right-> CU03 : empleados del departamento
+CU07 -up-> CU03 : empleados del proyecto
+CU03 -down-> CU08 : tareas del empleado
+CU07 -down-> CU08 : tareas del proyecto
+CU09 -up-> CU07 : proyecto de la tarea
+CU09 -left-> CU03 : responsable de la tarea
 
-CU03 .down.> CU10
-CU05 .down.> CU10
-CU07 .down.> CU10
+' ── KPIs consumidos desde resúmenes ──────────────────────────
+CU03 .down.> CU10 : métricas del empleado
+CU05 .down.> CU10 : métricas del departamento
+CU07 .down.> CU10 : métricas del proyecto
 
-CU10 ..down..> CU17
-CU11 ..down..> CU17
-CU03 ..down..> CU17
-CU05 ..down..> CU17
-CU07 ..down..> CU17
-CU09 ..down..> CU17
+' ── <<extend>> → guardar snapshot ────────────────────────────
+' Métricas y gráficos
+CU10 ..down..> CU17 : <<extend>> 
+AV ..down..> CU17 : <<extend>>
+' Fichas de entidad
+CU03 ..down..> CU17 : <<extend>>
+CU05 ..down..> CU17 : <<extend>>
+CU07 ..down..> CU17 : <<extend>>
+CU09 ..down..> CU17 : <<extend>>
 
-CU15 --> CU03
+' ── Navegación desde búsqueda global ─────────────────────────
+CU15 --> CU03 
 CU15 --> CU07
 CU15 --> CU09
 
 note bottom
-  **Ámbito del Responsable:** CU-13 y CU-14
-  (Rentabilidad financiera y Líneas analíticas)
-  están vetados (HTTP 403). El resto de CUs
-  aplica filtrado por scope; los snapshots de
-  MongoDB se comparten entre usuarios, pero los
-  snapshots de rentabilidad no aparecen porque
-  el Responsable no puede generarlos.
+  **Ámbito del Responsable:**
+  · CU-13 y CU-14 (Rentabilidad financiera y
+    Líneas analíticas) vetados → HTTP 403.
+  · CU-20 (Eliminar Snapshot) vetado →
+    el visor es de solo lectura para este rol.
+  · Los 17 CU disponibles aplican filtrado
+    automático por scope (employee_ids,
+    department_ids, project_ids del JWT).
+  · Las snapshots de rentabilidad (CU-13) no
+    aparecen porque el Responsable no puede
+    generarlas, aunque sí puede listar las de
+    otros usuarios en CU-18/CU-19.
 end note
 
 @enduml

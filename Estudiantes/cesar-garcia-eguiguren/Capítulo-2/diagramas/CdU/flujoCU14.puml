@@ -10,8 +10,7 @@ skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
 
-title CU-14 · Consultar Líneas Analíticas
-(scope: proyecto | cliente — Director exclusivo)
+title CU-14 · Consultar Líneas Analíticas (Director exclusivo)
 
 start
 :El Director solicita el detalle de
@@ -50,11 +49,6 @@ else (SÍ)
 endif
 
 note right
-  **Consolidación RUP:** CU único parametrizado
-  por scope. Antes existía un CU por fuente (uno
-  para proyecto, otro para cliente) que compartían
-  actor, precondición, postcondición y flujo
-  principal — solo cambiaba la agregación.
   Este CU se invoca siempre vía <<extend>> de CU-13.
   Requiere rol Director (require_director).
 end note

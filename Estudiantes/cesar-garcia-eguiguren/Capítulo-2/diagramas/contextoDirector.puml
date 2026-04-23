@@ -62,14 +62,14 @@ package "Métricas Operativas" {
 }
 
 package "Análisis Visual" {
-  usecase "CU-11\nGráficos Analíticos" as CU11
-  usecase "CU-12\nAsistencia vs Imputaciones" as CU12
+  usecase "CU-11\nVer Gráficos Analíticos" as CU11
+  usecase "CU-12\nConsultar Asistencia" as CU12
 }
 
 package "Rentabilidad  ★ Director exclusivo" #1A0A0A {
-  usecase "CU-13\nRentabilidad Financiera" as CU13
-  usecase "CU-14\nLíneas Analíticas\n(scope: proyecto | cliente)" as CU14
-  CU13 -down-> CU14 : "Ver detalles"\n(drill-down)
+  usecase "CU-13\nConsultar Rentabilidad Financiera" as CU13
+  usecase "CU-14\nVer Líneas Analíticas\n(proyecto y cliente)" as CU14
+  CU13 -down-> CU14 : "Ver detalles"
 }
 
 package "Utilidades" {
@@ -112,8 +112,8 @@ CU05 .down.> CU10 : workload depart.
 CU07 .down.> CU10 : eficiencia/riesgo proyecto
 
 CU10 ..down..> CU17 : guardar métrica
-CU11 ..down..> CU17 : guardar gráfico
-CU13 ..down..> CU17 : guardar rentabilidad
+"Análisis Visual" ..down..> CU17 : guardar gráfico
+"Rentabilidad  ★ Director exclusivo" .down.> CU17 : guardar rentabilidad
 CU03 ..down..> CU17 : guardar entidad (empl.)
 CU05 ..down..> CU17 : guardar entidad (depart.)
 CU07 ..down..> CU17 : guardar entidad (proy.)
