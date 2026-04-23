@@ -69,7 +69,7 @@ Finalmente, el Administrador dispone de vistas exclusivas para la gestión de re
 
 ### CU-04 Abrir mesa
 
-Permite al Camarero o al Administrador cambiar el estado de una mesa libre a ocupada cuando llegan nuevos clientes al restaurante. Este caso deuso constituye el inicio del flujo operativo en sala, ya que una vez abierta la mesa queda habilitada para asociar una comanda activa y continuar con el servicio.
+Permite al Camarero o al Administrador cambiar el estado de una mesa libre a ocupada cuando llegan nuevos clientes al restaurante. Este caso de uso constituye el inicio del flujo operativo en sala, ya que una vez abierta la mesa queda habilitada para asociar una comanda activa y continuar con el servicio.
 
 **Modelos implicados**
 
@@ -97,7 +97,7 @@ La interacción se realiza desde `MesasView`, que constituye la pantalla princip
 
 ### CU-06 Tomar comanda
 
-Permite registrar digitalmente los platos solicitados por una mesa ocupada, incluyendo cantidades, observaciones y alérgenos obligatorios. Se trata de una de las funcionalidades claves del nuevo sistema, ya que sustituye a la comanda en papel, conecta directamente sala con cocina y garantiza que la información crítica quede registrada incluso ante fallos puntuales de conectividad gracias al enfoque local-first planteado para la solución.
+Permite registrar digitalmente los platos solicitados por una mesa ocupada, incluyendo cantidades, observaciones y alérgenos obligatorios. Se trata de una de las funcionalidades clave del nuevo sistema, ya que sustituye a la comanda en papel, conecta directamente sala con cocina y garantiza que la información crítica quede registrada incluso ante fallos puntuales de conectividad gracias al enfoque local-first planteado para la solución.
 
 **Modelos implicados**
 
@@ -152,3 +152,119 @@ La edición se realiza desde `ComandaView`, reutilizando la misma vista de toma 
 **Diagrama propuesto**
 
 ![editarComanda](/Estudiantes/daniel-puente/Capitulo-3/imagenes/editarComanda.svg)
+
+### CU-12 Marcar plato como listo
+
+Permite al Cocinero indicar en la pantalla KDS que un plato que estaba en preparación ya se encuentra finalizado y disponible para ser servido en sala. Este caso de uso forma parte del flujo central de coordinación entre cocina y camareros, ya que al completarse el cambio de estado el sistema debe notificar automáticamente al camarero responsable de la mesa para agilizar la entrega del plato al cliente. 
+
+**Modelos implicados**
+
+Los modelos principales involucrados son `Comanda`, `LineaComanda`, `Mesa` y `LogAuditoria`. `LineaComanda` es la entidad más relevante, ya que cada plato individual mantiene su propio estado dentro del ciclo pendiente, en preparación o listo. `Comanda` agrupa las líneas pertenecientes a la misma mesa, `Mesa` permite contextualizar a qué servicio corresponde el plato finalizado y `LogAuditoria` conserva trazabilidad sobre el cambio de estado realizado por cocina.
+
+**Controladores implicados**
+
+La lógica principal recae sobre `KDSController`, encargado de recuperar las líneas de comanda visibles en cocina, verificar que el plato se encuentra efectivamente en estado **en preparación** y actualizarlo a **listo**. Tras esta actualización, el controlador debe coordinarse con el módulo de notificaciones para emitir un evento en tiempo real hacia el camarero correspondiente, cumpliendo así con el requisito de avisos automáticos vía WebSocket cuando un plato esté listo para servir. 
+
+**Rutas propuestas**
+
+Para dar soporte a este caso de uso, la API REST debe permitir consultar las comandas activas en cocina y actualizar el estado de una línea concreta. Estas operaciones deben estar protegidas por autenticación y restringidas al rol Cocinero para mantener la coherencia del flujo operativo.
+
+| Método | Ruta | Descripción | Roles permitidos |
+|---|---|---|---|
+| GET | /api/kds/comandas | Recupera las comandas visibles en la pantalla KDS | Cocinero |
+| PATCH | /api/lineas-comanda/:lineaId/listo | Cambia el estado de una línea de comanda a listo | Cocinero |
+
+**Vista implicada**
+
+La interacción se realiza desde `KDSView`, que muestra al cocinero las comandas pendientes y en preparación con sus platos, cantidades, alérgenos y observaciones destacadas visualmente. Desde esta vista, el usuario puede pulsar la acción **Listo** sobre una línea concreta y provocar tanto la actualización del estado como el envío de la notificación correspondiente al camarero.
+
+**Diagrama propuesto**
+
+![platoListo](/Estudiantes/daniel-puente/Capitulo-3/imagenes/platoListo.svg)
+
+### CU-14 Enviar ticket a caja
+
+Permite al Camarero o al Administrador generar el ticket de una mesa a partir de su comanda activa y dejarlo disponible para su posterior cobro en caja. Este caso de uso supone la transición entre la fase de servicio en sala y la fase de facturación, ya que consolida los platos consumidos, calcula el importe total y registra la información necesaria para su control posterior.
+
+**Modelos implicados**
+
+En este caso intervienen `Mesa`, `Comanda`, `LineaComanda`, `Ticket`, `Zona` y `LogAuditoria`. `Comanda` y `LineaComanda` aportan el detalle de productos consumidos, `Ticket` representa el documento económico generado a partir de ese consumo, `Mesa` y `Zona` identifican el origen del servicio y `LogAuditoria` garantiza la trazabilidad del envío del ticket a caja con usuario y marca temporal.
+
+**Controladores implicados**
+
+La lógica principal se concentra en `TicketController`, que debe recuperar la comanda activa de la mesa, calcular el desglose económico del servicio y generar el ticket con todos los campos obligatorios: camarero, mesa, zona, timestamp, platos, precios y total. Además, debe comprobar que la mesa no haya sido ya cobrada y cerrada, ya que en ese caso se activaría el flujo alternativo asociado al rechazo de ticket por mesa ya cobrada. Finalmente, el envío debe quedar registrado en auditoría para cumplir con los requisitos de trazabilidad del sistema.
+
+**Rutas propuestas**
+
+El diseño de la API contempla una ruta de consulta de la comanda activa y una ruta específica para generar el ticket asociado a la mesa. Ambas deben requerir autenticación previa y limitarse a los roles con acceso operativo a sala o caja.
+
+| Método | Ruta | Descripción | Roles permitidos |
+|---|---|---|---|
+| GET | /api/comandas/mesa/:mesaId/activa | Recupera la comanda activa sobre la que se generará el ticket | Camarero, Administrador |
+| POST | /api/tickets | Genera y envía a caja el ticket de una mesa | Camarero, Administrador |
+
+**Vista implicada**
+
+La acción se desencadena desde `ComandaView` o desde una vista resumida de la mesa dentro del plano de sala. En ambas alternativas, el usuario consulta el detalle del servicio y pulsa la opción **Enviar a caja**, tras lo cual el sistema muestra el ticket generado y lo deja disponible en la vista de caja para el Administrador. 
+
+**Diagrama propuesto**
+
+![ticketCaja](/Estudiantes/daniel-puente/Capitulo-3/imagenes/ticketCaja.svg)
+
+
+### CU-17 Cobrar ticket en caja
+
+Permite al Administrador confirmar el cobro de un ticket previamente enviado a caja, cerrar la operación económica y dar por finalizado el servicio asociado a la mesa. Este caso de uso es exclusivo del rol Administrador y constituye el cierre formal del flujo de facturación, ya que a partir de él el sistema deja constancia del cobro y habilita la liberación de la mesa para un nuevo servicio.
+
+**Modelos implicados**
+
+Los modelos principales son `Ticket`, `Mesa`, `Usuario` y `LogAuditoria`. `Ticket` almacena la información económica pendiente de cobro, `Mesa` representa el recurso físico que debe quedar liberado tras finalizar la operación, `Usuario` identifica al Administrador que ejecuta el cobro y `LogAuditoria` registra de forma inmutable la acción realizada con su correspondiente timestamp.
+
+**Controladores implicados**
+
+La lógica se centraliza en `TicketController`, que agrupa la gestión completa del ciclo de vida del ticket, incluyendo su envío, cobro y registro en auditoría. Este controlador recupera los tickets pendientes de cobro, permite seleccionar uno concreto y valida que el usuario autenticado disponga del rol Administrador antes de confirmar la operación. Tras ello, actualiza el estado del ticket a cobrado, registra la acción en el log de auditoría y coordina el cierre de la mesa asociada a través de `MesaController`, en consonancia con la relación `<<include>>` definida entre **CU-17 Cobrar ticket en caja** y **CU-05 Cerrar mesa**.
+
+**Rutas propuestas**
+
+La API REST debe proporcionar una ruta para consultar tickets pendientes en caja y otra para confirmar el cobro de uno de ellos. Ambas deben exigir autenticación, y la segunda debe quedar restringida exclusivamente al Administrador.
+
+| Método | Ruta | Descripción | Roles permitidos |
+|---|---|---|---|
+| GET | /api/caja/tickets-pendientes | Recupera los tickets pendientes de cobro | Administrador |
+| PATCH | /api/tickets/:ticketId/cobrar | Marca un ticket como cobrado y desencadena el cierre de mesa | Administrador |
+
+**Vista implicada**
+
+La interacción se realiza desde `CajaView`, pantalla exclusiva del Administrador donde se listan los tickets pendientes con la información mínima necesaria para operar: mesa, zona, camarero, desglose resumido y total. Desde esta vista, el Administrador selecciona un ticket, confirma el cobro y provoca el cambio de estado tanto del ticket como de la mesa asociada.
+
+**Diagrama propuesto**
+
+![cobrarTicket](/Estudiantes/daniel-puente/Capitulo-3/imagenes/cobrarTicket.svg)
+
+### CU-05 Cerrar mesa
+
+Permite al Administrador liberar una mesa ocupada una vez que el ticket asociado ha sido cobrado correctamente. Se trata del último paso del flujo operativo de atención a una mesa, ya que con esta acción el sistema da por finalizado el servicio, elimina la ocupación activa y deja la mesa disponible para nuevos comensales.
+
+**Modelos implicados**
+
+Los modelos implicados son `Mesa`, `Ticket`, `Zona` y `LogAuditoria`. `Mesa` es la entidad principal, dado que su estado cambia de ocupada a libre; `Ticket` se utiliza para verificar que el servicio ha sido realmente cobrado antes de autorizar el cierre; `Zona` permite mantener la coherencia visual del plano del restaurante y `LogAuditoria` registra el cierre con su correspondiente usuario y timestamp.
+
+**Controladores implicados**
+
+La lógica funcional se apoya en `MesaController`, que recibe la solicitud de cierre, verifica que la mesa está ocupada y comprueba que el ticket vinculado se encuentra ya en estado cobrado. Solo si ambas condiciones se cumplen, el controlador actualiza el estado de la mesa a libre, registra el evento de cierre y difunde el cambio al resto de dispositivos conectados para que el plano de sala se mantenga sincronizado en tiempo real. Dado que el requisito funcional establece que el cierre es exclusivo del Administrador tras el cobro, esta operación debe estar protegida por validación de rol y dependencia respecto al estado previo del ticket.
+
+**Rutas propuestas**
+
+La API debe exponer una ruta específica de cierre de mesa, restringida al rol Administrador y condicionada a que el ticket asociado haya sido cobrado previamente.
+
+| Método | Ruta | Descripción | Roles permitidos |
+|---|---|---|---|
+| PATCH | /api/mesas/:mesaId/cerrar | Cambia el estado de una mesa ocupada a libre tras verificar el cobro | Administrador |
+
+**Vista implicada**
+
+La operación puede realizarse desde `CajaView` como consecuencia del cobro o desde `MesasView` para reflejar visualmente que la mesa vuelve a quedar libre dentro del plano del restaurante. En ambos casos, el cambio debe propagarse de inmediato al resto de usuarios conectados para que el estado del plano siga siendo consistente en tiempo real. 
+
+**Diagrama propuesto**
+
+![cerrarMesa](/Estudiantes/daniel-puente/Capitulo-3/imagenes/cerrarMesa.svg)
