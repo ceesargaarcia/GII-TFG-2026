@@ -10,7 +10,7 @@ skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
 
-title CU-20 · Eliminar Snapshot
+title CU-20 · Eliminar Snapshot (Director exclusivo)
 
 start
 :El actor pulsa "Eliminar" desde el
@@ -52,8 +52,6 @@ note right
   volver a guardar el mismo día con los mismos
   parámetros creará una snapshot nueva vía CU-17
   con created_at actual.
-
-  Endpoint protegido por require_manager_or_above.
 end note
 
 @enduml

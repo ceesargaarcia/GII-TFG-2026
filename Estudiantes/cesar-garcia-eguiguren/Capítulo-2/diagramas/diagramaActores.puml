@@ -23,7 +23,7 @@ actor "Responsable\nScope inyectado en JWT:\nemployee_ids\ndepartment_ids\nproje
 
 rectangle "Netkia Analytics\nMódulo externo sobre Odoo v16" as System #141824 {
 
-  rectangle "CU-01 · Autenticarse" as CU01 #BB3A29
+  rectangle "CU-01 · Iniciar Sesión" as CU01 #BB3A29
 
   rectangle "P2–P5 · Entidades operativas (CU-02..CU-09)\nEmpleados · Departamentos · Proyectos · Tareas" as P2 #927410
 
@@ -33,11 +33,10 @@ rectangle "Netkia Analytics\nMódulo externo sobre Odoo v16" as System #141824 {
 
   rectangle "P8 · Rentabilidad (CU-13, CU-14)\n★ Exclusivo Director · 403 para Responsable\nCU-14 unifica líneas de proyecto y de cliente" as P8 #4B3FA6
 
-  rectangle "P9 · Utilidades (CU-15, CU-16)\nBúsqueda global · Cerrar sesión" as P9 #927410
+  rectangle "P9 · Utilidades (CU-15, CU-16)\nBúsqueda global" as P9 #927410
 
   rectangle "P10 · Snapshots (CU-17..CU-20)\nGuardar (upsert diario) · Listar\nDetalle · Eliminar" as P10 #3A6A8A
 
-  rectangle "Middleware JWT\nrequire_manager_or_above\nrequire_director · verify_*_scope()\nHTTP 401 / 403" as JWT #444444
 }
 
 actor "Odoo v16 ERP\n(PostgreSQL · solo lectura)\n\nhr_employee · res_users\nproject_project · hr_department\nproject_task · hr_attendance\naccount_analytic_line" as Odoo #555555
@@ -66,9 +65,8 @@ P7 ..> P10 : datos calculados →\n"Guardar snapshot"
 P8 ..> P10 : datos calculados →\n"Guardar snapshot"
 P2 ..> P10 : datos entidad →\n"Guardar snapshot"
 
-CU01 --> JWT
 
-note bottom of System
+note right of System
   **Dos frontends** comparten este backend único
   y el mismo esquema JWT:
   · **Frontend principal** (puerto 3000): calcula

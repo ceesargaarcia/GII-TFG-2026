@@ -36,7 +36,7 @@
 
 ### 5.1 Patrón arquitectónico
 
-El sistema materializa una **arquitectura por capas de cuatro niveles** en el backend, complementada con dos aplicaciones SPA desacopladas (frontend principal y visor de snapshots) que consumen el mismo backend. Aunque la terminología MVC es utilizada como herramienta de análisis para clasificar las clases, la estructura de implementación va más allá del MVC clásico de tres niveles por razones de complejidad del dominio analítico.
+El sistema materializa una **arquitectura por capas de cuatro niveles** en el backend, complementada con dos aplicaciones independientes (frontend principal y visor de capturas) que consumen el mismo backend. Aunque la terminología MVC es utilizada como herramienta de análisis para clasificar las clases, la estructura de implementación va más allá del MVC clásico de tres niveles por razones de complejidad del dominio analítico.
 
 | Concepto MVC | Materialización en la solución |
 |---|---|
@@ -44,7 +44,7 @@ El sistema materializa una **arquitectura por capas de cuatro niveles** en el ba
 | **Vista** | React SPA (principal y visor) + `schemas/` (contratos JSON) |
 | **Controlador** | `routes/` (HTTP) + `services/` (lógica de negocio) |
 
-La capa de servicios no existe en el MVC puro de tres capas. Se introduce porque los cálculos de métricas operativas requieren orquestar múltiples consultas y aplicar fórmulas complejas; concentrar esa lógica en los controladores produciría módulos de cientos de líneas con baja cohesión. El subsistema de snapshots sigue el mismo patrón: `SnapshotService` encapsula la lógica de normalización, cálculo de hash, construcción del actor y decisión upsert, evitando contaminar las rutas con lógica transversal.
+La capa de servicios no existe en el MVC puro de tres capas. Se introduce porque los cálculos de métricas operativas requieren orquestar múltiples consultas y aplicar fórmulas complejas; concentrar esa lógica en los controladores produciría módulos de cientos de líneas con baja cohesión.
 
 ### 5.2 Stack tecnológico
 
@@ -63,9 +63,9 @@ La capa de servicios no existe en el MVC puro de tres capas. Se introduce porque
 
 El control de acceso se resuelve en dos momentos:
 
-1. **Login:** `scope_service` calcula el rol del usuario (`director` / `responsable` / `empleado`) y su ámbito organizativo (`employee_ids`, `department_ids`, `project_ids`) consultando las jerarquías de Odoo. Este ámbito se embebe en el token JWT.
+1. **Login:** el servicio de autenticación calcula el rol del usuario (`director` / `responsable` / `empleado`) y su ámbito organizativo (`employee_ids`, `department_ids`, `project_ids`) consultando las jerarquías de Odoo. Este ámbito se embebe en el token JWT.
 
-2. **Cada petición:** el middleware de autenticación decodifica el token, reconstruye el objeto `CurrentUser` y los guards (`require_manager_or_above`, `require_director`) bloquean el acceso según el rol. Los servicios aplican filtros de scope sobre las consultas usando los ids embebidos.
+2. **Cada petición:** el middleware de autenticación decodifica el token, reconstruye el objeto `CurrentUser` y los guards (`require_manager_or_above`, `require_director`) bloquean el acceso según el rol. Los servicios aplican filtros de ámbito sobre las consultas usando los identificadores embebidos.
 
 #### Dónde se verifica y aplica el scope
 
@@ -127,7 +127,7 @@ En desarrollo, cada frontend corre con su propio servidor Vite y un proxy invers
 
 ## 6. Diseño de Casos de Uso
 
-Esta sección especifica el flujo detallado de los casos de uso más representativos, trazando la interacción a través de todas las capas hasta que se devuelve la respuesta final. En todos los casos se aplica el mismo patrón de control de acceso en tres capas: la ruta aplica el guard de rol (Capa 1), el servicio verifica el acceso a entidades concretas (Capa 2) y filtra los listados al scope del JWT (Capa 3), y el repositorio ejecuta la consulta sin conocer nada de roles ni permisos.
+Esta sección especifica el flujo detallado de los casos de uso más representativos, trazando la interacción a través de todas las capas hasta que se devuelve la respuesta final. En todos los casos se aplica el mismo patrón de control de acceso en tres capas: la ruta aplica el guard de rol (Capa 1), el servicio verifica el acceso a entidades concretas (Capa 2) y filtra los listados al ámbito del JWT (Capa 3), y el repositorio ejecuta la consulta sin conocer nada de roles ni permisos.
 
 ---
 

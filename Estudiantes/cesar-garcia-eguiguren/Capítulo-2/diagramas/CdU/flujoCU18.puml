@@ -13,10 +13,9 @@ skinparam NoteBorderColor #38BDF8
 title CU-18 · Listar Snapshots
 
 start
-:El actor accede al visor de snapshots
-(frontend2) y se autentica (CU-01);
+:El actor accede al visor de snapshots y se autentica (CU-01);
 
-:El visor carga la home con el resumen:
+:El visor carga la pagina inicial con el resumen:
 · total de snapshots por colección
 · snapshots guardadas hoy;
 
