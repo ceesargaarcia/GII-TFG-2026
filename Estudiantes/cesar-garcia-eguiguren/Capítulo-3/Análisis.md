@@ -59,7 +59,7 @@ Tras la aplicación de los principios de consolidación RUP documentados en el C
 | Actor | CUs disponibles | Descripción |
 |---|---|---|
 | **Director** | 20 | Acceso total. Ve datos de toda la organización: todos los empleados, proyectos, departamentos y métricas financieras. |
-| **Responsable** | 18 | Acceso restringido a su ámbito (empleados de su equipo, proyectos que gestiona, departamentos a su cargo). No puede acceder a los casos de uso exclusivos de Rentabilidad Financiera (CU-13 y CU-14). |
+| **Responsable** | 17 | Acceso restringido a su ámbito (empleados de su equipo, proyectos que gestiona, departamentos a su cargo). No puede eliminar snapshots ni acceder a los casos de uso exclusivos de Rentabilidad Financiera (CU-13 y CU-14). |
 
 ### 2.2 Casos de uso del sistema
 
@@ -171,7 +171,7 @@ Tras la aplicación de los principios de consolidación RUP documentados en el C
 
 ### 3.1 Capas de la solución
 
-La solución sigue una **arquitectura por capas** con cuatro niveles en el backend y dos aplicaciones independientes (frontend principal y visor) sobre el mismo backend. Las dependencias fluyen exclusivamente hacia abajo (nunca ascienden).
+La solución sigue una **arquitectura por capas** en el backend y dos aplicaciones independientes (frontend principal y visor) sobre el mismo backend. Las dependencias fluyen exclusivamente hacia abajo (nunca ascienden).
 
 | Capa | Responsabilidad | Cambios por |
 |------|-----------------|-------------|
@@ -184,8 +184,8 @@ La solución sigue una **arquitectura por capas** con cuatro niveles en el backe
 | **Utils** | Constantes y utilidades compartidas | Nuevas constantes, nuevos helpers |
 
 Cada capa tiene **una única razón para cambiar** (Principio de Responsabilidad Única).
-
-Aunque el subsistema de capturas persiste en una base de datos distinta, respeta la misma arquitectura en cuatro niveles: tiene su propia ruta, su servicio, su repositorio y su esquema de datos. No introduce un modelo ORM porque la base documental no requiere mapeo relacional; la serialización y deserialización de los documentos se realiza directamente a través del esquema correspondiente.
+Además, el backend se conecta a dos bases de datos distintas: la relacional del ERP en modo solo lectura, y la documental de capturas en modo lectura/escritura. El acceso a ambas se encapsula en la capa de repositorios, que es la única que interactúa directamente con las bases de datos.
+Aunque el subsistema de capturas persiste en una base de datos distinta, respeta la misma arquitectura: tiene su propia ruta, su servicio, su repositorio y su esquema de datos. No introduce un modelo ORM porque la base documental no requiere mapeo relacional; la serialización y deserialización de los documentos se realiza directamente a través del esquema correspondiente.
 
 ### 3.2 Identificación de clases de análisis
 
@@ -298,7 +298,7 @@ app/
 │   ├── project.py       → Acceso al dominio de proyectos
 │   ├── department.py    → Acceso al dominio de departamentos
 │   ├── task.py          → Acceso al dominio de tareas
-│   ├── analytic_line.py → Acceso al dominio de partes de horas
+│   ├── tracking.py      → Acceso al dominio de partes de horas
 │   ├── attendance.py    → Acceso al dominio de fichajes
 │   ├── snapshot.py      → Acceso a las tres colecciones documentales
 │   └── metrics/         → Sub-paquete: una función por métrica operativa
@@ -341,10 +341,8 @@ Aunque el diseño de calidad recae principalmente sobre el backend, los frontend
 
 ```
 src/
-├── api/            → Un módulo por dominio (empleados, tareas, métricas,
-│                     gráficos, rentabilidad, capturas, búsqueda, autenticación)
-├── components/     → Componentes reutilizables (Card, Table, KpiCard, Sidebar,
-│                     botón de guardado de captura...)
+├── api/            → Un módulo por dominio (empleados, tareas, métricas,gráficos, rentabilidad, capturas, búsqueda, autenticación)
+├── components/     → Componentes reutilizables (Card, Table, KpiCard, Sidebar,botón de guardado de captura...)
 ├── context/        → Estado global de autenticación
 ├── hooks/          → Lógica reutilizable
 ├── pages/          → Una página por recurso o funcionalidad
