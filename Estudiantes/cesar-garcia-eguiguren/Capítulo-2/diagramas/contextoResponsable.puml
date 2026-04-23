@@ -1,117 +1,128 @@
-@startuml Contexto_Responsable
+@startuml ContextoResponsable
 !theme plain
 
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
-skinparam ArrowColor #10b981
+skinparam ArrowColor #10B981
 skinparam ArrowFontColor #8896A8
 skinparam ArrowFontSize 9
-
 skinparam usecase {
   BackgroundColor #141824
   BorderColor #2A3850
   FontColor #E2E8F5
   FontSize 10
 }
-
 skinparam actor {
   BackgroundColor #1E2840
-  BorderColor #10b981
+  BorderColor #10B981
   FontColor #E2E8F5
 }
-
 skinparam package {
   BackgroundColor #0D1018
   BorderColor #2A3850
-  FontColor #10b981
+  FontColor #10B981
   FontSize 11
   FontStyle bold
 }
 
 top to bottom direction
-
 actor Responsable as R
 
-'── Autenticación ──────────────────────────────
 package "Autenticación" {
-  usecase "CU-01\nAutenticarse en el Sistema" as CU01
-  usecase "CU-27\nCerrar Sesión" as CU27
+  usecase "CU-01 Autenticarse" as CU01
+  usecase "CU-16 Cerrar Sesión" as CU16
 }
 
-
-'── Empleados ──────────────────────────────────
 package "Empleados  [scope]" {
-  usecase "CU-02\nListar y Buscar Empleados" as CU02
-  usecase "CU-03\nVisualizar Resumen de Empleado" as CU03
-  CU02 -down-> CU03 : selecciona un empleado\nde la lista
+  usecase "CU-02 Listar y Buscar Empleados" as CU02
+  usecase "CU-03 Resumen de Empleado" as CU03
+  CU02 -down-> CU03
 }
 
-'── Departamentos ──────────────────────────────
 package "Departamentos  [scope]" {
-  usecase "CU-04\nListar Departamentos" as CU04
-  usecase "CU-05\nVisualizar Resumen de Departamento" as CU05
-  CU04 -down-> CU05 : selecciona un departamento\nde la cuadrícula
+  usecase "CU-04 Listar Departamentos" as CU04
+  usecase "CU-05 Resumen de Departamento" as CU05
+  CU04 -down-> CU05
 }
 
-'── Proyectos ──────────────────────────────────
 package "Proyectos  [scope]" {
-  usecase "CU-06\nListar Proyectos" as CU06
-  usecase "CU-07\nVisualizar Resumen de Proyecto" as CU07
-  CU06 -down-> CU07 : selecciona un proyecto\nde la cuadrícula
+  usecase "CU-06 Listar Proyectos" as CU06
+  usecase "CU-07 Resumen de Proyecto" as CU07
+  CU06 -down-> CU07
 }
 
-'── Tareas ─────────────────────────────────────
 package "Tareas  [scope]" {
-  usecase "CU-08\nListar y Filtrar Tareas" as CU08
-  usecase "CU-09\nConsultar Detalle de Tarea" as CU09
-  CU08 -down-> CU09 : selecciona una tarea\nde la tabla
+  usecase "CU-08 Listar y Filtrar Tareas" as CU08
+  usecase "CU-09 Detalle de Tarea" as CU09
+  CU08 -down-> CU09
 }
 
-'── Métricas ───────────────────────────────────
-package "Métricas Operativas (CU-10 a CU-20)" {
-  usecase "CU-10 Productividad · CU-11 Cumplimiento\nCU-12 WIP · CU-13 Carga de Trabajo\nCU-14 Riesgo · CU-15 Retrabajo\nCU-16 Exactitud · CU-17 Lead Time\nCU-18 Tiempo por Estado\nCU-19 Tareas Canceladas · CU-20 Tiempo por Prioridad" as METRICS
+package "Métricas Operativas" {
+  usecase "CU-10\nConsultar Métrica Operativa\n(scope aplicado)" as CU10
 }
 
-'── Análisis Visual ────────────────────────────
 package "Análisis Visual" {
-  usecase "CU-21\nVisualizar Gráficos Analíticos  [scope]" as CU21
-  usecase "CU-22\nAnalizar Asistencia vs Imputaciones\n[solo modo Equipo]" as CU22
-  usecase "CU-28\nSupervisar Distribución de Carga del Equipo  [scope]" as CU28
+  usecase "CU-11 Gráficos Analíticos  [scope]" as CU11
+  usecase "CU-12 Asistencia\n[solo modo Equipo]" as CU12
 }
 
-'── Utilidades ─────────────────────────────────
 package "Utilidades" {
-  usecase "CU-26\nRealizar Búsqueda Global  [scope]" as CU26
+  usecase "CU-15 Búsqueda Global  [scope]" as CU15
 }
 
-'══ Actor → secciones ═══════════════════════════
-R -down-> CU01 : inicia sesión con\nusuario y contraseña
-R -down-> CU27 : cierra su sesión\nactiva
-R --> CU02 : navega a la lista\nde empleados
-R --> CU04 : navega a la lista\nde departamentos
-R --> CU06 : navega a la lista\nde proyectos
-R --> CU08 : navega a la lista\nde tareas
-R --> METRICS : navega a la\npágina de métricas
-R --> CU21 : navega a la\npágina de gráficos
-R --> CU22 : navega a la\npágina de asistencia
-R --> CU26 : navega a la\nbúsqueda global
-R --> CU28 : navega al panel de\nsupervisión de carga
-'══ Navegación cruzada entre paquetes ═══════════
-CU05 -right-> CU03 : pulsa sobre un empleado\nde la tabla del departamento
-CU07 -up-> CU03 : pulsa sobre un empleado\ndel equipo del proyecto
-CU03 -down-> CU08 : pulsa sobre una pestaña\nde tareas del empleado
-CU07 -down-> CU08 : pulsa sobre la pestaña\n"Tareas" del proyecto
-CU09 -up-> CU07 : pulsa el enlace\nal proyecto de la tarea
-CU09 -left-> CU03 : pulsa sobre el responsable\no un empleado asignado
+package "Snapshots (MongoDB)" #0F1E2A {
+  usecase "CU-17 Guardar Snapshot" as CU17
+  usecase "CU-18 Listar Snapshots" as CU18
+  usecase "CU-19 Detalle Snapshot" as CU19
+  usecase "CU-20 Eliminar Snapshot" as CU20
 
-'══ Métricas consultadas en contexto (punteado) ══
-CU03 .down.> METRICS : accede a WIP, workload\ny productividad del empleado
-CU05 .down.> METRICS : accede al workload\nde cada empleado del departamento
-CU07 .down.> METRICS : accede a eficiencia\ny riesgo del proyecto
+  CU18 -down-> CU19
+  CU19 -right-> CU20
+}
 
-'══ Búsqueda global → resultados ════════════════
-CU26 --> CU03 : navega al resumen\ndel empleado encontrado
-CU26 --> CU07 : navega al resumen\ndel proyecto encontrado
-CU26 --> CU09 : navega al detalle\nde la tarea encontrada
+R -down-> CU01
+R -down-> CU16
+R --> CU02
+R --> CU04
+R --> CU06
+R --> CU08
+R --> CU10
+R --> CU11
+R --> CU12
+R --> CU15
+R --> CU17
+R --> CU18
+
+CU05 -right-> CU03
+CU07 -up-> CU03
+CU03 -down-> CU08
+CU07 -down-> CU08
+CU09 -up-> CU07
+CU09 -left-> CU03
+
+CU03 .down.> CU10
+CU05 .down.> CU10
+CU07 .down.> CU10
+
+CU10 ..down..> CU17
+CU11 ..down..> CU17
+CU03 ..down..> CU17
+CU05 ..down..> CU17
+CU07 ..down..> CU17
+CU09 ..down..> CU17
+
+CU15 --> CU03
+CU15 --> CU07
+CU15 --> CU09
+
+note bottom
+  **Ámbito del Responsable:** CU-13 y CU-14
+  (Rentabilidad financiera y Líneas analíticas)
+  están vetados (HTTP 403). El resto de CUs
+  aplica filtrado por scope; los snapshots de
+  MongoDB se comparten entre usuarios, pero los
+  snapshots de rentabilidad no aparecen porque
+  el Responsable no puede generarlos.
+end note
 
 @enduml

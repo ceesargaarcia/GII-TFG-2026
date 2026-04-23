@@ -1,56 +1,82 @@
-@startuml Netkia_Analytics
+@startuml DiagramaActores
+!theme plain
 left to right direction
 skinparam shadowing false
 skinparam roundcorner 15
-skinparam  BackgroundColor #000000
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam NoteBackgroundColor #323b57
 skinparam actor {
   BackgroundColor #4B3FA6
-  BorderColor #CCCCCC
-  FontColor #FFFFFF
+  BorderColor #E2E8F5
+  FontColor #E2E8F5
 }
-skinparam ArrowColor #FFFFFF
+skinparam ArrowColor #38BDF8
 skinparam rectangle {
-  BorderColor #CCCCCC
-  FontColor #FFFFFF
+  BorderColor #2A3850
+  FontColor #E2E8F5
 }
 
-actor "Director\nDatos globales sin filtro\n\n28 CU disponibles" as Director #4B3FA6
+actor "Director\nDatos globales sin filtro\n\n20 CU disponibles" as Director #4B3FA6
 
-actor "Responsable\nScope inyectado en JWT:\nemployee_ids\ndepartment_ids\nproject_ids\n\n25 CU disponibles" as Responsable #1F7A63
+actor "Responsable\nScope inyectado en JWT:\nemployee_ids\ndepartment_ids\nproject_ids\n\n17 CU disponibles" as Responsable #1F7A63
 
-rectangle "Netkia Analytics\nMódulo externo sobre Odoo v16" as System #3A3A3A {
+rectangle "Netkia Analytics\nMódulo externo sobre Odoo v16" as System #141824 {
 
-  rectangle "CU-01 · Autenticarse en el sistema" as CU01 #bb3a29ad
+  rectangle "CU-01 · Autenticarse" as CU01 #BB3A29
 
-  rectangle "P2–P5 · Entidades operativas\nEmpleados · Departamentos · Proyectos · Tareas" as P3 #927410
+  rectangle "P2–P5 · Entidades operativas (CU-02..CU-09)\nEmpleados · Departamentos · Proyectos · Tareas" as P2 #927410
 
-  rectangle "P6 · Métricas operativas (CU-10/20)\nProductividad · Riesgo · Lead time · WIP · Workload · ..." as P7 #927410
+  rectangle "P6 · Métricas (CU-10)\nCU único parametrizado sobre 15 servicios\n(productividad · WIP · workload indiv./equipo\nriesgo · compliance · lead time · ...)" as P6 #927410
 
-  rectangle "P7 · Análisis visual, asistencia/carga (CU-22, CU-23, CU-28)" as P8 #927410
+  rectangle "P7 · Análisis visual (CU-11, CU-12)\nGráficos analíticos · Asistencia vs imputaciones" as P7 #927410
 
-  rectangle "P8 · Rentabilidad financiera (CU-23, CU-24, CU-25)\n★ Exclusivo Director · HTTP 403 para Responsable" as P9 #4B3FA6
+  rectangle "P8 · Rentabilidad (CU-13, CU-14)\n★ Exclusivo Director · 403 para Responsable\nCU-14 unifica líneas de proyecto y de cliente" as P8 #4B3FA6
 
-  rectangle "P9 · Búsqueda global (CU-26)" as P10 #927410
+  rectangle "P9 · Utilidades (CU-15, CU-16)\nBúsqueda global · Cerrar sesión" as P9 #927410
 
-  rectangle "Middleware JWT · verify_scope()\nHTTP 401/403 · scope inyectado en token" as JWT #444444
+  rectangle "P10 · Snapshots (CU-17..CU-20)\nGuardar (upsert diario) · Listar\nDetalle · Eliminar" as P10 #3A6A8A
+
+  rectangle "Middleware JWT\nrequire_manager_or_above\nrequire_director · verify_*_scope()\nHTTP 401 / 403" as JWT #444444
 }
 
-actor "Odoo v16 ERP\nSistema externo\n\nProporciona:\nhr_employee · res_users\nproject_project · hr_department\nproject_task · hr_attendance\naccount_analytic_line\nmail_tracking_value · mail_message" as Odoo #555555
+actor "Odoo v16 ERP\n(PostgreSQL · solo lectura)\n\nhr_employee · res_users\nproject_project · hr_department\nproject_task · hr_attendance\naccount_analytic_line" as Odoo #555555
+
+actor "MongoDB\n(lectura/escritura)\n\nmetric_snapshots\nchart_snapshots\nentity_snapshots\n\n1 snapshot por\n(tipo, params, día)" as Mongo #2F6F3F
 
 Director --> CU01
 Responsable --> CU01
 
-CU01 --> P3
+CU01 --> P2
+CU01 --> P6
 CU01 --> P7
 CU01 --> P8
 CU01 --> P9
 CU01 --> P10
-P10 --> Odoo
-P3 --> Odoo
+
+P2 --> Odoo
+P6 --> Odoo
 P7 --> Odoo
 P8 --> Odoo
 P9 --> Odoo
 
+P10 --> Mongo
+P6 ..> P10 : datos calculados →\n"Guardar snapshot"
+P7 ..> P10 : datos calculados →\n"Guardar snapshot"
+P8 ..> P10 : datos calculados →\n"Guardar snapshot"
+P2 ..> P10 : datos entidad →\n"Guardar snapshot"
+
 CU01 --> JWT
+
+note bottom of System
+  **Dos frontends** comparten este backend único
+  y el mismo esquema JWT:
+  · **Frontend principal** (puerto 3000): calcula
+    en tiempo real sobre Odoo y permite guardar
+    snapshots (CU-17) desde cada vista calculada.
+  · **Visor de snapshots · frontend2** (puerto 3001):
+    solo consume MongoDB — lista, visualiza y
+    elimina snapshots (CU-18, CU-19, CU-20).
+end note
 
 @enduml

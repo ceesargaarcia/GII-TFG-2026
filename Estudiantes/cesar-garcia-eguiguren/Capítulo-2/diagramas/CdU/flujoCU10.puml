@@ -1,4 +1,4 @@
-@startuml CU10_Productividad
+@startuml flujoCU10
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,36 +9,70 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-10 · Consultar Productividad
+
+title CU-10 · Consultar Métrica Operativa (parametrizada)
 
 start
 :El actor accede a la página de métricas;
-:El actor selecciona la métrica Productividad;
-:El actor puede aplicar filtros opcionales:
-· Empleado concreto
-· Proyecto concreto
-· Rango de fechas;
+:El sistema muestra la cuadrícula de métricas
+agrupadas por categoría
+(proyecto · empleado · equipo · generales);
+:El actor selecciona una métrica;
 
-:El sistema calcula la productividad
-sobre las tareas cerradas con horas
-estimadas y reales registradas;
+:El actor configura los parámetros que requiera:
+· employee_id (WIP, Workload indiv., Estimation…)
+· project_id  (Efficiency, Risk, Profitability…)
+· department_id (Workload de equipo — opcional)
+· rango de fechas · root_only;
 
-if (¿Existen tareas con datos suficientes?) then (NO)
-  :El sistema muestra que no hay datos
-  disponibles para los filtros aplicados;
+note right
+  El mismo CU sirve a los **15 servicios** del
+  backend. Los parámetros obligatorios dependen
+  de la métrica elegida. El modo de **Workload**
+  es individual si se envía employee_id, o
+  agregado de equipo en caso contrario.
+end note
+
+if (¿Parámetro obligatorio faltante?) then (SÍ)
+  :El sistema muestra un estado vacío
+  indicando el parámetro necesario;
   stop
-else (SÍ)
-  :El sistema muestra:
-  · Productividad media del conjunto
-  · Ranking de tareas por productividad
-  · Total de tareas analizadas;
-  stop
+else (NO)
+  :El sistema verifica que los parámetros
+  están dentro del ámbito del actor;
+  if (¿Parámetros fuera del ámbito?) then (SÍ)
+    :HTTP 403 - Acceso denegado;
+    stop
+  else (NO)
+    :El sistema delega en el servicio
+    de la métrica seleccionada;
+
+    if (Modo de Workload) then (individual)
+      :Calcula KPIs del empleado
+      (WIP, horas pendientes, ratio…);
+    else (equipo)
+      :Calcula distribución del equipo
+      (sobrecargados/normales/subcargados/sin tareas) + ranking de más cargados;
+    endif
+
+    if (¿Datos suficientes?) then (NO)
+      :Panel vacío con mensaje "sin datos";
+      stop
+    else (SÍ)
+      :Muestra panel de detalle con KPIs,
+      gauge y gráficos específicos;
+      if (¿Pulsar "Guardar snapshot"?) then (SÍ)
+        :<<extend>> CU-17 Guardar Snapshot;
+      endif
+      stop
+    endif
+  endif
 endif
 
 note right
-  Fórmula: (horas estimadas / horas reales) × 100
-  Solo se consideran tareas cerradas con
-  ambos valores mayores que cero.
+  FA-01: parámetro obligatorio faltante → estado vacío
+  FA-02: parámetros fuera de ámbito → HTTP 403
+  FA-03: sin datos → panel vacío
 end note
 
 @enduml

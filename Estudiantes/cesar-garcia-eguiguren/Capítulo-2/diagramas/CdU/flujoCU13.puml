@@ -1,4 +1,4 @@
-@startuml CU13_Workload
+@startuml flujoCU13
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,40 +9,59 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-13 · Consultar Carga de Trabajo de Empleado
+
+title CU-13 · Analizar Rentabilidad Financiera (Director exclusivo)
 
 start
-:El actor accede a la página de métricas;
-:El actor selecciona un empleado;
-:El actor selecciona la métrica
-Carga de Trabajo;
-:El sistema verifica que el empleado
-pertenece al ámbito del actor;
+:El actor intenta acceder a la página
+de rentabilidad;
 
-if (¿Empleado en el ámbito?) then (NO)
-  :El sistema deniega el acceso;
+if (¿Director?) then (NO)
+  :Pantalla de acceso restringido
+  (HTTP 403);
   stop
 else (SÍ)
-  :El sistema calcula las horas de trabajo
-  pendientes del empleado en tareas abiertas
-  respecto a una jornada de referencia;
+  :Configura filtros:
+  · Rango de fechas
+  · Modo (Global / Por proyecto / Por responsable);
 
-  :El sistema clasifica al empleado:
-  · Sobrecargado: supera la jornada de referencia
-  · Normal: dentro del rango esperado
-  · Subcargado: por debajo del mínimo esperado;
+  :El sistema muestra el resumen financiero:
+  · Ingresos / Gastos / Resultado neto
+  · Rentabilidad (%)
+  · Gráfico comparativo por proyecto
+  · Distribución ganancia/neutro/pérdida;
 
-  :El sistema muestra:
-  · Porcentaje de carga de trabajo
-  · Horas pendientes y tareas abiertas
-  · Estado con indicador visual
-  · Tareas completadas recientemente;
+  :Selecciona una pestaña de desglose;
+
+  if (Pestaña) then (Por proyecto)
+    :Muestra tabla de rentabilidad por proyecto;
+    if (¿"Ver detalles" de un proyecto?) then (SÍ)
+      :<<extend>> CU-14 Líneas Analíticas
+      (scope = proyecto);
+    endif
+  else (Por cliente)
+    :Muestra tabla de rentabilidad por cliente;
+    if (¿"Ver detalles" de un cliente?) then (SÍ)
+      :<<extend>> CU-14 Líneas Analíticas
+      (scope = cliente);
+    endif
+  endif
+
+  if (Modo == Por responsable) then (SÍ)
+    :Muestra panel de rentabilidad del
+    responsable elegido con sus proyectos;
+  endif
+
+  if (¿Pulsar "Guardar snapshot"?) then (SÍ)
+    :<<extend>> CU-17 Guardar Snapshot
+    con el resumen financiero;
+  endif
   stop
 endif
 
 note right
-  FA-01: Empleado fuera del ámbito → acceso denegado
-  FA-02: Empleado sin usuario vinculado → carga = 0
+  FA-01: sin partes analíticos → indicadores a 0
+  FA-02: actor no Director → 403
 end note
 
 @enduml

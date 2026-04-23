@@ -1,4 +1,4 @@
-@startuml CU12_WIP
+@startuml flujoCU12
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,37 +9,55 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-12 · Consultar WIP de Empleado
+
+title CU-12 · Consultar Asistencia vs Imputaciones
 
 start
-:El actor accede a la página de métricas;
-:El actor selecciona un empleado;
-:El actor selecciona la métrica WIP;
-:El sistema verifica que el empleado
-pertenece al ámbito del actor;
+:El actor accede a la página de asistencia;
+:El sistema carga los datos del período actual
+por defecto;
 
-if (¿Empleado en el ámbito?) then (NO)
-  :El sistema deniega el acceso;
+:El actor configura:
+· Rango de fechas
+· Departamento (opcional);
+
+if (¿Director?) then (SÍ)
+  :Puede elegir modo de visualización:
+  · Equipo global
+  · Por responsable de área;
+
+  if (Modo elegido) then (Por responsable)
+    :Selecciona un responsable del listado;
+    if (¿Responsable elegido?) then (NO)
+      :Solicita seleccionar uno;
+      stop
+    endif
+  endif
+endif
+
+:Compara horas fichadas vs horas imputadas
+en partes de horas por empleado del ámbito;
+
+if (¿Datos en el período?) then (NO)
+  :Muestra indicadores a cero
+  y tabla vacía;
   stop
 else (SÍ)
-  :El sistema cuenta las tareas abiertas
-  asignadas actualmente al empleado;
+  :Muestra:
+  · Indicadores globales del equipo
+  · Gráfico comparativo por empleado
+  · Tabla de cobertura individual con semáforo;
 
-  :El sistema evalúa el nivel de paralelismo:
-  · Óptimo: pocas tareas simultáneas
-  · Aceptable: nivel manejable
-  · Sobrecargado: demasiadas tareas en paralelo;
-
-  :El sistema muestra:
-  · Número de tareas en curso (WIP)
-  · Estado del nivel de paralelismo
-  · Recomendación de gestión;
+  if (¿Selecciona un empleado?) then (SÍ)
+    :Muestra serie diaria de horas fichadas
+    vs imputadas para el empleado elegido;
+  endif
   stop
 endif
 
 note right
-  FA-01: Empleado fuera del ámbito → acceso denegado
-  FA-02: Empleado sin usuario vinculado → WIP = 0
+  FA-01: sin datos → indicadores a 0
+  FA-02: Responsable → solo modo equipo global
 end note
 
 @enduml

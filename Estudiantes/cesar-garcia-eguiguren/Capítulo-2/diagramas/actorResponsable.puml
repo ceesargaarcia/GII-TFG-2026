@@ -1,41 +1,64 @@
-@startuml Actor_Responsable
+@startuml ActorResponsable
+!theme plain
 left to right direction
-skinparam actorStyle awesome
 
-actor Responsable as R
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #10B981
+skinparam NoteBackgroundColor #253346
+skinparam usecase {
+  BackgroundColor #141824
+  BorderColor #2A3850
+  FontColor #E2E8F5
+}
+skinparam actor {
+  BackgroundColor #1E2840
+  BorderColor #10B981
+  FontColor #E2E8F5
+}
+skinparam package {
+  BackgroundColor #0D1018
+  BorderColor #2A3850
+  FontColor #10B981
+  FontStyle bold
+}
 
-usecase "CU-01 Autenticarse en el Sistema" as CU01
-usecase "CU-27 Cerrar Sesión" as CU27
+actor "Responsable" as R
 
-usecase "CU-02 Listar y Buscar Empleados\n[scope]" as CU02
-usecase "CU-03 Visualizar Resumen de Empleado\n[scope]" as CU03
-usecase "CU-04 Listar Departamentos\n[sus depart.]" as CU04
-usecase "CU-05 Visualizar Resumen de Departamento\n[sus depart.]" as CU05
-usecase "CU-06 Listar Proyectos\n[sus proyectos]" as CU06
-usecase "CU-07 Visualizar Resumen de Proyecto\n[sus proyectos]" as CU07
-usecase "CU-08 Listar y Filtrar Tareas\n[sus proyectos]" as CU08
-usecase "CU-09 Consultar Detalle de Tarea\n[sus proyectos]" as CU09
+package "Autenticación" {
+  usecase "CU-01 Autenticarse" as CU01
+  usecase "CU-16 Cerrar Sesión" as CU16
+}
 
-usecase "CU-10 Consultar Métrica de Productividad" as CU10
-usecase "CU-11 Consultar Métrica de Cumplimiento de Plazos" as CU11
-usecase "CU-12 Consultar Métrica de WIP de Empleado" as CU12
-usecase "CU-13 Consultar Métrica de Carga de Trabajo de Empleado" as CU13
-usecase "CU-14 Consultar Métrica de Riesgo de Proyecto" as CU14
-usecase "CU-15 Consultar Métrica de Tasa de Retrabajo" as CU15
-usecase "CU-16 Consultar Métrica de Exactitud de Estimación" as CU16
-usecase "CU-17 Consultar Métrica de Lead Time" as CU17
-usecase "CU-18 Consultar Tiempo de Permanencia por Estado" as CU18
-usecase "CU-19 Consultar Métrica de Tareas Canceladas" as CU19
-usecase "CU-20 Consultar Tiempo Invertido por Prioridad" as CU20
-usecase "CU-28 Consultar Distribución de Carga del Equipo\n[scope]" as CU28
+package "Entidades operativas [scope]" {
+  usecase "CU-02 Listar Empleados" as CU02
+  usecase "CU-03 Resumen Empleado" as CU03
+  usecase "CU-04 Listar Departamentos" as CU04
+  usecase "CU-05 Resumen Departamento" as CU05
+  usecase "CU-06 Listar Proyectos" as CU06
+  usecase "CU-07 Resumen Proyecto" as CU07
+  usecase "CU-08 Listar Tareas" as CU08
+  usecase "CU-09 Detalle Tarea" as CU09
+}
 
-usecase "CU-21 Visualizar Gráficos Analíticos\n[scope]" as CU21
-usecase "CU-22 Analizar Asistencia vs Imputaciones\n[solo modo Equipo]" as CU22
-usecase "CU-26 Realizar Búsqueda Global\n[scope]" as CU26
+package "Análisis [scope]" {
+  usecase "CU-10 Consultar Métrica Operativa" as CU10
+  usecase "CU-11 Gráficos Analíticos" as CU11
+  usecase "CU-12 Asistencia\n(solo modo equipo)" as CU12
+}
+
+package "Utilidades" {
+  usecase "CU-15 Búsqueda Global" as CU15
+}
+
+package "Snapshots (MongoDB)" #0F1E2A {
+  usecase "CU-17 Guardar Snapshot" as CU17
+  usecase "CU-18 Listar Snapshots" as CU18
+  usecase "CU-19 Detalle Snapshot" as CU19
+  usecase "CU-20 Eliminar Snapshot" as CU20
+}
 
 R --> CU01
-R --> CU27
-
 R --> CU02
 R --> CU03
 R --> CU04
@@ -44,21 +67,27 @@ R --> CU06
 R --> CU07
 R --> CU08
 R --> CU09
-
 R --> CU10
 R --> CU11
 R --> CU12
-R --> CU13
-R --> CU14
 R --> CU15
 R --> CU16
 R --> CU17
 R --> CU18
 R --> CU19
 R --> CU20
-R --> CU28
-R --> CU21
-R --> CU22
-R --> CU26
+
+CU10 ..> CU17 : <<extend>>
+CU11 ..> CU17 : <<extend>>
+CU18 ..> CU19 : <<extend>>
+CU19 ..> CU20 : <<extend>>
+
+note bottom of R
+  El Responsable **no** tiene acceso a
+  CU-13 ni CU-14 (Rentabilidad Financiera
+  y Líneas Analíticas — exclusivos Director).
+  Cuenta con 17 CU disponibles de un total
+  de 20 en el sistema.
+end note
 
 @enduml

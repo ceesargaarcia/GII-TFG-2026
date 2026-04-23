@@ -1,46 +1,69 @@
-@startuml Actor_Director
+@startuml ActorDirector
+!theme plain
 left to right direction
-skinparam actorStyle awesome
 
-actor Director as D
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam NoteBackgroundColor #2c354e
+skinparam usecase {
+  BackgroundColor #141824
+  BorderColor #2A3850
+  FontColor #E2E8F5
+}
+skinparam actor {
+  BackgroundColor #1E2840
+  BorderColor #38BDF8
+  FontColor #E2E8F5
+}
+skinparam package {
+  BackgroundColor #0D1018
+  BorderColor #2A3850
+  FontColor #38BDF8
+  FontStyle bold
+}
 
-usecase "CU-01 Autenticarse en el Sistema" as CU01
-usecase "CU-27 Cerrar Sesión" as CU27
+actor "Director" as D
 
-usecase "CU-02 Listar y Buscar Empleados" as CU02
-usecase "CU-03 Visualizar Resumen de Empleado" as CU03
-usecase "CU-04 Listar Departamentos" as CU04
-usecase "CU-05 Visualizar Resumen de Departamento" as CU05
-usecase "CU-06 Listar Proyectos" as CU06
-usecase "CU-07 Visualizar Resumen de Proyecto" as CU07
-usecase "CU-08 Listar y Filtrar Tareas" as CU08
-usecase "CU-09 Consultar Detalle de Tarea" as CU09
+package "Autenticación" {
+  usecase "CU-01\nAutenticarse" as CU01
+  usecase "CU-16\nCerrar Sesión" as CU16
+}
 
-usecase "CU-10 Consultar Métrica de Productividad" as CU10
-usecase "CU-11 Consultar Métrica de Cumplimiento de Plazos" as CU11
-usecase "CU-12 Consultar Métrica de WIP de Empleado" as CU12
-usecase "CU-13 Consultar Métrica de Carga de Trabajo de Empleado" as CU13
-usecase "CU-14 Consultar Métrica de Riesgo de Proyecto" as CU14
-usecase "CU-15 Consultar Métrica de Tasa de Retrabajo" as CU15
-usecase "CU-16 Consultar Métrica de Exactitud de Estimación" as CU16
-usecase "CU-17 Consultar Métrica de Lead Time" as CU17
-usecase "CU-18 Consultar Tiempo de Permanencia por Estado" as CU18
-usecase "CU-19 Consultar Métrica de Tareas Canceladas" as CU19
-usecase "CU-20 Consultar Tiempo Invertido por Prioridad" as CU20
+package "Entidades operativas" {
+  usecase "CU-02 Listar Empleados" as CU02
+  usecase "CU-03 Resumen Empleado" as CU03
+  usecase "CU-04 Listar Departamentos" as CU04
+  usecase "CU-05 Resumen Departamento" as CU05
+  usecase "CU-06 Listar Proyectos" as CU06
+  usecase "CU-07 Resumen Proyecto" as CU07
+  usecase "CU-08 Listar Tareas" as CU08
+  usecase "CU-09 Detalle Tarea" as CU09
+}
 
-usecase "CU-21 Visualizar Gráficos Analíticos" as CU21
-usecase "CU-22 Analizar Asistencia vs Imputaciones de Horas" as CU22
-usecase "CU-28 Consultar Distribución de Carga del Equipo" as CU28
+package "Análisis" {
+  usecase "CU-10 Consultar Métrica Operativa\n(15 métricas · individual / equipo)" as CU10
+  usecase "CU-11 Gráficos Analíticos" as CU11
+  usecase "CU-12 Asistencia vs Imputaciones" as CU12
+}
 
-usecase "CU-23 Analizar Rentabilidad Financiera" as CU23
-usecase "CU-24 Consultar Líneas Analíticas de Proyecto" as CU24
-usecase "CU-25 Consultar Líneas Analíticas de Cliente" as CU25
+package "Rentabilidad" #1A0A0A {
+  usecase "CU-13 Rentabilidad Financiera ★" as CU13
+  usecase "CU-14 Líneas Analíticas ★\n(scope: proyecto | cliente)" as CU14
+}
 
-usecase "CU-26 Realizar Búsqueda Global" as CU26
+package "Utilidades" {
+  usecase "CU-15 Búsqueda Global" as CU15
+}
+
+package "Snapshots (MongoDB)" #0F1E2A {
+  usecase "CU-17 Guardar Snapshot\n(upsert diario)" as CU17
+  usecase "CU-18 Listar Snapshots" as CU18
+  usecase "CU-19 Detalle Snapshot" as CU19
+  usecase "CU-20 Eliminar Snapshot" as CU20
+}
 
 D --> CU01
-D --> CU27
-
 D --> CU02
 D --> CU03
 D --> CU04
@@ -49,7 +72,6 @@ D --> CU06
 D --> CU07
 D --> CU08
 D --> CU09
-
 D --> CU10
 D --> CU11
 D --> CU12
@@ -61,12 +83,30 @@ D --> CU17
 D --> CU18
 D --> CU19
 D --> CU20
-D --> CU28
-D --> CU21
-D --> CU22
-D --> CU23
-D --> CU24
-D --> CU25
-D --> CU26
+
+CU13 ..> CU14 : <<extend>>\n(drill-down)
+CU10 ..> CU17 : <<extend>>
+CU11 ..> CU17 : <<extend>>
+CU13 ..> CU17 : <<extend>>
+CU18 ..> CU19 : <<extend>>
+CU19 ..> CU20 : <<extend>>
+
+note right of CU10
+  CU único parametrizado por métrica.
+end note
+
+note right of CU14
+  CU único parametrizado por scope
+  (proyecto o cliente). Mismo flujo y
+  misma postcondición; solo cambia la
+  agregación de las líneas analíticas.
+end note
+
+note right of CU17
+  Upsert atómico. Si ya existe snapshot
+  para (tipo, params_hash, snapshot_date),
+  la sobrescribe. No existe CU de
+  "Actualizar" separado — FA-01 de CU-17.
+end note
 
 @enduml
