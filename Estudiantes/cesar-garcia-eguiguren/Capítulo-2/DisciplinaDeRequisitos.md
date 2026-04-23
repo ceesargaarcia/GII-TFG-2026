@@ -77,7 +77,7 @@ El sistema se organiza en **10 paquetes funcionales** que agrupan los **20 casos
 |                        | CU-19 | Consultar detalle de snapshot | ✅ | ✅ |
 |                        | CU-20 | Eliminar snapshot | ✅ | ✅ |
 
-**Totales:** Director → 20 CU · Responsable → 18 CU (excluidos CU-13 y CU-14).
+**Totales:** Director → 20 CU · Responsable → 17 CU (excluidos CU-13, CU-14 y CU-20).
 
 #### Observaciones sobre la consolidación de CUs
 
@@ -100,7 +100,7 @@ Ambos actores comparten la mayoría de los casos de uso. El Director tiene acces
 
 **Resumen rápido:**
 - **Director:** Acceso a los 20 CU sin restricciones de ámbito.
-- **Responsable:** Acceso a 18 CU con filtro de ámbito (excluidos CU-13 y CU-14).
+- **Responsable:** Acceso a 17 CU con filtro de ámbito (excluidos CU-13 y CU-14).
 
 ---
 
@@ -813,7 +813,7 @@ El Director tiene acceso a los 20 casos de uso sin restricciones de ámbito. Es 
 
 ![Diagrama de Contexto - Responsable](./imagenes/contexto_responsable.png)
 
-El Responsable tiene acceso a 18 casos de uso, pero con datos filtrados automáticamente a su ámbito organizativo (empleados, departamentos y proyectos bajo su responsabilidad).
+El Responsable tiene acceso a 17 casos de uso, pero con datos filtrados automáticamente a su ámbito organizativo (empleados, departamentos y proyectos bajo su responsabilidad).
 
 ---
 
