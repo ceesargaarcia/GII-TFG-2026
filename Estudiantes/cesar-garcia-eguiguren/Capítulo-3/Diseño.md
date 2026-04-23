@@ -307,7 +307,7 @@ Este caso de uso absorbe también la semántica de actualización: si ya existe 
 
 ---
 
-# 7. Diseño de Clases
+## 7. Diseño de Clases
 
 Con 13 modelos ORM, 11 repositorios base (incluido `snapshot.py`), 16 repositorios de métricas, 16 servicios de métricas, 10 servicios de dominio (incluido `SnapshotService`), 10 routers (incluido `snapshots.py`), 12 páginas del frontend principal y 6 páginas del visor, intentar representar todas las dependencias en un único diagrama produce un resultado ilegible. La estrategia seguida aquí es **presentar la arquitectura en ocho diagramas pequeños, cada uno respondiendo a una pregunta concreta**.
 
@@ -315,7 +315,7 @@ En aquellos diagramas donde varias clases-fuente emiten flechas que se cruzan, s
 
 ---
 
-## 7.1 Mapa general de clases por capa
+### 7.1 Mapa general de clases por capa
 
 El primer diagrama es un **mapa de ubicación**: muestra qué vive en cada capa sin trazar flechas entre clases. Las flechas discontinuas verticales solo indican la dirección del flujo de dependencias (siempre hacia abajo). El subsistema de snapshots se integra en el mismo esquema añadiendo `snapshots.router` en la capa de rutas, `SnapshotService` en la capa de servicios y `snapshot.py` en la capa de repositorios, este último apuntando a MongoDB en lugar de a los modelos SQLAlchemy.
 
@@ -323,7 +323,7 @@ El primer diagrama es un **mapa de ubicación**: muestra qué vive en cada capa 
 
 ---
 
-## 7.2a Repositorios base (fuera de `/metrics`) ↔ Modelos
+### 7.2a Repositorios base (fuera de `/metrics`) ↔ Modelos
 
 Este diagrama cubre los **11 repositorios base**, es decir, los que viven directamente en `app/repositories/` sin entrar en el subpaquete `metrics/`. Son los proveedores de datos transversales del sistema: READ sobre las entidades de negocio (tareas, empleados, proyectos, departamentos, timesheets), autenticación, control de alcance (RBAC), búsqueda global, agregación para dashboards, gráficos y trazabilidad de cambios de Odoo. A ellos se añade `snapshot.py`, que opera en lectura/escritura sobre las tres colecciones MongoDB.
 
@@ -341,7 +341,7 @@ Cada repositorio recibe un color único que se hereda por sus flechas salientes:
 
 ---
 
-## 7.2b Repositorios de métricas (dentro de `/metrics`) ↔ Modelos
+### 7.2b Repositorios de métricas (dentro de `/metrics`) ↔ Modelos
 
 Este segundo diagrama cubre los **16 repositorios especializados** de `app/repositories/metrics/`. Cada uno implementa el acceso a datos necesario para calcular una métrica concreta (productividad, cumplimiento, WIP, lead time, rentabilidad, etc.).
 
@@ -369,14 +369,14 @@ Para evitar saturar el diagrama con 16 colores distintos se aplica un **código 
 
 ---
 
-## 7.3 Arquitectura de métricas: reutilización de subqueries
+### 7.3 Arquitectura de métricas: reutilización de subqueries
 
 Este diagrama muestra que los repositorios de métricas no vuelven a escribir cada uno su propia consulta de "etapas abiertas" ni "horas imputadas"; consumen tres subqueries reutilizables publicadas por `task.py` (violeta), `timesheet.py` (verde) y `scope.py` (azul). El código cromático permite ver a simple vista qué repositorio de métricas depende de cuál proveedor: si un repo tiene una única flecha violeta es que solo consulta estados de tarea; si tiene dos colores es que combina ambas fuentes.
 
 ![Diagrama de reutilización de subqueries](./imagenes/diseño/reutilizacionMetricas.png)
 ---
 
-## 7.4 Servicios de métricas ↔ Repositorios de métricas (correspondencia 1:1)
+### 7.4 Servicios de métricas ↔ Repositorios de métricas (correspondencia 1:1)
 
 Una vez establecido el patrón anterior, la capa de servicios de métricas es trivialmente regular: **cada servicio consume exactamente un repositorio de métricas**. Aquí no se aplican colores: la correspondencia 1:1 hace que las flechas vayan en paralelo sin cruzarse, y añadir 14 colores distintos sería decorativo más que informativo.
 
@@ -384,7 +384,7 @@ Una vez establecido el patrón anterior, la capa de servicios de métricas es tr
 
 ---
 
-## 7.5 DashboardService: orquestación por composición
+### 7.5 DashboardService: orquestación por composición
 
 El `DashboardService` no duplica lógica de métricas; las **compone**. Este diagrama hace visible la relación "consumer-of-services" que permite que un endpoint de dashboard (CU-03, CU-05, CU-07, CU-10 en modo equipo) devuelva en una sola llamada lo equivalente a invocar seis endpoints de métricas distintos. Las flechas desde `DashboardService` van en cian (es el protagonista) y las de `DepartmentService` en naranja para distinguir sus respectivas dependencias sobre `WorkloadService`.
 
@@ -394,7 +394,7 @@ En particular, `DashboardService.get_manager_overview()` representa la variante 
 
 ---
 
-## 7.6 Servicios de dominio ↔ Repositorios base
+### 7.6 Servicios de dominio ↔ Repositorios base
 
 Diagrama "simétrico" al 7.4 pero para la capa de dominio. Aquí la correspondencia ya no es 1:1 (un `ProjectService` puede depender de tres repositorios distintos para componer la respuesta completa) y **las flechas sí se cruzan**, porque varios servicios comparten repositorios como `employee.py` o `task.py`. El código cromático asigna un color único a cada servicio de dominio: para trazar sus dependencias basta seguir las flechas de ese color.
 
@@ -402,7 +402,7 @@ Diagrama "simétrico" al 7.4 pero para la capa de dominio. Aquí la corresponden
 
 ---
 
-## 7.7 Subsistema de snapshots: Frontend ↔ Routes ↔ Services ↔ Repositories ↔ MongoDB
+### 7.7 Subsistema de snapshots: Frontend ↔ Routes ↔ Services ↔ Repositories ↔ MongoDB
 
 ![Diagrama del subsistema de snapshots](./imagenes/diseño/subsistemaSnapshots.png)
 
@@ -414,7 +414,7 @@ La decisión deliberada de **no aplicar filtrado por scope** en la lectura de sn
 
 ---
 
-## 7.8 Capa de presentación: Frontend ↔ Routes ↔ Services
+### 7.8 Capa de presentación: Frontend ↔ Routes ↔ Services
 
 El último diagrama cierra el ciclo: muestra qué páginas de los dos frontends disparan qué endpoints, y a qué servicios delegan esos endpoints. El frontend principal alimenta todos los CUs operativos y dispara el guardado de snapshots (CU-17) desde cualquier vista calculada. El visor, por el contrario, solo consume los endpoints de lectura y borrado de snapshots (CU-18, CU-19, CU-20) y nunca dispara cálculos sobre Odoo.
 
@@ -475,92 +475,171 @@ Los dos únicos casos de dependencia cruzada entre repositorios del mismo nivel 
 | Bajo acoplamiento | Dependencias cruzadas entre repos (acoplamiento por datos) | 2 justificadas | ✅ |
 
 ---
-
 ## 9. Prototipos de Interfaz
-
+ 
 Los prototipos presentados en esta sección fueron elaborados en la **Disciplina de Requisitos (Capítulo 2)** como parte del modelado de casos de uso. Se incluyen aquí como referencia visual para el diseño de la interfaz, dado que la implementación real del frontend se ajusta fielmente a ellos.
-
+ 
 ---
-
-### P-01 — Vista de inicio (Overview)
-
-Panel de bienvenida con alertas activas, indicadores globales (proyectos, empleados, tareas) y accesos rápidos. Sirve de punto de entrada tras la autenticación (CU-01).
-
-![Vista de inicio — Overview](../Capítulo-2/imagenes/prototipado/Vista-Overview.png)
-
+ 
+### Pantalla de inicio — `/`
+ 
+Panel de bienvenida que actúa como punto de entrada al sistema tras completar CU-01. Muestra un resumen ejecutivo con alertas activas, indicadores globales y accesos rápidos a las secciones principales.
+ 
+![Pantalla de inicio](../Capítulo-2/imagenes/prototipado/Vista-Overview.png)
+ 
 ---
-
-### P-02 — Resumen de Empleado (CU-03)
-
+ 
+### Pantalla de manager — `/manager`
+ 
+Panel de supervisión global para responsables que presenta cinco tarjetas numéricas clicables (total, sobrecargado, normal, subcargado, sin tareas), gráfico de barras de distribución por estado, panel de empleados más cargados y — al hacer clic en una tarjeta — listado paginado de empleados filtrados con su porcentaje de carga y horas pendientes.
+ 
+![Prototipo de métrica de equipo (variante agregada)](../Capítulo-2/imagenes/prototipado/CU-28.png)
+ 
+---
+ 
+### Prototipo CU-01 – Autenticarse
+ 
+Formulario de inicio de sesión con campos de usuario y contraseña, indicación de acceso restringido y mensajes de error contextuales.
+ 
+![Prototipo de autenticación](../Capítulo-2/imagenes/prototipado/CU-01.png)
+ 
+---
+ 
+### Prototipo CU-02 – Listar Empleados
+ 
+Tabla paginada con barra de búsqueda por nombre, selector de departamento y opción de mostrar solo activos. Cada fila es navegable al resumen del empleado.
+ 
+![Prototipo de listar empleados](../Capítulo-2/imagenes/prototipado/CU-04.png)
+ 
+**Decisiones de diseño implementadas:**
+- El selector de departamento activa la verificación de scope en `EmployeeService` (Capa 2).
+- Las cabeceras de columna son clicables para cambiar el criterio de ordenación server-side.
+---
+ 
+### Prototipo CU-03 – Resumen de Empleado
+ 
 Panel individual con cabecera de perfil, cuatro KPI cards (carga, vencidas, WIP, productividad), tarjetas de tareas asignadas hoy y vencidas sin cerrar, y tabla de tareas paginada con pestañas.
-
-![Prototipo CU-03 — Resumen de Empleado](../Capítulo-2/imagenes/prototipado/CU-05.png)
-
+ 
+![Prototipo de resumen de empleado](../Capítulo-2/imagenes/prototipado/CU-05.png)
+ 
 **Decisiones de diseño implementadas:**
 - Las pestañas de tareas cargan bajo demanda invocando `GET /tasks/filter`.
 - Las tarjetas de alerta son clicables y navegan a la vista de tareas con filtros preseleccionados.
-
 ---
-
-### P-03 — Listado y filtrado de tareas (CU-08)
-
-Tabla paginada con barra de filtros combinables: estado, etapa exacta (mutuamente excluyente con estado), proyecto, rango de fechas de deadline y opción de solo tareas padre.
-
-![Prototipo CU-08 — Listado de Tareas](../Capítulo-2/imagenes/prototipado/CU-10.png)
-
+ 
+### Prototipo CU-04 – Listar Departamentos
+ 
+Cuadrícula de tarjetas con el nombre del departamento y el responsable asignado. Cada tarjeta navega al resumen del departamento.
+ 
+![Prototipo de listar departamentos](../Capítulo-2/imagenes/prototipado/CU-06.png)
+ 
+---
+ 
+### Prototipo CU-05 – Resumen de Departamento
+ 
+Panel de departamento con indicadores de distribución de carga, alerta para empleados sobrecargados y dos pestañas de visualización (carga de trabajo y empleados).
+ 
+![Prototipo de resumen de departamento](../Capítulo-2/imagenes/prototipado/CU-07.png)
+ 
+---
+ 
+### Prototipo CU-06 – Listar Proyectos
+ 
+Cuadrícula de tarjetas con nombre del proyecto, cliente asociado y código. Cada tarjeta navega al resumen del proyecto.
+ 
+---
+ 
+### Prototipo CU-07 – Resumen de Proyecto
+ 
+Panel de proyecto con indicadores de eficiencia, riesgo y rentabilidad, gráfico comparativo de horas estimadas vs. reales y pestañas de tareas y equipo.
+ 
+![Prototipo de resumen de proyecto](../Capítulo-2/imagenes/prototipado/CU-09.png)
+ 
+---
+ 
+### Prototipo CU-08 – Listar Tareas
+ 
+Tabla paginada con barra de filtros combinables: estado, etapa exacta (mutuamente excluyente con estado), proyecto, rango de fechas de deadline y opción de mostrar solo tareas padre.
+ 
+![Prototipo de listar tareas](../Capítulo-2/imagenes/prototipado/CU-10.png)
+ 
 **Decisiones de diseño implementadas:**
 - El selector de etapa tiene prioridad sobre el de estado cuando ambos están activos.
 - Las cabeceras de columna son clicables para cambiar el criterio de ordenación server-side.
-
 ---
-
-### P-04 — Panel de métricas (CU-10)
-
-Cuadrícula de tarjetas métricas a la izquierda con gauge de preview. Al seleccionar una tarjeta, el panel derecho muestra el detalle completo con gráficos y KPIs. Panel de parámetros expandible en la parte superior.
-
-![Prototipo Métricas — CU-10](../Capítulo-2/imagenes/prototipado/CU-P7.png)
-
+ 
+### Prototipo CU-09 – Detalle de Tarea
+ 
+Ficha de tarea con secciones de información general, personas asignadas, horas con barra de progreso y lista de subtareas.
+ 
+![Prototipo de detalle de tarea](../Capítulo-2/imagenes/prototipado/CU-11.png)
+ 
+---
+ 
+### Prototipo CU-10 – Consultar Métrica Operativa
+ 
+Página de métricas con cuadrícula de tarjetas a la izquierda con gauge de preview. Al seleccionar una tarjeta, el panel derecho muestra el detalle completo con gráficos y KPIs. Panel de filtros expandible en la parte superior.
+ 
+![Prototipo de métricas](../Capítulo-2/imagenes/prototipado/CU-P7.png)
+ 
 **Decisiones de diseño implementadas:**
 - Las métricas que requieren parámetros (empleado, proyecto) muestran un estado vacío hasta que se rellenan.
 - El panel de detalle es sticky para no perder de vista los KPIs al hacer scroll en la cuadrícula.
 - Todas las vistas de detalle incluyen el botón "Guardar snapshot" que dispara CU-17.
-
 ---
-
-### P-05 — Panel de Workload en modo equipo (CU-10 variante agregada)
-
-Cinco tarjetas numéricas clicables (total, sobrecargado, normal, subcargado, sin tareas), panel de empleados más cargados con barra de progreso, gráfico de distribución por estado y tabla paginada que aparece al seleccionar un estado.
-
-![Prototipo CU-10 equipo — Panel de Workload agregado](../Capítulo-2/imagenes/prototipado/CU-28.png)
-
+ 
+### Prototipo CU-11 – Gráficos Analíticos
+ 
+Página de gráficos con barra de filtros y cuadrícula de visualizaciones: evolución temporal de tareas, distribución por estado y horas por cliente.
+ 
+![Prototipo de gráficos analíticos](../Capítulo-2/imagenes/prototipado/CU-22.png)
+ 
+---
+ 
+### Prototipo CU-12 – Asistencia vs Imputaciones
+ 
+Página de asistencia con selector de modo de vista (equipo global / por responsable), filtros de fecha y departamento, indicadores globales de cobertura, gráfico comparativo y tabla de empleados con semáforo de cobertura.
+ 
+![Prototipo de asistencia](../Capítulo-2/imagenes/prototipado/CU-23.png)
+ 
+---
+ 
+### Prototipo CU-13 – Rentabilidad Financiera
+ 
+Página exclusiva del Director con filtros de fecha y modo de análisis (global / por proyecto / por responsable), KPIs financieros, gráfico comparativo de ingresos vs. gastos y pestañas de desglose por proyecto y por cliente.
+ 
+![Prototipo de rentabilidad](../Capítulo-2/imagenes/prototipado/CU-24.png)
+ 
 **Decisiones de diseño implementadas:**
-- Las tarjetas de estado y las barras del gráfico desencadenan el mismo efecto: filtran la tabla inferior y hacen scroll automático hasta ella.
-- El nombre del empleado en la tabla enlaza directamente a su resumen (CU-03).
-- Esta vista corresponde a la variante de CU-10 con `WorkloadService` invocado sin `employee_id`; en el código todavía se mantiene la página `Manager.jsx` como superficie específica.
-
+- El acceso devuelve una pantalla de acceso restringido para cualquier rol distinto de Director (HTTP 403 en backend + redirección en frontend).
+- El drill-down de líneas analíticas se activa bajo demanda, sin cargar los datos hasta que el usuario lo solicita explícitamente.
 ---
-
-### P-06 — Rentabilidad Financiera (CU-13)
-
-Panel exclusivo del Director con filtros de fecha y modo de análisis (global / por proyecto / por responsable), KPIs financieros, gráfico comparativo de ingresos vs. gastos y pestañas de desglose por proyecto y por cliente con opción de drill-down a líneas analíticas.
-
-![Prototipo CU-13 — Rentabilidad](../Capítulo-2/imagenes/prototipado/CU-24.png)
-
-**Decisiones de diseño implementadas:**
-- El acceso al módulo devuelve una pantalla de acceso restringido para cualquier rol distinto de Director (HTTP 403 en backend + redirección en frontend).
-- El drill-down de líneas analíticas se activa bajo demanda, sin cargar los datos hasta que el usuario lo solicita explícitamente. La misma vista de drill-down sirve tanto para líneas de proyecto como para líneas de cliente, parametrizada por el `scope` de la pestaña de origen (CU-14).
-
+ 
+### Prototipo CU-14 – Líneas Analíticas
+ 
+Panel de desglose accesible desde CU-13 con dos tablas paralelas de ingresos y gastos individuales, parametrizado por ámbito (proyecto o cliente). La misma vista sirve para ambos casos de drill-down.
+ 
+![Prototipo de líneas analíticas](../Capítulo-2/imagenes/prototipado/CU-26-27.png)
+ 
 ---
-
-### P-07 — Visor de snapshots (CU-18, CU-19, CU-20)
-
+ 
+### Prototipo CU-15 – Búsqueda Global
+ 
+Página de búsqueda con campo prominente, botones de filtro por tipo de entidad (tareas, proyectos, empleados) y resultados en forma de tarjetas navegables.
+ 
+![Prototipo de búsqueda global](../Capítulo-2/imagenes/prototipado/CU-25.png)
+ 
+---
+ 
+### Prototipo CU-17/18/19/20 – Visor de snapshots
+ 
 Aplicación independiente en el puerto 3001 compuesta por cuatro vistas principales:
-
+ 
 - **Home del visor:** resumen global con contadores por colección (métricas, gráficos, entidades) y acceso rápido a las últimas snapshots guardadas.
 - **Listado por colección:** tabla paginada con filtros por tipo y rango de fechas (CU-18).
 - **Detalle de snapshot:** ficha con metadatos, vista reconstruida por el renderer específico y panel JSON expandible (CU-19).
 - **Diálogo de eliminación:** confirmación previa a un hard delete sobre MongoDB (CU-20).
-
 **Decisiones de diseño implementadas:**
 - El visor reutiliza el mismo `AuthContext` y esquema de login que el frontend principal; el token JWT es intercambiable entre ambas aplicaciones.
-- Los renderers del visor (`MetricView`, `ChartView`, `EntityView`) son clones ligeros de los componentes de cálculo del frontend principal, pero operan exclusivamente sobre el JSON persistido y nunca llaman al backend para recalcular.
+- Los renderers del visor (`MetricView`, `ChartView`, `EntityView`) operan exclusivamente sobre el JSON persistido en MongoDB y nunca llaman al backend para recalcular.
+ 
