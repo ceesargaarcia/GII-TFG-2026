@@ -1,0 +1,88 @@
+@startuml
+title DIAGRAMA ENTIDAD RELACION
+top to bottom direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+entity "User" as User {
+  _id: ObjectId
+  username: string
+  role: string
+}
+
+entity "Session" as Session {
+  _id: ObjectId
+  name: string
+  projectName: string
+  workflowMode: string
+  currentStep: number
+  agentSessionId: string
+  agentHandoffUrl: string
+}
+
+entity "Documentation" as Documentation {
+  _id: ObjectId
+  label: string
+  title: string
+  documentType: string
+}
+
+entity "UseCase" as UseCase {
+  _id: ObjectId
+  ucId: string
+  name: string
+}
+
+entity "FunctionalRequirement" as FR {
+  _id: ObjectId
+  rfId: string
+  text: string
+  ucId: string
+}
+
+entity "GherkinScenario" as GS {
+  _id: ObjectId
+  title: string
+  ucId: string
+  rfIds: [String]
+}
+
+entity "Draft" as Draft {
+  _id: ObjectId
+  summary: string
+  ucId: string
+  rfIds: [String]
+  scenarioIds: [ObjectId]
+  status: string
+  kiwiCaseId: number
+}
+
+entity "Kiwi TCMS" as Kiwi {
+  testcaseId: number
+  category: string
+  priority: string
+}
+
+User --> Session : creates
+User --> Documentation : uploads
+User --> UseCase : creates/edits
+User --> FR : creates/edits
+User --> GS : creates/edits
+User --> Draft : reviews
+
+Documentation --> Session : sessionId
+UseCase --> Session : sessionId
+UseCase --> Documentation : documentationId
+FR --> Session : sessionId
+FR --> Documentation : documentationId
+FR --> UseCase : ucId
+GS --> Session : sessionId
+GS --> UseCase : ucId
+GS --> FR : rfIds
+Draft --> Session : sessionId
+Draft --> UseCase : ucId
+Draft --> FR : rfIds
+Draft --> GS : scenarioIds
+Draft --> Kiwi : publication
+
+@enduml
