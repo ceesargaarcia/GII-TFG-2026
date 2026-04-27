@@ -1,0 +1,37 @@
+@startuml
+title VISTAS
+left to right direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+package "Aplicacion Web kiwi-mvc (SPA)" {
+  class Login
+  class Home
+  class GestionSesiones
+  class EleccionFlujo
+  class Paso1_Documentacion
+  class Paso2_CasosUso_Requisitos
+  class Paso3_EscenariosGherkin
+  class Paso4_Borrador_Publicacion
+  class PanelAutomatico
+}
+
+package "Interfaz Agent_ApiKiwi (/dev-ui/)" {
+  class SesionAgente
+  class RevisionBorradores
+  class RevisionYPublicacion
+}
+
+Login --> Home
+Home --> GestionSesiones
+GestionSesiones --> Paso1_Documentacion
+Paso1_Documentacion --> EleccionFlujo
+EleccionFlujo --> Paso2_CasosUso_Requisitos : modo manual
+Paso2_CasosUso_Requisitos --> Paso3_EscenariosGherkin
+Paso3_EscenariosGherkin --> Paso4_Borrador_Publicacion
+EleccionFlujo --> PanelAutomatico : modo automatico
+PanelAutomatico --> SesionAgente : abrir handoff_url
+SesionAgente --> RevisionBorradores
+RevisionBorradores --> RevisionYPublicacion
+
+@enduml

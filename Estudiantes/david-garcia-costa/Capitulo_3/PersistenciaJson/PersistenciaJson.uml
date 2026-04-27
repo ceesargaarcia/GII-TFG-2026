@@ -1,0 +1,66 @@
+@startuml
+title ESTRUCTURA LÓGICA DE kiwi_drafts.json
+top to bottom direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+class DraftStore {
+  drafts
+  documentation_refs
+  use_cases
+  functional_requirements
+}
+
+class DraftEntry {
+  summary
+  category_name
+  gherkin_text
+  meta
+  status
+  version
+  created_at
+  updated_at
+  user_feedback
+  published_result
+}
+
+class DocumentationRef {
+  project_name
+  document_type
+  label
+  metadata
+  created_at
+  updated_at
+}
+
+class UseCaseEntry {
+  id
+  name
+  project_name
+  document_label
+  notes
+  metadata
+  version
+  created_at
+  updated_at
+}
+
+class FunctionalRequirementEntry {
+  id
+  text
+  uc_id
+  source_quote
+  project_name
+  notes
+  metadata
+  version
+  created_at
+  updated_at
+}
+
+DraftStore --> DraftEntry
+DraftStore --> DocumentationRef
+DraftStore --> UseCaseEntry
+DraftStore --> FunctionalRequirementEntry
+
+@enduml

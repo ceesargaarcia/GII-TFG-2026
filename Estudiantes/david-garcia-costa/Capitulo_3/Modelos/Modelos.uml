@@ -1,0 +1,15 @@
+@startuml
+title MODELOS
+left to right direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+class User
+class Session
+class Documentation
+class UseCase
+class FunctionalRequirement
+class GherkinScenario
+class Draft
+
+@enduml
