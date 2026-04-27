@@ -403,9 +403,9 @@ Todos los casos de uso están documentados en detalle en: [Disciplina de Requisi
 - `FA-02`: Parámetros fuera del ámbito del actor → acceso denegado.
 - `FA-03`: Sin datos para los filtros → el sistema muestra un panel vacío con mensaje informativo.
 
-**Observación:** Caso de uso único parametrizado por el nombre de la métrica. La métrica de carga de trabajo admite además el modo agregado de equipo, que se activa cuando el actor no especifica un empleado concreto.
+**Observación:** Caso de uso único parametrizado por el nombre de la métrica. Cada métrica concreta se modela como un **subcaso** de CU-10 que comparte actores, precondición esencial, postcondición y flujo principal con el padre, y solo añade los parámetros específicos, la fórmula de cálculo y los umbrales de interpretación. Los subcasos documentados son CU-10.1 a CU-10.11; el detalle de cada uno (con su diagrama de flujo) se recoge en el documento [Casos de Uso de Métricas](./docs/subCasosDeUso.md). La métrica de carga de trabajo admite además el modo agregado de equipo, que se activa cuando el actor no especifica un empleado concreto.
 
-**Relaciones:** `<<extend>>` hacia CU-17 (guardar snapshot de la métrica calculada).
+**Relaciones:** `<<extend>>` hacia CU-17 (guardar snapshot de la métrica calculada). Cada subcaso CU-10.x hereda esta misma relación.
 
 ---
 
@@ -455,7 +455,7 @@ Todos los casos de uso están documentados en detalle en: [Disciplina de Requisi
 - `FA-01`: Sin datos en el período → indicadores a 0 y tabla vacía.
 - `FA-02`: Responsable → solo puede usar el modo equipo global.
 
-**Relaciones:** Ninguna.
+**Relaciones:** `<<extend>>` hacia CU-17 (guardar snapshot de la asistencia).
 
 ---
 

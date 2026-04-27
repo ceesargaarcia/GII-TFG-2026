@@ -47,20 +47,11 @@ else (NO)
     :El sistema delega en el servicio
     de la métrica seleccionada;
 
-    if (Modo de Workload) then (individual)
-      :Calcula KPIs del empleado
-      (WIP, horas pendientes, ratio…);
-    else (equipo)
-      :Calcula distribución del equipo
-      (sobrecargados/normales/subcargados/sin tareas) + ranking de más cargados;
-    endif
-
     if (¿Datos suficientes?) then (NO)
       :Panel vacío con mensaje "sin datos";
       stop
     else (SÍ)
-      :Muestra panel de detalle con KPIs,
-      gauge y gráficos específicos;
+      :Muestra panel de detalle de la métrica;
       if (¿Pulsar "Guardar snapshot"?) then (SÍ)
         :<<extend>> CU-17 Guardar Snapshot;
       endif
