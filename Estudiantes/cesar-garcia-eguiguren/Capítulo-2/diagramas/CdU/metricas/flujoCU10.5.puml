@@ -1,0 +1,51 @@
+@startuml CU10.5_RiesgoProyecto
+!theme plain
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam ActivityBorderColor #1E2840
+skinparam ActivityBackgroundColor #141824
+skinparam ActivityDiamondBackgroundColor #0D1018
+skinparam ActivityDiamondBorderColor #38BDF8
+skinparam NoteBackgroundColor #141824
+skinparam NoteBorderColor #38BDF8
+title CU-10.5 · Consultar Riesgo de Proyecto
+
+start
+:El actor accede a la página de métricas;
+:El actor selecciona un proyecto;
+:El actor selecciona la métrica
+Índice de Riesgo;
+:El sistema verifica que el proyecto
+pertenece al ámbito del actor;
+
+if (¿Proyecto en el ámbito?) then (NO)
+  :El sistema deniega el acceso;
+  stop
+else (SÍ)
+  :El sistema analiza las tareas abiertas
+  del proyecto con fecha límite establecida;
+
+  :El sistema identifica tareas en riesgo:
+  · Tareas con fecha límite vencida
+  · Tareas con gran parte del plazo consumido;
+
+  :El sistema clasifica el nivel de riesgo:
+  · Bajo: pocas tareas en riesgo
+  · Medio: nivel preocupante
+  · Alto: situación crítica;
+
+  :El sistema muestra:
+  · Índice de riesgo (%)
+  · Número de tareas en riesgo
+  · Total de tareas abiertas analizadas
+  · Nivel de riesgo con semáforo de color;
+  stop
+endif
+
+note right
+  FA-01: Proyecto fuera del ámbito → acceso denegado
+  FA-02: Sin tareas abiertas con fecha límite → riesgo = 0
+end note
+
+@enduml

@@ -1,0 +1,46 @@
+@startuml CU10.9_TiempoPorEstado
+!theme plain
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam ActivityBorderColor #1E2840
+skinparam ActivityBackgroundColor #141824
+skinparam ActivityDiamondBackgroundColor #0D1018
+skinparam ActivityDiamondBorderColor #38BDF8
+skinparam NoteBackgroundColor #141824
+skinparam NoteBorderColor #38BDF8
+title CU-10.9 · Consultar Tiempo por Estado
+
+start
+:El actor accede a la página de métricas;
+:El actor selecciona la métrica
+Tiempo por Estado;
+:El actor puede aplicar filtros opcionales:
+· Proyecto concreto
+· Empleado concreto;
+
+:El sistema analiza el historial de cambios
+de etapa de las tareas y calcula cuánto
+tiempo permanecieron en cada etapa;
+
+if (¿Existen datos de historial de cambios?) then (NO)
+  :El sistema muestra que no hay datos
+  de seguimiento disponibles;
+  stop
+else (SÍ)
+  :El sistema muestra una tabla con:
+  · Nombre de cada etapa Kanban
+  · Tiempo medio de permanencia en horas
+  · Número de tareas analizadas por etapa
+  · Ordenada de mayor a menor tiempo;
+  stop
+endif
+
+note right
+  Los datos de historial provienen del
+  registro de cambios del sistema ERP.
+  Sin ese registro no es posible calcular
+  esta métrica.
+end note
+
+@enduml

@@ -1,0 +1,45 @@
+@startuml CU10.3_WIP
+!theme plain
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam ActivityBorderColor #1E2840
+skinparam ActivityBackgroundColor #141824
+skinparam ActivityDiamondBackgroundColor #0D1018
+skinparam ActivityDiamondBorderColor #38BDF8
+skinparam NoteBackgroundColor #141824
+skinparam NoteBorderColor #38BDF8
+title CU-10.3 · Consultar WIP de Empleado
+
+start
+:El actor accede a la página de métricas;
+:El actor selecciona un empleado;
+:El actor selecciona la métrica WIP;
+:El sistema verifica que el empleado
+pertenece al ámbito del actor;
+
+if (¿Empleado en el ámbito?) then (NO)
+  :El sistema deniega el acceso;
+  stop
+else (SÍ)
+  :El sistema cuenta las tareas abiertas
+  asignadas actualmente al empleado;
+
+  :El sistema evalúa el nivel de paralelismo:
+  · Óptimo: pocas tareas simultáneas
+  · Aceptable: nivel manejable
+  · Sobrecargado: demasiadas tareas en paralelo;
+
+  :El sistema muestra:
+  · Número de tareas en curso (WIP)
+  · Estado del nivel de paralelismo
+  · Recomendación de gestión;
+  stop
+endif
+
+note right
+  FA-01: Empleado fuera del ámbito → acceso denegado
+  FA-02: Empleado sin usuario vinculado → WIP = 0
+end note
+
+@enduml

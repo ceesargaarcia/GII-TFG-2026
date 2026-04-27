@@ -1,0 +1,44 @@
+@startuml CU10_1_Productividad   
+!theme plain
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam ActivityBorderColor #1E2840
+skinparam ActivityBackgroundColor #141824
+skinparam ActivityDiamondBackgroundColor #0D1018
+skinparam ActivityDiamondBorderColor #38BDF8
+skinparam NoteBackgroundColor #141824
+skinparam NoteBorderColor #38BDF8
+title CU-10.1 · Consultar Productividad
+               
+start
+:El actor accede a la página de métricas;
+:El actor selecciona la métrica Productividad;
+:El actor puede aplicar filtros opcionales:
+· Empleado concreto
+· Proyecto concreto
+· Rango de fechas;
+
+:El sistema calcula la productividad
+sobre las tareas cerradas con horas
+estimadas y reales registradas;
+
+if (¿Existen tareas con datos suficientes?) then (NO)
+  :El sistema muestra que no hay datos
+  disponibles para los filtros aplicados;
+  stop
+else (SÍ)
+  :El sistema muestra:
+  · Productividad media del conjunto
+  · Ranking de tareas por productividad
+  · Total de tareas analizadas;
+  stop
+endif
+
+note right
+  Fórmula: (horas estimadas / horas reales) × 100
+  Solo se consideran tareas cerradas con
+  ambos valores mayores que cero.
+end note
+
+@enduml

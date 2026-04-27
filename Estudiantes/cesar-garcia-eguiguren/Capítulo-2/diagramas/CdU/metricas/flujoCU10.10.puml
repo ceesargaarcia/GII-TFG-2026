@@ -1,0 +1,46 @@
+@startuml CU10.10_TareasCanceladas
+!theme plain
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam ActivityBorderColor #1E2840
+skinparam ActivityBackgroundColor #141824
+skinparam ActivityDiamondBackgroundColor #0D1018
+skinparam ActivityDiamondBorderColor #38BDF8
+skinparam NoteBackgroundColor #141824
+skinparam NoteBorderColor #38BDF8
+title CU-10.10 · Consultar Tareas Canceladas
+
+start
+:El actor accede a la página de métricas;
+:El actor selecciona la métrica
+Tareas Canceladas;
+:El actor puede aplicar filtros opcionales:
+· Proyecto concreto
+· Rango de fechas;
+
+:El sistema identifica las tareas cuya etapa
+corresponde a una etapa de cancelación
+y calcula su porcentaje sobre el total;
+
+if (¿Existen tareas en el ámbito?) then (NO)
+  :El sistema muestra que no hay datos
+  disponibles para los filtros aplicados;
+  stop
+else (SÍ)
+  :El sistema muestra:
+  · Porcentaje de tareas canceladas
+  · Número de tareas canceladas
+  · Total de tareas analizadas
+  · Indicador visual de semáforo;
+  stop
+endif
+
+note right
+  Semáforo de referencia:
+  < 5%   → verde (nivel normal)
+  5-10%  → naranja (nivel a vigilar)
+  > 10%  → rojo (nivel elevado)
+end note
+
+@enduml
