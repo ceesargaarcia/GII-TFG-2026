@@ -29,7 +29,51 @@ Los modelos representan las entidades centrales del sistema y su estructura en l
 
 Los diagramas entidad-relación reflejan cómo estas entidades se relacionan entre sí en flujos como la toma de comanda, el envío del ticket a caja y la gestión de reservas. Esta estructura permite mantener integridad lógica, trazabilidad y coherencia funcional en todo el sistema.
 
+<<<<<<< HEAD
 ### Vistas
+=======
+Comanda: Registro digital de los pedidos de una mesa. Se construye línea a línea y cuando llega el momento del cobro genera automáticamente el ticket correspondiente.
+
+LineaComanda: Representa cada plato concreto dentro de una comanda, con su nombre, cantidad, alérgenos, observaciones y estado (pendiente, en preparación o listo). Si el plato forma parte del menú del día, incluye también la modalidad elegida.
+
+Plato: Cada ítem disponible en la carta del restaurante, con nombre, precio y categoría (primero, segundo, postre, bebida o café), e indicación de si puede pedirse como parte del menú del día.
+
+TarifaMenu: Define los precios fijos del menú del día según el tipo de jornada: entre semana o festivo/fin de semana, en modalidad de un plato o dos platos.
+
+Ticket: Resumen económico del servicio de una mesa. Recoge los platos consumidos, precios y total. Solo el Administrador puede cobrarlo, momento en el que la mesa queda liberada para el siguiente servicio.
+
+Reserva: Recoge la ocupación futura de una mesa, indicando nombre del cliente, número de comensales, fecha y hora. Siempre está vinculada a una mesa y zona concretas.
+
+LogAuditoria: Registro inmutable de todas las acciones relevantes del sistema: envíos y ediciones de tickets, cambios de estado en las comandas y cobros en caja. Cada entrada guarda el usuario y el timestamp exacto de la acción.
+
+
+
+## CONTROLADORES
+
+![Controladores](/Estudiantes/daniel-puente/Capitulo-3/imagenes/controladores.svg)
+
+Los controladores definen la lógica de negocio que conecta los modelos con las vistas. Cada controlador responde a una serie de endpoints definidos en la API REST, cumpliendo funciones como:
+
+AuthController: Maneja la autenticación de usuarios, la generación y renovación de tokens JWT y el bloqueo de cuentas por intentos fallidos.
+
+MesaController: Gestiona el estado en tiempo real de las mesas por zona, incluyendo la apertura y el cierre tras el cobro del ticket.
+
+ComandaController: Controla la creación, edición y consulta de comandas activas, validando alérgenos y bloqueando la modificación de líneas ya en preparación.
+
+TicketController: Gestiona el envío, edición, reclamación y cobro de tickets, registrando cada acción en el log de auditoría con usuario y timestamp.
+
+KDSController: Recibe las comandas pendientes en cocina y gestiona los cambios de estado de cada línea (pendiente, en preparación, listo), emitiendo notificaciones en tiempo real vía WebSocket al camarero.
+
+ReservaController: Permite crear, editar y cancelar reservas, validando conflictos de horario y emitiendo avisos automáticos cuando queden menos de 5 minutos para la próxima reserva de una mesa ocupada.
+
+UsuarioController: Gestiona el alta, edición y eliminación de usuarios del sistema, con control de acceso restringido al rol Administrador.
+
+CartaController: Permite al Administrador gestionar los platos disponibles en la carta y configurar las tarifas del menú del día.
+
+El uso de controladores desacoplados mejora la mantenibilidad y estabilidad del sistema, y está alineado con las buenas prácticas de desarrollo backend en Node.js con Express.
+
+## VISTAS
+>>>>>>> 824a3eaa3d2620e5681744d180d2b2105ff0f3a5
 
 ![Vistas](/Estudiantes/daniel-puente/Capitulo-3/imagenes/vistas.svg)
 
@@ -61,6 +105,50 @@ Permite registrar los platos solicitados por una mesa ocupada, incluyendo cantid
 
 En este flujo intervienen `Mesa`, `Comanda`, `LineaComanda`, `Plato` y `TarifaMenu`, con apoyo de `LogAuditoria`. La lógica principal se concentra en `ComandaController`, que valida la mesa, la disponibilidad de la carta y la información obligatoria de cada línea. Las rutas propuestas son `GET /api/platos`, `GET /api/tarifas-menu/actual` y `POST /api/comandas`. La vista implicada es `ComandaView`.
 
+<<<<<<< HEAD
+=======
+| Método | Ruta | Descripción | Roles permitidos |
+|---|---|---|---|
+| PATCH | /api/mesas/:mesaId/abrir | Cambia el estado de una mesa libre a ocupada | Camarero, Administrador |
+
+**Vista implicada**
+
+La interacción se realiza desde `MesasView`, que constituye la pantalla principal de sala para Camarero y Administrador. Desde esta vista, el usuario selecciona una mesa libre en el plano agrupado por zonas, confirma la acción y visualiza inmediatamente el cambio de estado a ocupada. 
+
+**Diagrama propuesto**
+
+![AbrirMesa](/Estudiantes/daniel-puente/Capitulo-3/imagenes/abrirMesa.svg)
+
+
+### CU-06 Tomar comanda
+
+Permite registrar digitalmente los platos solicitados por una mesa ocupada, incluyendo cantidades, observaciones y alérgenos obligatorios. Se trata de una de las funcionalidades clave del nuevo sistema, ya que sustituye a la comanda en papel, conecta directamente sala con cocina y garantiza que la información crítica quede registrada incluso ante fallos puntuales de conectividad gracias al enfoque local-first planteado para la solución.
+
+**Modelos implicados**
+
+Este caso de uso implica los modelos `Mesa`, `Comanda`, `LineaComanda`, `Plato` y `TarifaMenu`. `Mesa` identifica la mesa ocupada sobre la que se realiza la toma del pedido; `Comanda` representa el pedido global; `LineaComanda` almacena cada plato concreto con cantidad, observaciones, alérgenos y estado; `Plato` proporciona la información disponible de carta; y `TarifaMenu` permite aplicar la lógica del menú del día cuando corresponda. Además, `LogAuditoria` puede emplearse para conservar trazabilidad sobre la creación de la comanda.
+
+**Controladores implicados**
+
+La responsabilidad principal recae en `ComandaController`, que valida los datos introducidos, comprueba que la mesa se encuentra ocupada y verifica que todas las líneas incluyan la información obligatoria de alérgenos. También se coordina con `KDSController`, ya que una vez registrada la comanda esta debe quedar disponible en la pantalla de cocina en tiempo real. Si la conectividad falla, el diseño contempla almacenar temporalmente la operación en el dispositivo y sincronizarla posteriormente, en línea con los requisitos de arquitectura local-first del sistema. 
+
+**Rutas propuestas**
+
+Para este caso de uso, la API debe contemplar endpoints que permitan consultar los platos disponibles y registrar una nueva comanda asociada a una mesa ocupada. Todas estas rutas deberán estar protegidas mediante autenticación JWT y limitar su acceso a los roles que pueden operar en sala. 
+
+| Método | Ruta | Descripción | Roles permitidos |
+|---|---|---|---|
+| GET | /api/platos | Recupera la carta y los platos disponibles para tomar una comanda | Camarero, Administrador |
+| GET | /api/tarifas-menu/actual | Obtiene la tarifa vigente del menú del día | Camarero, Administrador |
+| POST | /api/comandas | Crea una nueva comanda asociada a una mesa ocupada | Camarero, Administrador |
+
+**Vista implicada**
+
+La funcionalidad se ejecuta desde `ComandaView`, que permite al usuario seleccionar platos de carta o menú del día, indicar cantidades, registrar observaciones y completar de forma obligatoria la información relativa a alérgenos antes de confirmar el envío. Tras la confirmación, la vista debe reflejar si la comanda ha sido enviada correctamente a cocina o si ha quedado pendiente de sincronización local por pérdida temporal de red. 
+
+**Diagrama propuesto**
+
+>>>>>>> 824a3eaa3d2620e5681744d180d2b2105ff0f3a5
 ![tomarComanda](/Estudiantes/daniel-puente/Capitulo-3/imagenes/tomarComanda.svg)
 
 #### CU-08 Editar comanda
@@ -159,6 +247,7 @@ El sistema se estructura en cuatro capas principales: frontend, backend API, tie
 
 ## Modelos MongoDB
 
+<<<<<<< HEAD
 Los modelos de persistencia se implementan mediante Mongoose sobre MongoDB, definiendo esquemas con referencias entre documentos. Esta elección permite trasladar el diseño lógico a una estructura documental flexible sin perder validaciones ni coherencia funcional.
 
 | Modelo | Campos principales | Relaciones |
@@ -244,3 +333,6 @@ frontend/
 ```
 
 ## Wireframes
+=======
+- **Soporte offline:** Un Service Worker intercepta las peticiones de red y, ante una pérdida de conectividad, almacena las operaciones pendientes en IndexedDB. Cuando la red se recupera, el Background Sync API sincroniza automáticamente los datos con el servidor sin intervención del usuario.
+>>>>>>> 824a3eaa3d2620e5681744d180d2b2105ff0f3a5
