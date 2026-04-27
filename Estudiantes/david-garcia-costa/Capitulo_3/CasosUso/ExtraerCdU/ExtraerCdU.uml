@@ -1,0 +1,50 @@
+@startuml
+title CU02 - Esquema MongoDB para Extraer Casos de Uso
+top to bottom direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+entity "Documentation" as Documentation {
+  _id: ObjectId
+  projectName: string
+  documentType: string
+  label: string
+  title: string
+}
+
+entity "Session" as Session {
+  _id: ObjectId
+  projectName: string
+  workflowMode: string
+}
+
+entity "User" as User {
+  _id: ObjectId
+  username: string
+  role: string
+}
+
+entity "UseCase" as UseCase {
+  _id: ObjectId
+  sessionId: ObjectId
+  ucId: string
+  name: string
+  description: string
+  projectName: string
+  documentLabel: string
+  documentationId: ObjectId
+  actors: [String]
+  preconditions: string
+  postconditions: string
+  mainFlow: [String]
+  alternativeFlows: [String]
+  createdBy: ObjectId
+  createdAt: Date
+  updatedAt: Date
+}
+
+UseCase --> Session : sessionId
+UseCase --> Documentation : documentationId
+UseCase --> User : createdBy
+
+@enduml

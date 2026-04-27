@@ -1,0 +1,45 @@
+@startuml
+title CU03 - Esquema MongoDB para Extraer Requisitos Funcionales
+top to bottom direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+entity "Session" as Session {
+  _id: ObjectId
+  projectName: string
+  workflowMode: string
+}
+
+entity "Documentation" as Documentation {
+  _id: ObjectId
+  label: string
+  title: string
+}
+
+entity "UseCase" as UseCase {
+  _id: ObjectId
+  ucId: string
+  name: string
+  projectName: string
+}
+
+entity "FunctionalRequirement" as FR {
+  _id: ObjectId
+  sessionId: ObjectId
+  documentationId: ObjectId
+  rfId: string
+  text: string
+  priority: string
+  ucId: string
+  sourceQuote: string
+  projectName: string
+  createdBy: ObjectId
+  createdAt: Date
+  updatedAt: Date
+}
+
+FR --> Session : sessionId
+FR --> Documentation : documentationId
+FR --> UseCase : ucId
+
+@enduml

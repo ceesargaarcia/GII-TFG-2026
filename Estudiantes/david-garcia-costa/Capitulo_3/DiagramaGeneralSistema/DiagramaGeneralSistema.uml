@@ -1,0 +1,52 @@
+@startuml
+title DIAGRAMA GENERAL DEL SISTEMA
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+rectangle "Frontend\n(kiwi-mvc SPA)" as Front {
+  component "Login / Home / Stepper\nDocumentacion - UC/RF - Gherkin - Draft" as UI
+}
+
+node "Backend kiwi-mvc\n(Node.js + Express)" as MVC {
+  component "Controladores\n(Auth, Session, Documentation,\nUseCase, Requirement,\nGherkin, Draft)" as Controllers
+  component "Servicios auxiliares\n(SessionService,\nIdentifierService,\nTraceabilityService,\nManualKiwiService)" as Services
+  database "MongoDB\nusers, documentations,\nsessions, usecases,\nfunctionalrequirements,\ngherkinscenarios, drafts" as Mongo
+}
+
+node "Agent_ApiKiwi\n(FastAPI + Google ADK)" as Agent {
+  component "POST /api/kiwi-mvc/handoff" as Handoff
+  component "kiwi_orchestrator\n(LiteLLM + OpenAI model)" as Orchestrator
+  component "draft_pipeline_agent" as Pipeline
+  component "extract_uc_rf_agent" as Extract
+  component "kiwi_gherkin_agent" as Gherkin
+  component "review_publish_agent" as Review
+  component "requirements_manager_agent" as Requirements
+  component "kiwimvc_db.py\nget_kiwimvc_session_docs()" as KiwiMVCDB
+  database "SQLite\nADK sessions/events" as SQLite
+  database "JSON\nkiwi_drafts.json" as JSONStore
+}
+
+cloud "Kiwi TCMS API\n(XML-RPC)" as KiwiApi
+database "MariaDB\n(Kiwi TCMS)" as KiwiDB
+
+Front --> MVC
+Controllers --> Services
+Services --> Mongo
+
+MVC --> Handoff : POST /api/sessions/:id/handoff-to-agent
+Handoff --> Orchestrator : crea sesion ADK
+Orchestrator --> KiwiMVCDB : recuperar documentacion
+KiwiMVCDB --> Mongo : lectura por source_session_id
+Orchestrator --> Pipeline : transferir flujo automatico
+Pipeline --> Extract
+Extract --> Gherkin
+Gherkin --> JSONStore
+Review --> JSONStore
+Requirements --> JSONStore
+Agent --> SQLite
+Review --> KiwiApi : publicar / actualizar
+Services --> KiwiApi : publicacion manual
+KiwiApi --> KiwiDB : persistencia final
+
+@enduml

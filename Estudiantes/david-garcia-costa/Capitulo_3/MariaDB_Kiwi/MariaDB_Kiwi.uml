@@ -1,0 +1,47 @@
+@startuml
+title TABLAS PRINCIPALES DE KIWI TCMS (MariaDB)
+left to right direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+entity "testcases_testcase" as TestCase {
+  id
+  summary
+  text
+  category_id
+  priority_id
+  case_status_id
+}
+
+entity "testcases_historicaltestcase" as Historical {
+  history_id
+  id
+  history_date
+}
+
+entity "testcases_category" as Category {
+  id
+  name
+}
+
+entity "testcases_testcasestatus" as Status {
+  id
+  name
+}
+
+entity "management_priority" as Priority {
+  id
+  value
+}
+
+entity "management_tag" as Tag {
+  id
+  name
+}
+
+TestCase --> Category
+TestCase --> Status
+TestCase --> Priority
+Historical --> TestCase
+
+@enduml
