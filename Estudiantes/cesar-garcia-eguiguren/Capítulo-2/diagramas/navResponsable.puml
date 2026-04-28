@@ -17,8 +17,6 @@ state "GRAFICOS_ABIERTO"            as Graficos
 state "ASISTENCIA_ABIERTO"          as Asistencia
 state "MANAGER_ABIERTO"             as Manager
 state "BUSQUEDA_ABIERTO"            as Busqueda
-state "RENTABILIDAD_ABIERTA"        as Rentabilidad
-state "LINEAS_ANALITICAS_ABIERTO"   as Lineas
 state "VISOR_SNAPSHOTS_ABIERTO"     as Visor
 state "SNAPSHOT_DETALLE_ABIERTO"    as DetSnap
 
@@ -38,15 +36,13 @@ Overview --> Graficos       : consultarGraficos()
 Overview --> Asistencia     : consultarAsistencia()
 Overview --> Manager        : consultarCargaEquipo()
 Overview --> Busqueda       : buscarGlobal()
-Overview --> Rentabilidad   : consultarRentabilidad()
-NoAuth --> Visor          : abrirVisorSnapshots()
+NoAuth --> Visor          : iniciarSesion()
 ListDept --> Overview : volver()
 ListEmp --> Overview : volver()
 ListProy --> Overview : volver()
 ListTarea --> Overview : volver()
 Metricas --> Overview : volver()
 Asistencia --> Overview : volver()
-Rentabilidad --> Overview : volver()
 Busqueda --> Overview : volver()
 Manager --> Overview : volver()
 Graficos --> Overview : volver()

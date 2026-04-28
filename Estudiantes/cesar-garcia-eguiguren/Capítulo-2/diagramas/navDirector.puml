@@ -87,7 +87,7 @@ Asistencia --> Asistencia     : guardarSnapshot()
 Manager    --> DetEmp         : seleccionarEmpleado()
 
 ' ── P7 · Rentabilidad ★ Director exclusivo ───────────────────
-Rentabilidad --> Lineas       : verDetalles()
+Rentabilidad --> Lineas       : verLineasAnaliticas()
 Rentabilidad --> Rentabilidad : guardarSnapshot()
 Lineas       --> Rentabilidad : volver()
 
