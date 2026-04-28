@@ -1,0 +1,23 @@
+@startuml VerSolicitudes
+title Diagrama de Secuencia - Ver Solicitudes
+
+actor Tecnico
+participant "Power BI\n(SolicitudesView)" as View
+database "RepositorioDatos\n(Power BI Dataset)" as Repo
+participant "Solicitud" as Solicitud
+participant "Formulario" as Formulario
+participant "CorreoRecibido" as Correo
+
+Tecnico -> View : accederVista()
+
+View -> Repo : obtenerDatos()
+
+Repo --> View : datosSolicitudes, formularios, correos
+
+View -> Solicitud : mapearDatos()
+View -> Formulario : mapearDatos()
+View -> Correo : mapearDatos()
+
+View --> Tecnico : mostrarInformación()
+
+@enduml

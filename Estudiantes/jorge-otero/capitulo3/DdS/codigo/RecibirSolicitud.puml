@@ -1,0 +1,44 @@
+@startuml RecibirSolicitud
+title Diagrama de Secuencia - Recibir Solicitud
+
+actor "Exchange Online" as Exchange
+participant "RecibirSolicitudController" as Flow
+participant "CorreoRecibido" as Correo
+participant "Solicitud" as Solicitud
+database "BaseDatos" as BD
+database "RepositorioDatos (Power BI)" as Repo
+
+Exchange -> Flow : detectarCorreoEntrante(correo)
+
+Flow -> Flow : evaluarAsunto(correo.asunto)
+
+alt TE:FORMRESUELTO
+    Flow -> Flow : actualizarEstadoFormulario()
+else Documentación acuerdo
+    Flow -> Exchange : moverCorreo(carpeta)
+else Documentación desacuerdo
+    Flow -> Exchange : moverCorreo(carpeta)
+else Otro caso
+    Flow -> Flow : analizarPeticion(correo)
+
+    Flow -> Correo : crearCorreoRecibido(fecha, intencion)
+    Flow -> Repo : guardarCorreo(correoRecibido)
+
+    alt Consulta/Reclamación/Peligro
+        Flow -> BD : consultarDatos(numero)
+        BD --> Flow : datos
+
+        Flow -> Flow : generarRespuesta(datos)
+
+        Flow -> Solicitud : crearSolicitud(datos)
+        Flow -> Repo : guardarSolicitud(solicitud)
+
+        Flow -> Exchange : enviarRespuesta(respuesta)
+
+    else Otra intención
+        Flow -> Flow : generarRespuestaPlantilla(intencion)
+        Flow -> Exchange : enviarRespuesta(respuesta)
+    end
+end
+
+@enduml

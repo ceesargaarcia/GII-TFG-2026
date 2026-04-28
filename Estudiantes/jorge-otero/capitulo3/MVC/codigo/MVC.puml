@@ -16,6 +16,7 @@ package "Controladores" {
 package "Modelos" {
   class Solicitud
   class Formulario
+  class CorreoRecibido
 }
 
 @enduml

@@ -1,0 +1,25 @@
+@startuml RecibirFormulario
+title Diagrama de Secuencia - Recibir Formulario
+
+actor "Microsoft Forms" as Forms
+participant "RecibirFormularioController" as Flow
+participant "Formulario" as Formulario
+participant "Exchange Online" as Exchange
+database "RepositorioDatos (Power BI)" as Repo
+
+Forms -> Flow : detectarFormularioCompletado(datos)
+
+Flow -> Formulario : crearFormulario(datos)
+
+Flow -> Flow : evaluarDocumentacion(formulario)
+
+alt Opción documentación marcada
+    Flow -> Exchange : enviarCorreoInstrucciones()
+else Opción documentación no marcada
+    Flow -> Flow : continuarProcesamiento()
+end
+
+Flow -> Repo : guardarFormulario(formulario)
+Repo --> Flow : registroConfirmado
+
+@enduml

@@ -7,10 +7,13 @@ package "RecibirSolicitud()" {
 
   rectangle "RecibirSolicitudController" as Controller
   rectangle "Solicitud" as Solicitud
+  rectangle "CorreoRecibido" as CorreoRecibido
 
   Controller -[hidden]-> Solicitud
+  Controller -[hidden]-> CorreoRecibido
 
   Controller --> Solicitud
+  Controller --> CorreoRecibido
 
 }
 

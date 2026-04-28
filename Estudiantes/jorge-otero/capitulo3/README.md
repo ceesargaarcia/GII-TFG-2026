@@ -34,7 +34,7 @@ En el paquete de **Vistas** se define la clase *SolicitudesView*, que representa
 
 En la capa de **Controladores** se incluyen las clases *RecibirSolicitudController*, *RecibirFormularioController* y *VerSolicitudesController*. Estas clases representan la lógica de control asociada a los distintos casos de uso identificados. A diferencia de sistemas tradicionales, estos controladores no responden a acciones directas del usuario, sino a eventos externos. En concreto, los dos primeros gestionan flujos automáticos activados por servicios externos, mientras que el tercero gestiona la interacción del técnico con la vista de consulta.
 
-En el paquete de **Modelos** se encuentran las clases *Solicitud* y *Formulario*, que representan las entidades principales del dominio. La clase *Solicitud* constituye el elemento central del sistema, ya que recoge la información asociada a cada petición recibida. La clase *Formulario* permite almacenar la información adicional proporcionada por el usuario mediante formularios, complementando así los datos de la solicitud.
+En el paquete de **Modelos** se encuentran las clases *Solicitud*, *Formulario* y *CorreoRecibido*, que representan las entidades principales del dominio. La clase *Solicitud* constituye el elemento central del sistema, ya que recoge la información asociada a cada petición recibida. La clase *Formulario* permite almacenar la información adicional proporcionada por el usuario mediante formularios, complementando así los datos de la solicitud. La clase *CorreoRecibido*, que representa un historico de las intenciones de los correos que han entrado al buzón.
 
 ### Diagramas de Colaboración
 
@@ -44,13 +44,18 @@ En el paquete de **Modelos** se encuentran las clases *Solicitud* y *Formulario*
 |----------|---------------|
 |![EnviarSolicitud](./DdC/imagen/RecibirSolicitud.png)|[Ver Código](./DdC/codigo/RecibirSolicitud.puml)
 
+### Diagrama de colaboración: CA1 Recibir solicitud
+
 En este caso, el actor **Exchange Online** actúa como origen del evento, enviando la solicitud al sistema cuando se recibe un nuevo correo en el buzón corporativo. Este evento es capturado por la clase **RecibirSolicitudController**, que constituye el elemento encargado de gestionar la lógica del proceso.
 
-El controlador actúa como intermediario entre el actor externo y el modelo, delegando en la clase **Solicitud** la gestión de la información asociada a la petición. De este modo, el modelo se encarga de representar y almacenar los datos relevantes del dominio.
+El controlador actúa como intermediario entre el actor externo y los elementos del modelo. Por un lado, interactúa con la clase **CorreoRecibido**, que representa la información del correo entrante. Esta clase no solo recoge los datos iniciales del mensaje (asunto, remitente, contenido y fecha), sino que además se utiliza para mantener un histórico de las solicitudes recibidas, incluyendo la intención detectada, lo que permite realizar un seguimiento y análisis del volumen de solicitudes por tipo.
+
+Por otro lado, el controlador utiliza la clase **Solicitud** para registrar y gestionar los datos relevantes de la petición dentro del sistema, representando la entidad principal del dominio sobre la que se realiza el procesamiento.
+
+De este modo, se diferencia entre el registro histórico de correos (*CorreoRecibido*) y la entidad operativa del sistema (*Solicitud*), permitiendo tanto el análisis de la información recibida como la gestión de las solicitudes.
 
 Cabe destacar que, a diferencia de otros casos de uso, no existe una clase vista asociada, ya que el proceso se ejecuta de forma automática sin intervención directa del usuario.
 
-En conjunto, el diagrama refleja una interacción simple y coherente con un sistema orientado a eventos, donde el controlador centraliza la lógica y el modelo gestiona los datos, manteniendo la separación de responsabilidades propia del patrón MVC.
 
 #### Recibir Formulario
 
@@ -71,11 +76,15 @@ Al igual que en el caso de uso anterior, no existe una clase vista asociada, ya 
 |----------|---------------|
 |![EnviarSolicitud](./DdC/imagen/VerSolicitudes.png)|[Ver Código](./DdC/codigo/VerSolicitudes.puml)
 
+### Diagrama de colaboración: CA3 Ver solicitudes
+
 En este caso, el actor **Técnico** interactúa directamente con la clase *SolicitudesView*, que representa la vista implementada en Power BI. Esta vista permite acceder a la información almacenada en el sistema de forma estructurada.
 
-A diferencia de otros casos de uso, no existe una clase controladora intermedia, ya que la herramienta de visualización accede directamente a los datos. De este modo, la vista se conecta directamente con las clases del modelo *Solicitud* y *Formulario*, que contienen la información necesaria para su representación.
+A diferencia de otros casos de uso, no existe una clase controladora intermedia, ya que la herramienta de visualización accede directamente a los datos. De este modo, la vista se conecta directamente con las clases del modelo *Solicitud*, *Formulario* y *CorreoRecibido*, que contienen la información necesaria para su representación.
 
-La clase *Solicitud* recoge los datos principales asociados a cada petición, mientras que la clase *Formulario* contiene la información adicional proporcionada por el usuario. Ambas entidades son utilizadas por la vista para construir la visualización completa de las solicitudes.
+La clase *Solicitud* recoge los datos principales asociados a cada petición y constituye la entidad central del sistema. La clase *Formulario* contiene la información adicional proporcionada por el usuario mediante formularios, complementando los datos de la solicitud. Por su parte, la clase *CorreoRecibido* permite disponer de un histórico de los correos procesados, incluyendo la intención detectada, lo que posibilita el análisis del volumen y tipología de solicitudes recibidas.
+
+De este modo, la vista integra información operativa y analítica, permitiendo al técnico no solo consultar el estado de las solicitudes, sino también obtener una visión global del comportamiento del sistema.
 
 ## Decisión Tecnológica
 
@@ -102,29 +111,55 @@ De este modo, la arquitectura separa claramente la captura de eventos, el proces
 |----------|---------------|
 |![Diagrama Clases Diseño](./DdC_Diseno/imagen/Diagrama_Clases_Diseno.png)|[Ver Código](./DdC_Diseno/codigo/Diagrama_Clases_Diseno.puml)
 
+En el paquete de **Interfaces** se incluyen las clases que representan los puntos de entrada y salida del sistema. La clase *CorreoExchangeOnline* modela la información recibida desde el buzón corporativo, mientras que *FormularioMicrosoftForms* representa los datos recogidos a través de formularios. Por su parte, *SolicitudesViewPowerBI* actúa como la capa de visualización, permitiendo consultar la información almacenada en el sistema.
+
+En la capa de **Controladores** se definen las clases *RecibirSolicitudController* y *RecibirFormularioController*, encargadas de gestionar la lógica de negocio. Estas clases se activan a partir de eventos externos y coordinan el procesamiento de la información, delegando en los modelos y servicios necesarios para completar cada flujo.
+
+El paquete de **Modelos** contiene las entidades principales del sistema. La clase *Solicitud* representa la información operativa asociada a cada petición, incluyendo datos relevantes para su análisis y gestión. La clase *Formulario* recoge la información adicional proporcionada por el usuario, vinculada a una solicitud concreta. Por otro lado, la clase *CorreoRecibido* mantiene un histórico independiente de los correos procesados, almacenando información como la fecha de recepción y la intención detectada, lo que permite realizar análisis estadísticos del volumen y tipología de solicitudes.
+
+En el paquete de **Servicios Externos** se agrupan las clases que representan las integraciones con sistemas externos. *ExchangeOnlineService* gestiona la interacción con el correo electrónico, *MicrosoftFormsService* permite acceder a los datos de los formularios, y *BaseDatos* se utiliza para la consulta de información adicional necesaria durante el procesamiento. Finalmente, *RepositorioDatos* actúa como capa de persistencia, centralizando el almacenamiento y recuperación de las entidades del sistema.
+
+Las relaciones entre clases reflejan el flujo de información: los controladores reciben datos de las interfaces, interactúan con los modelos y utilizan los servicios externos para completar el procesamiento. La vista en Power BI accede directamente al repositorio de datos, sin necesidad de un controlador intermedio, lo que simplifica la arquitectura en la capa de consulta.
+
 ### Diagramas de Secuencia por Caso de Uso 
 
-#### Enviar Solicitud
+#### Recibir Solicitud
 | Diagrama | Código Fuente |
 |----------|---------------|
-|![Diagrama Secuencia](./DdS/imagen/EnviarSolicitud.png)|[Ver Código](./DdS/codigo/EnviarSolicitud.puml)
+|![Diagrama Secuencia](./DdS/imagen/RecibirSolicitud.png)|[Ver Código](./DdS/codigo/RecibirSolicitud.puml)
 
-#### Recibir Respuesta
+El proceso se inicia cuando **Exchange Online** detecta la llegada de un nuevo correo en el buzón corporativo y notifica al **RecibirSolicitudController**, que actúa como elemento central de control del sistema.
+
+En una primera fase, el controlador evalúa el asunto del correo para identificar si corresponde a alguno de los casos predefinidos. Si el asunto indica que un formulario ha sido resuelto, el sistema actualiza su estado. En los casos de envío de documentación, el correo es clasificado y movido a la carpeta correspondiente, finalizando el flujo sin procesamiento adicional.
+
+Si el asunto no coincide con estos casos, el sistema entra en una segunda fase de análisis, en la que se procesa el contenido del correo para identificar la intención de la solicitud. A continuación, se crea un registro en la entidad **CorreoRecibido**, que se almacena en el repositorio de datos, permitiendo mantener un histórico de las solicitudes y facilitar su análisis posterior.
+
+En función de la intención detectada, el flujo se bifurca. Si se trata de una consulta, reclamación o situación de riesgo, el sistema realiza una consulta a la **Base de Datos** para obtener la información necesaria. Con los datos recuperados, se genera una respuesta específica y se crea una entidad **Solicitud**, que se almacena en el repositorio. Finalmente, se envía la respuesta al remitente a través de Exchange Online.
+
+En aquellos casos en los que la intención no corresponde con los escenarios contemplados, el sistema genera una respuesta basada en una plantilla predefinida y la envía directamente, sin necesidad de consultar datos adicionales ni registrar una solicitud.
+
+#### Recibir Formulario
 | Diagrama | Código Fuente |
 |----------|---------------|
-|![Diagrama Secuencia](./DdS/imagen/RecibirRespuesta.png)|[Ver Código](./DdS/codigo/RecibirRespuesta.puml)
+|![Diagrama Secuencia](./DdS/imagen/RecibirFormulario.png)|[Ver Código](./DdS/codigo/RecibirFormulario.puml)
+
+El flujo se inicia cuando **Microsoft Forms** detecta que un formulario ha sido completado y activa el **RecibirFormularioController**, encargado de gestionar el procesamiento de los datos recibidos.
+
+A continuación, el controlador crea la entidad **Formulario** con la información introducida por el usuario. Después, evalúa si se ha marcado la opción relacionada con el envío de documentación.
+
+Si la opción de documentación está marcada, el sistema envía un correo electrónico con las instrucciones necesarias para remitir la documentación correspondiente a través de **Exchange Online**. Si no está marcada, el flujo continúa sin realizar este envío adicional.
+
+Finalmente, independientemente de la opción seleccionada, el sistema guarda la información del formulario en el **RepositorioDatos (Power BI)**, dejando los datos disponibles para su posterior consulta desde la vista de solicitudes.
 
 #### Ver Solicitudes Pendientes
 | Diagrama | Código Fuente |
 |----------|---------------|
-|![Diagrama Secuencia](./DdS/imagen/VerSolicitudesPendientes.png)|[Ver Código](./DdS/codigo/VerSolicitudesPendientes.puml)
+|![Diagrama Secuencia](./DdS/imagen/VerSolicitudes.png)|[Ver Código](./DdS/codigo/VerSolicitudes.puml)
 
-#### Actualizar Estado
-| Diagrama | Código Fuente |
-|----------|---------------|
-|![Diagrama Secuencia](./DdS/imagen/ActualizarEstado.png)|[Ver Código](./DdS/codigo/ActualizarEstado.puml)
+El flujo se inicia cuando el **Técnico** accede a la vista de solicitudes, implementada en Power BI. Esta acción provoca que la vista realice una petición al **Repositorio de Datos**, donde se almacena toda la información generada por el sistema.
 
-#### Completar Formulario
-| Diagrama | Código Fuente |
-|----------|---------------|
-|![Diagrama Secuencia](./DdS/imagen/CompletarFormulario.png)|[Ver Código](./DdS/codigo/CompletarFormulario.puml)
+El repositorio devuelve los datos correspondientes a las distintas entidades del sistema, incluyendo solicitudes, formularios y el histórico de correos recibidos. A continuación, la vista procesa esta información, mapeando los datos a las entidades **Solicitud**, **Formulario** y **CorreoRecibido** para su correcta interpretación.
+
+Finalmente, la vista presenta la información al técnico de forma estructurada, permitiendo su consulta y análisis. Este proceso se realiza sin intervención de una capa de control intermedia, ya que Power BI accede directamente a los datos almacenados.
+
+De este modo, el diagrama refleja un flujo simple centrado en la recuperación y visualización de la información, diferenciándose de los otros casos de uso por la ausencia de procesamiento complejo y por su carácter exclusivamente consultivo.

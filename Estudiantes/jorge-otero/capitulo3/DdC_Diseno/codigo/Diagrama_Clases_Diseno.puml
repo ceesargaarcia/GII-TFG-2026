@@ -1,139 +1,129 @@
 @startuml Diagrama_Clases_Diseno
+
 top to bottom direction
 skinparam packageStyle rectangle
 hide empty members
 
 package "Interfaces" {
 
-  class CorreoEntradaOutlook {
+  class CorreoExchangeOnline {
     + asunto: String
     + remitente: String
     + cuerpo: String
     + fechaRecepcion: DateTime
-    + leerCorreo(): CorreoEntradaOutlook
-  }
-
-  class CorreoRespuestaOutlook {
-    + destinatario: String
-    + asunto: String
-    + cuerpo: String
-    + fechaEnvio: DateTime
-    + enviarCorreo(): void
   }
 
   class FormularioMicrosoftForms {
     + idFormulario: String
-    + campos: String
+    + respuestas: String
     + fechaEnvio: DateTime
-    + recogerRespuestas(): void
   }
 
-  class PanelSolicitudesPowerBI {
-    + mostrarPendientes(): List<Solicitud>
-    + actualizarVista(): void
-  }
-
-  class VistaActualizarEstadoFormulario {
-    + seleccionarFormulario(id: int): Formulario
-    + enviarNuevoEstado(id: int, estado: String): void
+  class SolicitudesViewPowerBI {
+    + mostrarSolicitudes(): List<Solicitud>
+    + mostrarFormularios(): List<Formulario>
+    + mostrarHistoricoCorreos(): List<CorreoRecibido>
+    + filtrarDatos(): void
   }
 }
 
 package "Controladores" {
 
-  class EnviarSolicitudFlow {
-    + procesarCorreo(correo: CorreoEntradaOutlook): Solicitud
-    + clasificarSolicitud(asunto: String): String
+  class RecibirSolicitudController {
+    + recibirCorreo(correo: CorreoExchangeOnline): void
+    + evaluarAsunto(asunto: String): String
+    + analizarPeticion(correo: CorreoExchangeOnline): String
+    + registrarCorreo(correo: CorreoRecibido): void
+    + consultarInformacion(numero: String): String
+    + generarRespuesta(datos: String): String
+    + generarRespuestaPlantilla(intencion: String): String
+    + enviarRespuesta(respuesta: String): void
     + registrarSolicitud(solicitud: Solicitud): void
   }
 
-  class RecibirRespuestaFlow {
-    + generarRespuesta(idSolicitud: int): Respuesta
-    + enviarRespuesta(respuesta: Respuesta): void
-  }
-
-  class CompletarFormularioFlow {
-    + recibirFormulario(formulario: Formulario): void
-    + asociarFormulario(idSolicitud: int, formulario: Formulario): void
-  }
-
-  class VerSolicitudesPendientesFlow {
-    + obtenerSolicitudesPendientes(): List<Solicitud>
-  }
-
-  class ActualizarEstadoFormularioFlow {
-    + actualizarEstadoFormulario(idFormulario: int, estado: String): void
+  class RecibirFormularioController {
+    + recibirFormulario(formulario: FormularioMicrosoftForms): void
+    + evaluarDocumentacion(formulario: Formulario): Boolean
+    + enviarInstruccionesDocumentacion(): void
+    + registrarFormulario(formulario: Formulario): void
   }
 }
 
 package "Modelos" {
 
-  class Solicitud {
-    + idSolicitud: int
-    + asunto: String
-    + remitente: String
-    + descripcion: String
+  class CorreoRecibido {
+    + idCorreo: int
     + fechaRecepcion: DateTime
-    + estado: String
+    + intencion: String
+  }
+
+  class Solicitud {
+    + numero: String
+    + provincia: String
+    + tecnico: String
+    + eecc: String
+    + totalConsultas: int
   }
 
   class Formulario {
+    + id: int
     + idFormulario: int
     + idSolicitud: int
-    + datos: String
+    + estado: boolean
     + fechaEnvio: DateTime
-    + estadoFormulario: String
     + fechaResolucion: DateTime
-  }
-
-  class Respuesta {
-    + idRespuesta: int
-    + idSolicitud: int
-    + destinatario: String
-    + mensaje: String
-    + fechaEnvio: DateTime
+    + respuestas: String
+    + documentacionMarcada: Boolean
   }
 }
 
 package "Servicios Externos" {
 
-  class OutlookService {
-    + leerBuzon(): CorreoEntradaOutlook
-    + enviarCorreo(respuesta: Respuesta): void
+  class ExchangeOnlineService {
+    + detectarNuevoCorreo(): CorreoExchangeOnline
+    + enviarCorreo(destinatario: String, asunto: String, cuerpo: String): void
+    + moverCorreo(carpeta: String): void
   }
 
-  class FormsService {
-    + obtenerFormulario(idFormulario: String): Formulario
+  class MicrosoftFormsService {
+    + detectarFormularioCompletado(): FormularioMicrosoftForms
+    + obtenerRespuestas(idFormulario: String): FormularioMicrosoftForms
   }
 
-  class PowerBIService {
-    + consultarPendientes(): List<Solicitud>
-    + refrescarPanel(): void
-    + actualizarEstadoFormulario(idFormulario: int, estado: String): void
+  class BaseDatos {
+    + consultarDatos(numero: String): String
+  }
+
+  class RepositorioDatos {
+    + guardarCorreo(correo: CorreoRecibido): void
+    + guardarSolicitud(solicitud: Solicitud): void
+    + guardarFormulario(formulario: Formulario): void
+    + obtenerCorreos(): List<CorreoRecibido>
+    + obtenerSolicitudes(): List<Solicitud>
+    + obtenerFormularios(): List<Formulario>
   }
 }
 
-CorreoEntradaOutlook --> EnviarSolicitudFlow
-CorreoRespuestaOutlook --> RecibirRespuestaFlow
-FormularioMicrosoftForms --> CompletarFormularioFlow
-PanelSolicitudesPowerBI --> VerSolicitudesPendientesFlow
-VistaActualizarEstadoFormulario --> ActualizarEstadoFormularioFlow
+CorreoExchangeOnline --> RecibirSolicitudController
+FormularioMicrosoftForms --> RecibirFormularioController
 
-EnviarSolicitudFlow --> Solicitud
-RecibirRespuestaFlow --> Solicitud
-RecibirRespuestaFlow --> Respuesta
-CompletarFormularioFlow --> Formulario
-CompletarFormularioFlow --> Solicitud
-VerSolicitudesPendientesFlow --> Solicitud
-ActualizarEstadoFormularioFlow --> Formulario
+RecibirSolicitudController --> CorreoRecibido
+RecibirSolicitudController --> Solicitud
+RecibirFormularioController --> Formulario
 
-Solicitud "1" -- "0..1" Formulario
-Solicitud "1" -- "0..1" Respuesta
+RecibirSolicitudController --> ExchangeOnlineService
+RecibirSolicitudController --> BaseDatos
+RecibirSolicitudController --> RepositorioDatos
 
-EnviarSolicitudFlow --> OutlookService
-RecibirRespuestaFlow --> OutlookService
-CompletarFormularioFlow --> FormsService
-VerSolicitudesPendientesFlow --> PowerBIService
-ActualizarEstadoFormularioFlow --> PowerBIService
+RecibirFormularioController --> MicrosoftFormsService
+RecibirFormularioController --> ExchangeOnlineService
+RecibirFormularioController --> RepositorioDatos
+
+Solicitud "1" -- "0..*" Formulario
+
+SolicitudesViewPowerBI --> RepositorioDatos
+SolicitudesViewPowerBI --> Solicitud
+SolicitudesViewPowerBI --> Formulario
+SolicitudesViewPowerBI --> CorreoRecibido
 
 @enduml
