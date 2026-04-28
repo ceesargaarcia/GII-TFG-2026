@@ -1,0 +1,72 @@
+@startuml
+title CU05 - Esquema para Aceptar y Publicar Casos de Prueba desde Borrador
+top to bottom direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+entity "Session" as Session {
+  _id: ObjectId
+  projectName: string
+  workflowMode: string
+}
+
+entity "UseCase" as UseCase {
+  _id: ObjectId
+  ucId: string
+  name: string
+}
+
+entity "FunctionalRequirement" as FR {
+  _id: ObjectId
+  rfId: string
+  text: string
+  ucId: string
+}
+
+entity "GherkinScenario" as GS {
+  _id: ObjectId
+  title: string
+  feature: string
+  tags: [String]
+  ucId: string
+  rfIds: [String]
+  steps: [Step]
+  createdAt: Date
+}
+
+entity "Draft" as Draft {
+  _id: ObjectId
+  sessionId: ObjectId
+  summary: string
+  description: string
+  categoryName: string
+  projectName: string
+  ucId: string
+  rfIds: [String]
+  scenarioIds: [ObjectId]
+  priority: string
+  status: string
+  version: number
+  content: string
+  kiwiCaseId: number
+  kiwiCategoryId: number
+  kiwiCategoryName: string
+  publishedAt: Date
+  rejectedAt: Date
+}
+
+entity "Kiwi TCMS" as Kiwi {
+  testcaseId: number
+  summary: string
+  category: string
+  priority: string
+  status: string
+}
+
+Draft --> Session : sessionId
+Draft --> UseCase : ucId
+Draft --> FR : rfIds
+Draft --> GS : scenarioIds
+Draft --> Kiwi : publish()
+
+@enduml

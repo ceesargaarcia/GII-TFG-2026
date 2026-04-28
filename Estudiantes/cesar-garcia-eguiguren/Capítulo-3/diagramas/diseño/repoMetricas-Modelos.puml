@@ -1,0 +1,120 @@
+@startuml d02b_repos_metrics
+!theme plain
+hide empty members
+left to right direction
+
+skinparam backgroundColor #07090f
+skinparam classBackgroundColor #141824
+skinparam classBorderColor #2a3850
+skinparam packageBackgroundColor #0d1018
+skinparam packageBorderColor #2a3850
+skinparam defaultFontColor #c8d0dc
+skinparam arrowColor #8896a8
+skinparam shadowing false
+skinparam nodesep 8
+skinparam ranksep 80
+
+package "repositories/metrics/ PARTE 1" as P1{
+
+    class "productivity.py"        as RP1  <<repo>>
+    class "compliance.py"          as RP2  <<repo>>
+    class "estimation_accuracy.py" as RP3  <<repo>>
+    class "rework_rate.py"         as RP4  <<repo>>
+    class "cancelled_tasks.py"     as RP5  <<repo>>
+
+    class "project_efficiency.py"  as RP6  <<repo>>
+    class "risk_index.py"          as RP7  <<repo>>
+    class "profitability.py"       as RP8  <<repo>>
+
+
+  }
+package "repositories/metrics/ PARTE 2" as P2{
+
+    class "lead_time.py"           as RP9  <<repo>>
+    class "state_time.py"          as RP10 <<repo>>
+    class "priority_time.py"       as RP11 <<repo>>
+
+    class "workload.py"            as RP12 <<repo>>
+    class "wip.py"                 as RP13 <<repo>>
+
+    class "client_distribution.py" as RP14 <<repo>>
+    class "rentability.py"         as RP15 <<repo>>
+
+    class "attendance.py"          as RP16 <<repo>>
+}
+
+package "models/ (SQLAlchemy ORM)" as P3{
+  class Task
+  class TaskStage
+  class TaskAssignment
+  class Employee
+  class ResUsers
+  class Project
+  class Partner
+  class Timesheet
+  class Attendance
+  class Department
+}
+P1 -[hidden]-> P3
+P3 -[hidden]-> P2
+' ── Tarea individual (violeta) ──────────────────────────────
+RP1 -[#f87171]-> Task
+RP1 -[#f87171]-> Timesheet
+
+RP2 -[#a855f7]-> Task
+RP2 -[#a855f7]-> Timesheet
+
+RP3 -[#a855f7]-> Task
+
+RP4 -[#a855f7]-> Task
+RP4 -[#a855f7]-> TaskAssignment
+
+RP5 -[#10b981]-> Task
+RP5 -[#10b981]-> TaskStage
+
+' ── Proyecto (cian) ─────────────────────────────────────────
+RP6 -[#06b6d4]-> Task
+
+RP7 -[#06b6d4]-> Task
+
+RP8 -[#f59e0b]-> Task
+RP8 -[#f59e0b]-> Employee
+RP8 -[#f59e0b]-> Timesheet
+
+' ── Tiempo y flujo (verde) ──────────────────────────────────
+Task <-[#a855f7]- RP9
+TaskAssignment <-[#a855f7]- RP9
+
+Task <-[#10b981]- RP10
+TaskAssignment <-[#10b981]- RP10
+TaskStage <-[#10b981]- RP10
+
+Task <-[#10b981]- RP11
+
+' ── Equipo (naranja) ────────────────────────────────────────
+Task <-[#f59e0b]- RP12
+TaskStage <-[#f59e0b]- RP12
+Project <-[#f59e0b]- RP12
+Employee <-[#f59e0b]- RP12
+TaskAssignment <-[#f59e0b]- RP12
+ResUsers <-[#f59e0b]- RP12
+
+Task <-[#06b6d4]- RP13
+TaskAssignment <-[#06b6d4]- RP13
+
+' ── Financiero y cliente (coral) ────────────────────────────
+Timesheet <-[#f87171]- RP14
+Partner <-[#f87171]- RP14
+
+Timesheet <-[#a855f7]- RP15
+Project <-[#a855f7]- RP15
+Employee <-[#a855f7]- RP15
+Partner <-[#a855f7]- RP15
+
+' ── Asistencia (azul) ───────────────────────────────────────
+Attendance <-[#38bdf8]- RP16
+Employee <-[#38bdf8]- RP16
+Timesheet <-[#38bdf8]- RP16
+Department <-[#38bdf8]- RP16
+
+@enduml

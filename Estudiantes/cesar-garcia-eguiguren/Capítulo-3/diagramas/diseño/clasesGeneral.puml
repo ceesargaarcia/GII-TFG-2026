@@ -1,0 +1,48 @@
+@startuml d01_mapa
+!theme plain
+hide empty members
+top to bottom direction
+
+skinparam backgroundColor #07090f
+skinparam packageBackgroundColor #0d1018
+skinparam packageBorderColor #2a3850
+skinparam componentBackgroundColor #141824
+skinparam componentBorderColor #2a3850
+skinparam defaultFontColor #c8d0dc
+skinparam arrowColor #38bdf8
+skinparam shadowing false
+skinparam notebackgroundcolor #141824
+
+package "Frontend (React SPA)" as FE {
+  component "Login · Overview\nEmployees · Departments\nProjects · Tasks\nMetrics · Manager\nAttendance · Rentability\nCharts · Search" as FEClasses
+}
+
+package "routes/ (FastAPI)" as RT {
+  component "auth · employee\ndepartment · project · task\ndashboards · metrics\ncharts · search" as RTClasses
+}
+
+package "services/" as SV {
+  component "Dominio (11)\nAuth · Scope · Employee\nDepartment · Project · Task\nDashboard · Chart · Rentability\nSearch · Attendance" as SVDom
+  component "Métricas (15)\n· uno por métrica ·" as SVMet
+}
+
+package "repositories/" as RP {
+  component "Base (11)\nauth · task · timesheet · employee\ndepartment · project\ntracking · chart · dashboard\nscope · search" as RPBase
+  component "Métricas (15)\n· uno por métrica ·" as RPMet
+}
+
+package "models/ (SQLAlchemy ORM)" as MD {
+  component "Task · TaskStage · TaskAssignment\nEmployee · Department · ResUsers\nProject · Partner · Timesheet\nAttendance · MailMessage\nMailTrackingValue · IrModelFields" as MDClasses
+}
+
+FE -[#38bdf8,dashed]d-> RT
+RT -[#38bdf8,dashed]d-> SV
+SV -[#38bdf8,dashed]d-> RP
+RP -[#38bdf8,dashed]d-> MD
+
+note right of FE
+  **Regla de capas:**
+  las dependencias solo fluyen hacia abajo.
+  Cero imports ascendentes en todo el código.
+end note
+@enduml

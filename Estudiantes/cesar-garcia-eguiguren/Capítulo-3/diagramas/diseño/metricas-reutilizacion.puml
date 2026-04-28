@@ -1,0 +1,60 @@
+@startuml d03_subqueries
+!theme plain
+hide empty members
+left to right direction
+
+skinparam backgroundColor #07090f
+skinparam classBackgroundColor #141824
+skinparam classBorderColor #2a3850
+skinparam packageBackgroundColor #0d1018
+skinparam packageBorderColor #2a3850
+skinparam defaultFontColor #c8d0dc
+skinparam arrowColor #8896a8
+skinparam shadowing false
+skinparam nodesep 10
+skinparam ranksep 90
+
+package "repositories/ (proveedores)" {
+  class "task.py" as T <<repo>> {
+    + open_stage_ids_subq(db)
+    + closed_stage_ids_subq(db)
+  }
+  class "timesheet.py" as TS <<repo>> {
+    + worked_hours_subq(db)
+  }
+  class "scope.py" as S <<repo>> {
+    + get_subordinate_employee_ids(db, manager_employee_id)
+  }
+}
+
+package "repositories/metrics/ (consumidores)" {
+  class "productivity.py"        as M1  <<repo>>
+  class "compliance.py"          as M2  <<repo>>
+  class "workload.py"            as M3  <<repo>>
+  class "wip.py"                 as M4  <<repo>>
+  class "risk_index.py"          as M5  <<repo>>
+  class "project_efficiency.py"  as M6  <<repo>>
+  class "estimation_accuracy.py" as M7  <<repo>>
+  class "lead_time.py"           as M8  <<repo>>
+  class "rework_rate.py"         as M9  <<repo>>
+  class "priority_time.py"       as M10 <<repo>>
+  class "attendance.py"          as M11 <<repo>>
+}
+
+M1  .[#a855f7].> T  : closed
+M2  .[#a855f7].> T  : closed
+M3  .[#a855f7].> T  : open/closed
+M3  .[#10b981].> TS : worked
+M4  .[#a855f7].> T  : open
+M5  .[#a855f7].> T  : open
+M6  .[#a855f7].> T  : closed
+M6  .[#10b981].> TS : worked
+M7  .[#a855f7].> T  : closed
+M7  .[#10b981].> TS : worked
+M8  .[#a855f7].> T  : closed
+M9  .[#a855f7].> T  : closed
+M10 .[#a855f7].> T  : closed
+M10 .[#10b981].> TS : worked
+M11 .[#6366f1].> S  : subordinates
+
+@enduml

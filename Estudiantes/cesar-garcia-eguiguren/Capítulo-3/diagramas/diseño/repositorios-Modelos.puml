@@ -1,0 +1,116 @@
+@startuml d02a_repos_base
+!theme plain
+hide empty members
+left to right direction
+
+skinparam backgroundColor #07090f
+skinparam classBackgroundColor #141824
+skinparam classBorderColor #2a3850
+skinparam packageBackgroundColor #0d1018
+skinparam packageBorderColor #2a3850
+skinparam defaultFontColor #c8d0dc
+skinparam arrowColor #8896a8
+skinparam shadowing false
+skinparam nodesep 10
+skinparam NoteBackgroundColor #2a3850
+skinparam ranksep 70
+
+package "repositories/ PARTE 1" {
+  class "task.py"        as T  <<repo>>
+  class "timesheet.py"   as TS <<repo>>
+  class "employee.py"    as E  <<repo>>
+  class "department.py"  as D  <<repo>>
+  class "project.py"     as P  <<repo>>
+  class "tracking.py"    as TR <<repo>>
+}
+
+package "repositorios/ PARTE 2"{
+  class "chart.py"       as C  <<repo>>
+  class "dashboard.py"   as DB <<repo>>
+  class "scope.py"       as S  <<repo>>
+  class "auth.py"        as A  <<repo>>
+  class "search.py"      as SE <<repo>>
+}
+
+package "models/ (SQLAlchemy ORM)" {
+  class Task
+  class TaskStage
+  class TaskAssignment
+  class Employee
+  class ResUsers
+  class Department
+  class Project
+  class Timesheet
+  class MailMessage
+  class MailTrackingValue
+  class IrModelFields
+}
+
+' auth.py → azul
+Employee <-[#38bdf8]- A
+ResUsers <-[#38bdf8]- A
+
+' task.py → violeta (además expone subqueries, ver §7.3)
+T  -[#a855f7]-> Task
+T  -[#a855f7]-> TaskStage
+T  -[#a855f7]-> TaskAssignment
+T  -[#a855f7]-> Project
+T  -[#a855f7]-> Employee
+T  -[#a855f7]-> ResUsers
+
+' timesheet.py → verde (expone worked_hours_subq)
+TS -[#10b981]-> Timesheet
+
+' employee.py → naranja
+E  -[#f59e0b]-> Employee
+E  -[#f59e0b]-> Department
+E  -[#f59e0b]-> ResUsers
+
+' department.py → rosa
+D  -[#ec4899]-> Department
+
+' project.py → cian
+P  -[#06b6d4]-> Project
+P  -[#06b6d4]-> Task
+P  -[#06b6d4]-> Employee
+P  -[#06b6d4]-> Timesheet
+P  -[#06b6d4]-> TaskAssignment
+P  -[#06b6d4]-> ResUsers
+P  -[#06b6d4]-> Department
+
+' scope.py → índigo (RBAC)
+Employee <-[#6366f1]- S
+Department <-[#6366f1]- S
+Project <-[#6366f1]- S
+Timesheet <-[#6366f1]- S
+
+' search.py → lima
+Task <-[#84cc16]- SE
+Project <-[#84cc16]- SE
+Employee <-[#84cc16]- SE
+
+' chart.py → amarillo
+Task <-[#fbbf24]- C
+TaskStage <-[#fbbf24]- C
+Timesheet <-[#fbbf24]- C
+
+' dashboard.py → teal
+Task <-[#14b8a6]- DB
+TaskStage <-[#14b8a6]- DB
+Project <-[#14b8a6]- DB
+Employee <-[#14b8a6]- DB
+
+' tracking.py → coral (historial de cambios de Odoo)
+TR -[#f87171]-> MailMessage
+TR -[#f87171]-> MailTrackingValue
+TR -[#f87171]-> IrModelFields
+TR -[#f87171]-> Task
+TR -[#f87171]-> TaskStage
+
+note top of T
+  **task.py** y **timesheet.py** publican además
+  subqueries reutilizables (open/closed_stage_ids_subq,
+  worked_hours_subq) que consumen los repositorios
+  de métricas. Ver §7.3.
+end note
+@enduml

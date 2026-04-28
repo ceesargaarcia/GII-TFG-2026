@@ -1,0 +1,89 @@
+@startuml d07_presentacion
+!theme plain
+hide empty members
+left to right direction
+
+skinparam backgroundColor #07090f
+skinparam classBackgroundColor #141824
+skinparam classBorderColor #2a3850
+skinparam packageBackgroundColor #0d1018
+skinparam packageBorderColor #2a3850
+skinparam defaultFontColor #c8d0dc
+skinparam arrowColor #38bdf8
+skinparam shadowing false
+skinparam nodesep 8
+skinparam ranksep 60
+skinparam NoteBackgroundColor #2e3852
+
+package "Frontend (páginas React)" {
+  class Login
+  class Overview
+  class "Employees / EmployeeDetail"    as FE
+  class "Departments / DepartmentDetail" as FD
+  class "Projects / ProjectDetail"      as FP
+  class "Tasks / TaskDetail"            as FT
+  class "Attendance"                    as FA
+  class "Search"                        as FS
+  class "Metrics / Charts / Rentability" as FM
+}
+
+package "routes/" {
+  class "auth.router"        as RA  <<router>>
+  class "employee.router"    as RE  <<router>>
+  class "department.router"  as RD  <<router>>
+  class "project.router"     as RP  <<router>>
+  class "task.router"        as RT  <<router>>
+  class "dashboards.router"  as RDB <<router>>
+  class "search.router"      as RS  <<router>>
+  class "charts.router"      as RC  <<router>>
+  class "metrics.router"     as RM  <<router>>
+}
+
+package "services/" {
+  class AuthService
+  class EmployeeService
+  class DepartmentService
+  class ProjectService
+  class TaskService
+  class DashboardService
+  class ChartService
+  class SearchService
+  class AttendanceService
+  class "Servicios de métricas" as Metricas
+  class ScopeService
+}
+
+Login    --> RA
+Overview --> RDB
+FE       --> RE
+FE       --> RDB
+FD       --> RD
+FD       --> RDB
+FP       --> RP
+FP       --> RDB
+FT       --> RT
+FA       --> RE
+FS       --> RS
+FM       --> RM
+FM       --> RC
+
+RA  --> AuthService
+RA --> ScopeService
+RE  --> EmployeeService
+RE  --> AttendanceService
+RD  --> DepartmentService
+RP  --> ProjectService
+RT  --> TaskService
+RDB --> DashboardService
+RC  --> ChartService
+RS  --> SearchService
+RM  --> Metricas
+
+note right of RM
+  `metrics.router` es el único router que delega en ~15 servicios distintos.
+  Cada endpoint `/metrics/<nombre>` instancia el servicio correspondiente
+  sin mezclar lógica. Este diseño hace que añadir una métrica nueva consista
+  en añadir un endpoint, un servicio y un repositorio de métricas, sin tocar
+  ningún archivo existente (OCP).
+end note
+@enduml

@@ -1,0 +1,52 @@
+@startuml d05_orquestacion
+!theme plain
+hide empty members
+top to bottom direction
+
+skinparam backgroundColor #07090f
+skinparam classBackgroundColor #141824
+skinparam classBorderColor #2a3850
+skinparam packageBackgroundColor #0d1018
+skinparam packageBorderColor #2a3850
+skinparam defaultFontColor #c8d0dc
+skinparam arrowColor #8896a8
+skinparam shadowing false
+skinparam nodesep 14
+skinparam ranksep 50
+skinparam NoteBackgroundColor #2e3d58
+
+class DashboardService {
+  + get_system_overview(cu)
+  + get_employee_summary(cu, id)
+  + get_manager_overview(cu, ...)
+  + get_project_summary(cu, id)
+}
+
+package "services/metrics/ (consumidos)" {
+  class WorkloadService
+  class WIPService
+  class ProductivityService
+  class ProjectEfficiencyService
+  class RiskIndexService
+  class ProfitabilityService
+}
+
+class DepartmentService
+
+DashboardService -[#38bdf8]-> WorkloadService
+DashboardService -[#38bdf8]-> WIPService
+DashboardService -[#38bdf8]-> ProductivityService
+DashboardService -[#38bdf8]-> ProjectEfficiencyService
+DashboardService -[#38bdf8]-> RiskIndexService
+DashboardService -[#38bdf8]-> ProfitabilityService
+
+DepartmentService -[#f59e0b]-> WorkloadService : get_workload_summary
+
+note right of DashboardService
+  **Casos de uso servidos:**
+  · CU-03 (empleado) → Workload + WIP + Productivity
+  · CU-05 (departamento) → WorkloadService (por empleado)
+  · CU-07 (proyecto) → ProjectEfficiency + RiskIndex + Profitability
+  · CU-28 (manager) → WorkloadService agregado por equipo
+end note
+@enduml

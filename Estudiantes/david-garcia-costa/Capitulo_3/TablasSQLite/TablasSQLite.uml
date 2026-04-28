@@ -1,0 +1,41 @@
+@startuml
+title TABLAS SQLITE DEL SUBSISTEMA AUTOMÁTICO
+left to right direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+entity "adk_internal_metadata" as Meta {
+  key
+  value
+}
+
+entity "sessions" as Sessions {
+  id
+  user_id
+  state
+  create_time
+  update_time
+}
+
+entity "app_states" as AppStates {
+  app_name
+  state
+}
+
+entity "user_states" as UserStates {
+  user_id
+  state
+}
+
+entity "events" as Events {
+  id
+  session_id
+  event_data
+  timestamp
+}
+
+Sessions --> Events
+Sessions --> UserStates
+Sessions --> AppStates
+
+@enduml

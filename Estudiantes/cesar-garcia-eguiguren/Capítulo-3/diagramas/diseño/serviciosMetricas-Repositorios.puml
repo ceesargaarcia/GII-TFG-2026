@@ -1,0 +1,82 @@
+@startuml d04_metricas_1a1
+!theme plain
+hide empty members
+left to right direction
+
+skinparam backgroundColor #07090f
+skinparam classBackgroundColor #141824
+skinparam classBorderColor #2a3850
+skinparam packageBackgroundColor #0d1018
+skinparam packageBorderColor #2a3850
+skinparam defaultFontColor #c8d0dc
+skinparam arrowColor #38bdf8
+skinparam shadowing false
+skinparam nodesep 6
+skinparam ranksep 80
+skinparam NoteBackgroundColor #425575
+
+package "services/metrics/" {
+  class "AttendanceService"          as S15
+  class "RentabilityService"          as S16
+  class "ProductivityService      " as S1
+  class "ComplianceService        "  as S2
+  class "WorkloadService          "  as S3
+  class "WIPService               "  as S4
+  class "RiskIndexService         "  as S5
+  class "ProjectEfficiencyService "  as S6
+  class "EstimationAccuracyService"  as S7
+  class "LeadTimeService          "  as S8
+  class "ReworkRateService        "  as S9
+  class "PriorityTimeService      "  as S10
+  class "StateTimeService         "  as S11
+  class "ProfitabilityService     "  as S12
+  class "ClientDistributionService"  as S13
+  class "CancelledTasksService    "  as S14
+}
+
+package "repositories/metrics/" {
+  class "attendance.py"          as R15 <<repo>>
+  class "rentability.py"         as R16 <<repo>>
+  class "productivity.py"        as R1  <<repo>>
+  class "compliance.py"          as R2  <<repo>>
+  class "workload.py"            as R3  <<repo>>
+  class "wip.py"                 as R4  <<repo>>
+  class "risk_index.py"          as R5  <<repo>>
+  class "project_efficiency.py"  as R6  <<repo>>
+  class "estimation_accuracy.py" as R7  <<repo>>
+  class "lead_time.py"           as R8  <<repo>>
+  class "rework_rate.py"         as R9  <<repo>>
+  class "priority_time.py"       as R10 <<repo>>
+  class "state_time.py"          as R11 <<repo>>
+  class "profitability.py"       as R12 <<repo>>
+  class "client_distribution.py" as R13 <<repo>>
+  class "cancelled_tasks.py"     as R14 <<repo>>
+}
+
+S1  --> R1
+S2  --> R2
+S3  --> R3
+S4  --> R4
+S5  --> R5
+S6  --> R6
+S7  --> R7
+S8  --> R8
+S9  --> R9
+S10 --> R10
+S11 --> R11
+S12 --> R12
+S13 --> R13
+S14 --> R14
+S15 --> R15
+S16 --> R16
+
+note right of S14
+  **Dependencias adicionales sobre repos base**
+  (no dibujadas para no saturar):
+  · WIP, Workload, LeadTime, Estimation, Attendance,
+    Rework, StateTime → employee.py
+    (para traducir employee_id → user_id).
+  · StateTime, ReworkRate → tracking.py
+    (para leer historial de cambios de etapa).
+end note
+@enduml

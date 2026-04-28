@@ -1,0 +1,71 @@
+@startuml
+' ===== THEME GENERAL =====
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam shadowing false
+
+' ===== PACKAGES =====
+skinparam packageBackgroundColor #141824
+skinparam packageBorderColor #2A3850
+skinparam packageFontColor #38BDF8
+
+' ===== COMPONENTES =====
+skinparam componentBackgroundColor #0F172A
+skinparam componentBorderColor #38BDF8
+skinparam componentFontColor #E2E8F5
+
+' ===== DATABASE =====
+skinparam databaseBackgroundColor #1E293B
+skinparam databaseBorderColor #c3d4f1
+skinparam databaseFontColor #E2E8F5
+
+' ===== FLECHAS =====
+skinparam arrowColor #38BDF8
+
+' ===== NOTAS (FIX IMPORTANTE) =====
+skinparam noteBackgroundColor #1E293B
+skinparam noteBorderColor #38BDF8
+skinparam noteFontColor #E2E8F5
+package "NAVEGADOR WEB" {
+
+  package "FRONTEND · React 18 + Vite" {
+
+    component "Páginas" as Pages
+    component "Componentes UI\n(Card, Table, Badge, Sidebar, Header, ...)" as UI
+    component "Contexto / Hooks\n(AuthContext, useApi, useDebounce, ...)" as Hooks
+    component "API Client (axios)\nInterceptor Bearer token" as API
+
+    Pages --> UI
+    Pages --> Hooks
+    Hooks --> API
+    UI --> API
+  }
+}
+
+package "BACKEND · FastAPI + Python 3.11" {
+
+  component "Routes" as Routes
+  component "Services" as Services
+  component "Repositories" as Repos
+  component "Models / ORM" as Models
+
+  Routes --> Services
+  Services --> Repos
+  Repos --> Models
+
+  note bottom of Routes
+    autenticación JWT HS256
+    rol:
+    - director
+    - responsable
+    - empleado
+  end note
+
+}
+
+database "PostgreSQL 14+ (Odoo v16)\nSolo lectura" as DB
+
+API --> Routes : HTTP / JSON\n:3000 → /api\n(Vite proxy dev)
+Models --> DB : SQL\n:5432
+
+@enduml

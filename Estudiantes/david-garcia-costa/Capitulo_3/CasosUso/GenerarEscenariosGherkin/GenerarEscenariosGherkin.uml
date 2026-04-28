@@ -1,0 +1,50 @@
+@startuml
+title CU04 - Esquema MongoDB para Generar Escenarios Gherkin
+top to bottom direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+entity "Session" as Session {
+  _id: ObjectId
+  projectName: string
+  workflowMode: string
+}
+
+entity "UseCase" as UseCase {
+  _id: ObjectId
+  ucId: string
+  name: string
+  projectName: string
+}
+
+entity "FunctionalRequirement" as FR {
+  _id: ObjectId
+  rfId: string
+  text: string
+  ucId: string
+}
+
+entity "GherkinScenario" as GS {
+  _id: ObjectId
+  title: string
+  feature: string
+  tags: [String]
+  ucId: string
+  rfIds: [String]
+  background: [Step]
+  steps: [Step]
+  examples: string
+  createdAt: Date
+  updatedAt: Date
+}
+
+GS --> Session : sessionId
+GS --> UseCase : ucId
+GS --> FR : rfIds
+
+note bottom
+En kiwi-mvc los escenarios se gestionan por la ruta /api/scenarios.
+La generacion automatica forma parte del pipeline de Agent_ApiKiwi.
+end note
+
+@enduml

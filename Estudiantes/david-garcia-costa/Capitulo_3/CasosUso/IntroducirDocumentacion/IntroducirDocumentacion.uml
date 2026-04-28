@@ -1,0 +1,41 @@
+@startuml
+title CU01 - Esquema MongoDB para Introducir Documentacion Funcional
+top to bottom direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+entity "Session" as Session {
+  _id: ObjectId
+  name: string
+  projectName: string
+  workflowMode: string
+  currentStep: number
+  agentSessionId: string
+  agentHandoffUrl: string
+}
+
+entity "User" as User {
+  _id: ObjectId
+  username: string
+  email: string
+  role: string
+  password: string
+}
+
+entity "Documentation" as Documentation {
+  _id: ObjectId
+  sessionId: ObjectId
+  projectName: string
+  documentType: string
+  label: string
+  title: string
+  content: string
+  uploadedBy: ObjectId
+  createdAt: Date
+  updatedAt: Date
+}
+
+Documentation --> Session : sessionId
+Documentation --> User : uploadedBy
+
+@enduml
