@@ -52,38 +52,39 @@ Los CU de resumen son el panel analítico de cada entidad: agregan indicadores, 
 
 ### 1.3 Lista de casos de uso
 
-El sistema se organiza en **10 paquetes funcionales** que agrupan los **20 casos de uso** identificados. Los CUs marcados con ★ son exclusivos del rol *Director*; el resto están disponibles para ambos actores (*Director* y *Responsable*) con el filtrado de ámbito que corresponda a cada uno.
+El sistema se organiza en **10 paquetes funcionales** que agrupan los **21 casos de uso** identificados. Los CUs marcados con ★ son exclusivos del rol *Director*; el resto están disponibles para ambos actores (*Director* y *Responsable*) con el filtrado de ámbito que corresponda a cada uno.
 
 | Paquete | CU | Nombre | Director | Responsable |
 |---|---|---|---|---|
 | **P1 · Autenticación** | CU-01 | Autenticarse en el sistema | ✅ | ✅ |
 |                        | CU-16 | Cerrar sesión | ✅ | ✅ |
-| **P2 · Empleados**     | CU-02 | Listar y buscar empleados | ✅ | ✅ [scope] |
+| **P2 · Empleados**     | CU-02 | Listar empleados | ✅ | ✅ [scope] |
 |                        | CU-03 | Visualizar resumen de empleado | ✅ | ✅ [scope] |
 | **P3 · Departamentos** | CU-04 | Listar departamentos | ✅ | ✅ [scope] |
 |                        | CU-05 | Visualizar resumen de departamento | ✅ | ✅ [scope] |
 | **P4 · Proyectos**     | CU-06 | Listar proyectos | ✅ | ✅ [scope] |
 |                        | CU-07 | Visualizar resumen de proyecto | ✅ | ✅ [scope] |
-| **P5 · Tareas**        | CU-08 | Listar y filtrar tareas | ✅ | ✅ [scope] |
+| **P5 · Tareas**        | CU-08 | Listar tareas | ✅ | ✅ [scope] |
 |                        | CU-09 | Consultar detalle de tarea | ✅ | ✅ [scope] |
-| **P6 · Métricas**      | CU-10 | Consultar métrica operativa *(parametrizada)* | ✅ | ✅ [scope] |
-| **P7 · Análisis visual** | CU-11 | Visualizar gráficos analíticos | ✅ | ✅ [scope] |
+| **P6 · Análisis**      | CU-10 | Consultar métrica operativa *(parametrizada)* | ✅ | ✅ [scope] |
+|                        | CU-11 | Visualizar gráficos analíticos | ✅ | ✅ [scope] |
 |                          | CU-12 | Consultar asistencia vs imputaciones | ✅ | ✅ [modo equipo] |
-| **P8 · Rentabilidad ★** | CU-13 | Analizar rentabilidad financiera ★ | ✅ | ❌ |
-|                         | CU-14 | Consultar líneas analíticas *(scope: proyecto &#124; cliente)* ★ | ✅ | ❌ |
-| **P9 · Utilidades**    | CU-15 | Realizar búsqueda global | ✅ | ✅ [scope] |
-| **P10 · Snapshots**    | CU-17 | Guardar snapshot *(upsert diario)* | ✅ | ✅ |
+|                            | CU-21 | Consultar carga de trabajo del equipo | ✅ | ✅ [scope] |
+| **P7 · Rentabilidad ★** | CU-13 | Analizar rentabilidad financiera ★ | ✅ | ❌ |
+|                         | CU-14 | Listar líneas analíticas *(scope: proyecto &#124; cliente)* ★ | ✅ | ❌ |
+| **P8 · Utilidades**    | CU-15 | Realizar búsqueda global | ✅ | ✅ [scope] |
+| **P9 · Snapshots**    | CU-17 | Guardar snapshot *(upsert diario)* | ✅ | ✅ |
 |                        | CU-18 | Listar snapshots | ✅ | ✅ |
 |                        | CU-19 | Consultar detalle de snapshot | ✅ | ✅ |
-|                        | CU-20 | Eliminar snapshot | ✅ | ✅ |
+|                        | CU-20 | Eliminar snapshot | ✅ | ❌ |
 
-**Totales:** Director → 20 CU · Responsable → 17 CU (excluidos CU-13, CU-14 y CU-20).
+**Totales:** Director → 21 CU · Responsable → 18 CU (excluidos CU-13, CU-14 y CU-20).
 
 #### Observaciones sobre la consolidación de CUs
 
 Durante la identificación se han aplicado tres consolidaciones alineadas con los principios de RUP (mismo actor, misma precondición, misma postcondición, mismo flujo principal; solo difiere un parámetro):
 
-- **CU-10 Consultar Métrica Operativa** es un caso de uso único que sirve a quince servicios de métrica (productividad, WIP, workload, riesgo, cumplimiento, lead time, exactitud de estimación, tareas canceladas, distribución por cliente, tiempo por estado, retrabajo, eficiencia de proyecto, etc.). La elección de la métrica se modela como parámetro del CU, no como CUs separados. Este CU absorbe además la supervisión de carga de equipo como variante agregada.
+- **CU-10 Consultar Métrica Operativa** es un caso de uso único que sirve a quince servicios de métrica (productividad, WIP, workload, riesgo, cumplimiento, lead time, exactitud de estimación, tareas canceladas, distribución por cliente, tiempo por estado, retrabajo, eficiencia de proyecto, etc.). La elección de la métrica se modela como parámetro del CU, no como CUs separados.
 - **CU-14 Consultar Líneas Analíticas** unifica en un único CU el desglose por proyecto y por cliente que antes eran dos CUs separados. El ámbito (proyecto o cliente) se modela como parámetro.
 - **Guardar/Actualizar Snapshot** se modela como un único CU-17 con semántica *upsert diario*. Dado que existe como máximo una snapshot por combinación de tipo, parámetros y día, volver a guardar el mismo día sobrescribe la anterior. No existe CU separado de "Actualizar Snapshot"; la actualización queda embebida como flujo alternativo FA-01 de CU-17.
 
@@ -99,8 +100,8 @@ Durante la identificación se han aplicado tres consolidaciones alineadas con lo
 Ambos actores comparten la mayoría de los casos de uso. El Director tiene acceso exclusivo al módulo de rentabilidad financiera (CU-13, CU-14). El Responsable opera siempre con un filtro automático sobre su ámbito organizativo.
 
 **Resumen rápido:**
-- **Director:** Acceso a los 20 CU sin restricciones de ámbito.
-- **Responsable:** Acceso a 17 CU con filtro de ámbito (excluidos CU-13 y CU-14).
+- **Director:** Acceso a los 21 CU sin restricciones de ámbito.
+- **Responsable:** Acceso a 18 CU con filtro de ámbito (excluidos CU-13, CU-14 y CU-20).
 
 ---
 
@@ -137,6 +138,7 @@ Ambos actores comparten la mayoría de los casos de uso. El Director tiene acces
 | CU-05 | Resumen de departamento | Soporte al análisis de carga agregada. |
 | CU-09 | Detalle de tarea | Profundización puntual sobre una tarea. |
 | CU-11 | Gráficos analíticos | Análisis visual complementario. |
+| CU-21 | Consultar carga de trabajo de equipo | Control de la carga de trabajo de los empleados |
 | CU-12 | Asistencia vs imputaciones | Control de coherencia horaria. |
 | CU-14 | Líneas analíticas ★ | Desglose contextual sobre rentabilidad. |
 | CU-18 | Listar snapshots | Consumo del histórico persistido. |
@@ -184,7 +186,7 @@ Todos los casos de uso están documentados en detalle en: [Disciplina de Requisi
 
 ---
 
-### CU-02 – Listar y Buscar Empleados
+### CU-02 – Listar Empleados
 
 | Campo | Valor |
 |---|---|
@@ -660,11 +662,15 @@ Todos los casos de uso están documentados en detalle en: [Disciplina de Requisi
 
 ---
 
+### CU-21 - Consultar Carga de Trabajo del Equipo
+
+
+---
 ## 4. Prototipar Casos de Uso
 
 Los prototipos de baja fidelidad presentados a continuación representan la disposición visual de cada pantalla del sistema. Cada prototipo ilustra la estructura de la interfaz, la organización de los datos y los puntos de interacción disponibles para el usuario, sirviendo como referencia para la implementación del frontend.
 
-> Además de los prototipos asociados a casos de uso, el sistema incluye pantallas de navegación y agregación que actúan como punto de entrada y supervisión global. No constituyen casos de uso en sí mismas, sino vistas compuestas que consolidan información de múltiples casos de uso ya documentados.
+> Además de los prototipos asociados a casos de uso, el sistema incluye una pantalla de navegación y agregación que actúa como punto de entrada del sistema. No constituye un casos de uso en sí, sino que consolida información de múltiples casos de uso ya documentados.
 
 ---
 
@@ -673,14 +679,6 @@ Los prototipos de baja fidelidad presentados a continuación representan la disp
 Panel de bienvenida que actúa como punto de entrada al sistema tras completar CU-01. Muestra un resumen ejecutivo con alertas activas, indicadores globales y accesos rápidos a las secciones principales.
 
 ![Pantalla de inicio](./imagenes/prototipado/Vista-Overview.png)
-
----
-
-### Pantalla de manager — `/manager`
-
-Panel de supervisión global para responsables que presenta cinco tarjetas numéricas clicables (total, sobrecargado, normal, subcargado, sin tareas), gráfico de barras de distribución por estado, panel de empleados más cargados y — al hacer clic en una tarjeta — listado paginado de empleados filtrados con su porcentaje de carga y horas pendientes.
-
-![Prototipo de métrica de equipo (variante agregada)](./imagenes/prototipado/CU-28.png)
 
 
 ---
@@ -799,13 +797,19 @@ El visor de snapshots es una aplicación independiente del frontend principal qu
 
 ---
 
+### Prototipo CU-21 - Carga de Trabajo del Equipo
+
+Panel de supervisión global para responsables que presenta cinco tarjetas numéricas clicables (total, sobrecargado, normal, subcargado, sin tareas), gráfico de barras de distribución por estado, panel de empleados más cargados y — al hacer clic en una tarjeta — listado paginado de empleados filtrados con su porcentaje de carga y horas pendientes.
+
+![Prototipo de métrica de equipo (variante agregada)](./imagenes/prototipado/CU-28.png)
+
 ## 5. Estructurar el Modelo de Casos de Uso
 
 ### 5.1 Diagrama de Contexto – Director
 
 ![Diagrama de Contexto - Director](./imagenes/contexto_director.png)
 
-El Director tiene acceso a los 20 casos de uso sin restricciones de ámbito. Es el único actor con acceso al módulo de rentabilidad financiera (CU-13 y CU-14).
+El Director tiene acceso a los 21 casos de uso sin restricciones de ámbito. Es el único actor con acceso al módulo de rentabilidad financiera (CU-13 y CU-14).
 
 ---
 
@@ -813,7 +817,7 @@ El Director tiene acceso a los 20 casos de uso sin restricciones de ámbito. Es 
 
 ![Diagrama de Contexto - Responsable](./imagenes/contexto_responsable.png)
 
-El Responsable tiene acceso a 17 casos de uso, pero con datos filtrados automáticamente a su ámbito organizativo (empleados, departamentos y proyectos bajo su responsabilidad).
+El Responsable tiene acceso a 18 casos de uso, pero con datos filtrados automáticamente a su ámbito organizativo (empleados, departamentos y proyectos bajo su responsabilidad).
 
 ---
 

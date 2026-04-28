@@ -25,41 +25,42 @@ skinparam package {
 
 actor "Director" as D
 
-package "Autenticación" {
+package "P1 · Autenticación" {
   usecase "CU-01\nAutenticarse" as CU01
   usecase "CU-16\nCerrar Sesión" as CU16
 }
 
-package "Entidades operativas" {
-  usecase "CU-02 Listar Empleados" as CU02
-  usecase "CU-03 Resumen Empleado" as CU03
-  usecase "CU-04 Listar Departamentos" as CU04
-  usecase "CU-05 Resumen Departamento" as CU05
-  usecase "CU-06 Listar Proyectos" as CU06
-  usecase "CU-07 Resumen Proyecto" as CU07
-  usecase "CU-08 Listar Tareas" as CU08
-  usecase "CU-09 Detalle Tarea" as CU09
+package "P2–P5 · Entidades operativas [scope]" {
+  usecase "CU-02 Listar empleados" as CU02
+  usecase "CU-03 Consultar resumen empleado" as CU03
+  usecase "CU-04 Listar departamentos" as CU04
+  usecase "CU-05 Consultar resumen departamento" as CU05
+  usecase "CU-06 Listar proyectos" as CU06
+  usecase "CU-07 Consultar resumen proyecto" as CU07
+  usecase "CU-08 Listar tareas" as CU08
+  usecase "CU-09 Consultar detalle tarea" as CU09
 }
 
-package "Análisis" {
-  usecase "CU-10 Consultar Métrica Operativa\n(15 métricas · individual / equipo)" as CU10
-  usecase "CU-11 Gráficos Analíticos" as CU11
-  usecase "CU-12 Asistencia vs Imputaciones" as CU12
+package "P6 · Análisis" {
+  usecase "CU-10 Consultar métrica operativa" as CU10
+  usecase "CU-11 Consultar gráficos analíticos" as CU11
+  usecase "CU-12 Consultar asistencia vs imputaciones" as CU12
+  usecase "CU-21 Consultar carga de trabajo del equipo" as CU21
 }
 
-package "Rentabilidad" #1A0A0A {
-  usecase "CU-13 Rentabilidad Financiera ★" as CU13
-  usecase "CU-14 Líneas Analíticas ★\n(scope: proyecto | cliente)" as CU14
+package "P7 · Rentabilidad" #1A0A0A {
+  usecase "CU-13 Consultar rentabilidad Financiera ★" as CU13
+  usecase "CU-14 Listar líneas analíticas ★\n(scope: proyecto | cliente)" as CU14
 }
 
-package "Utilidades" {
-  usecase "CU-15 Búsqueda Global" as CU15
+package "P8 · Utilidades" {
+  usecase "CU-15 Realizar búsqueda global" as CU15
 }
 
-package "Snapshots (MongoDB)" #0F1E2A {
+package "P9 · Snapshots" #0F1E2A {
   usecase "CU-17 Guardar Snapshot\n(upsert diario)" as CU17
   usecase "CU-18 Listar Snapshots" as CU18
-  usecase "CU-19 Detalle Snapshot" as CU19
+  usecase "CU-19 Consultar Detalle Snapshot" as CU19
   usecase "CU-20 Eliminar Snapshot" as CU20
 }
 
@@ -83,13 +84,8 @@ D --> CU17
 D --> CU18
 D --> CU19
 D --> CU20
+D --> CU21
 
-CU13 ..> CU14 : <<extend>>\n(drill-down)
-CU10 ..> CU17 : <<extend>>
-CU11 ..> CU17 : <<extend>>
-CU13 ..> CU17 : <<extend>>
-CU18 ..> CU19 : <<extend>>
-CU19 ..> CU20 : <<extend>>
 
 note right of CU10
   CU único parametrizado por métrica.

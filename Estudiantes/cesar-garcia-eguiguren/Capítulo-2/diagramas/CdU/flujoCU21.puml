@@ -1,0 +1,62 @@
+@startuml CU21_ConsultarCargaEquipo
+!theme plain
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam ActivityBorderColor #1E2840
+skinparam ActivityBackgroundColor #141824
+skinparam ActivityDiamondBackgroundColor #0D1018
+skinparam ActivityDiamondBorderColor #38BDF8
+skinparam NoteBackgroundColor #141824
+skinparam NoteBorderColor #38BDF8
+
+title CU-21 · Consultar Distribución de Carga del Equipo
+
+start
+:El actor accede al panel de supervisión de equipo;
+:El sistema muestra la distribución del equipo
+completo según el ámbito del actor, clasificando
+a los empleados por su estado de carga:
+· Total de empleados
+· Sobrecargados
+· En carga normal
+· Subcargados
+· Sin tareas asignadas;
+
+note right
+  El Responsable ve solo los empleados
+  de su ámbito organizativo.
+  El Director ve todos los empleados.
+end note
+
+:El sistema muestra también:
+· El ranking de los empleados con mayor carga
+· Un gráfico de distribución por estado;
+
+:El actor puede filtrar por departamento
+para acotar el análisis a un área concreta;
+
+if (¿El actor selecciona un estado de carga?) then (SÍ)
+  :El sistema muestra el listado paginado
+  de empleados en ese estado, con su
+  porcentaje de carga y horas pendientes;
+
+  :El actor puede ordenar el listado
+  por cualquier columna;
+
+  if (¿El actor selecciona un empleado?) then (SÍ)
+    :Navega a CU-03 Resumen de Empleado;
+  endif
+endif
+
+stop
+
+note right
+  Este caso de uso ofrece una visión
+  global del equipo que complementa
+  a CU-05 (Resumen de Departamento),
+  el cual analiza un único departamento
+  seleccionado previamente.
+end note
+
+@enduml

@@ -31,30 +31,28 @@ package "P1 · Autenticación" {
 }
 
 package "P2–P5 · Entidades operativas [scope]" {
-  usecase "CU-02 Listar Empleados" as CU02
-  usecase "CU-03 Resumen Empleado" as CU03
-  usecase "CU-04 Listar Departamentos" as CU04
-  usecase "CU-05 Resumen Departamento" as CU05
-  usecase "CU-06 Listar Proyectos" as CU06
-  usecase "CU-07 Resumen Proyecto" as CU07
-  usecase "CU-08 Listar Tareas" as CU08
-  usecase "CU-09 Detalle Tarea" as CU09
+  usecase "CU-02 Listar empleados" as CU02
+  usecase "CU-03 Consultar resumen empleado" as CU03
+  usecase "CU-04 Listar departamentos" as CU04
+  usecase "CU-05 Consultar resumen departamento" as CU05
+  usecase "CU-06 Listar proyectos" as CU06
+  usecase "CU-07 Consultar resumen proyecto" as CU07
+  usecase "CU-08 Listar tareas" as CU08
+  usecase "CU-09 Consultar detalle tarea" as CU09
 }
 
-package "P6 · Métricas [scope]" {
-  usecase "CU-10 Consultar Métrica Operativa" as CU10
+package "P6 · Análisis [scope]" {
+  usecase "CU-10 Consultar métrica operativa" as CU10
+  usecase "CU-11 Consultar gráficos analíticos" as CU11
+  usecase "CU-12 Consultar asistencia vs imputaciones" as CU12
+  usecase "CU-21 Consultar carga de trabajo del equipo" as CU21
 }
 
-package "P7 · Análisis visual [scope]" {
-  usecase "CU-11 Gráficos Analíticos" as CU11
-  usecase "CU-12 Asistencia\n[solo modo equipo global]" as CU12
+package "P8 · Utilidades" {
+  usecase "CU-15 Realizar búsqueda global [scope]" as CU15
 }
 
-package "P9 · Utilidades" {
-  usecase "CU-15 Búsqueda Global [scope]" as CU15
-}
-
-package "P10 · Snapshots (MongoDB)" #0F1E2A {
+package "P9 · Snapshots (MongoDB)" #0F1E2A {
   usecase "CU-17 Guardar Snapshot" as CU17
   usecase "CU-18 Listar Snapshots" as CU18
   usecase "CU-19 Detalle Snapshot" as CU19
@@ -76,24 +74,6 @@ R --> CU15
 R --> CU16
 R --> CU17
 R --> CU18
-
-' ── Relaciones <<extend>> ─────────────────────────────────────
-"P6 · Métricas [scope]" ..> CU17 : <<extend>>
-"P7 · Análisis visual [scope]" ..> CU17 : <<extend>>
-"P2–P5 · Entidades operativas [scope]" ..> CU17 : <<extend>>
-
-
-' Visor de snapshots (solo lectura para Responsable)
-CU18 ..> CU19 : <<extend>>
-
-note bottom of R
-  El Responsable **no** tiene acceso a:
-  · CU-13 y CU-14 — Rentabilidad Financiera
-    y Líneas Analíticas (exclusivos Director).
-  · CU-20 — Eliminar Snapshot (solo Director).
-  Cuenta con **17 CU** de un total de 20.
-  Todos los CU operativos aplican filtrado
-  automático por scope (JWT).
-end note
+R --> CU21
 
 @enduml
