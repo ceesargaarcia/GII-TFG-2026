@@ -844,9 +844,17 @@ El Director tiene acceso a los 21 casos de uso sin restricciones de ámbito. Es 
 
 El Responsable tiene acceso a 18 casos de uso, pero con datos filtrados automáticamente a su ámbito organizativo (empleados, departamentos y proyectos bajo su responsabilidad).
 
+### 5.3 Diagramas de navegación
+
+#### 5.3.1 Diagrama de navegación del director
+![navDirector](./imagenes/navDirector.png)
+
+#### 5.3.2 Diagrama de navegación del responsable
+![navResponsable](./imagenes/navResponsable.png)
+
 ---
 
-### 5.3 Relaciones include / extend
+### 5.4 Relaciones include / extend
 
 #### 1. Relaciones de Inclusión `<<include>>`
 

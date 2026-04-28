@@ -1,0 +1,99 @@
+@startuml diagrama-navegacion-director
+left to right direction
+skinparam linetype polyline
+
+state "SESION_CERRADA"              as NoAuth
+state "OVERVIEW"                    as Overview
+state "EMPLEADOS_ABIERTO"           as ListEmp
+state "EMPLEADO_ABIERTO"            as DetEmp
+state "DEPARTAMENTOS_ABIERTO"       as ListDept
+state "DEPARTAMENTO_ABIERTO"        as DetDept
+state "PROYECTOS_ABIERTO"           as ListProy
+state "PROYECTO_ABIERTO"            as DetProy
+state "TAREAS_ABIERTO"              as ListTarea
+state "TAREA_ABIERTA"               as DetTarea
+state "METRICAS_ABIERTO"            as Metricas
+state "GRAFICOS_ABIERTO"            as Graficos
+state "ASISTENCIA_ABIERTO"          as Asistencia
+state "MANAGER_ABIERTO"             as Manager
+state "BUSQUEDA_ABIERTO"            as Busqueda
+state "RENTABILIDAD_ABIERTA"        as Rentabilidad
+state "LINEAS_ANALITICAS_ABIERTO"   as Lineas
+state "VISOR_SNAPSHOTS_ABIERTO"     as Visor
+state "SNAPSHOT_DETALLE_ABIERTO"    as DetSnap
+
+[*] --> NoAuth
+
+' ── Autenticación ─────────────────────────────────────────────
+NoAuth      --> Overview    : iniciarSesion()
+Overview    --> NoAuth      : cerrarSesion()
+
+' ── Navegación principal desde Overview ───────────────────────
+Overview --> ListEmp        : listarEmpleados()
+Overview --> ListDept       : listarDepartamentos()
+Overview --> ListProy       : listarProyectos()
+Overview --> ListTarea      : listarTareas()
+Overview --> Metricas       : consultarMetricas()
+Overview --> Graficos       : consultarGraficos()
+Overview --> Asistencia     : consultarAsistencia()
+Overview --> Manager        : consultarCargaEquipo()
+Overview --> Busqueda       : buscarGlobal()
+Overview --> Rentabilidad   : consultarRentabilidad()
+NoAuth --> Visor          : abrirVisorSnapshots()
+ListDept --> Overview : volver()
+ListEmp --> Overview : volver()
+ListProy --> Overview : volver()
+ListTarea --> Overview : volver()
+Metricas --> Overview : volver()
+Asistencia --> Overview : volver()
+Rentabilidad --> Overview : volver()
+Busqueda --> Overview : volver()
+Manager --> Overview : volver()
+Graficos --> Overview : volver()
+
+' ── P2 · Empleados ────────────────────────────────────────────
+ListEmp  --> DetEmp         : seleccionarEmpleado()
+DetEmp   --> ListTarea      : verTareasEmpleado()
+DetEmp   --> DetEmp         : guardarSnapshot()
+DetEmp   --> ListEmp        : volver()
+
+' ── P3 · Departamentos ────────────────────────────────────────
+ListDept --> DetDept         : seleccionarDepartamento()
+DetDept  --> DetEmp          : seleccionarEmpleado()
+DetDept  --> DetDept         : guardarSnapshot()
+DetDept  --> ListDept        : volver()
+
+' ── P4 · Proyectos ────────────────────────────────────────────
+ListProy --> DetProy          : seleccionarProyecto()
+DetProy  --> ListTarea        : verTareasProyecto()
+DetProy  --> DetEmp           : seleccionarEmpleado()
+DetProy  --> DetProy          : guardarSnapshot()
+DetProy  --> ListProy         : volver()
+
+' ── P5 · Tareas ───────────────────────────────────────────────
+ListTarea --> DetTarea        : seleccionarTarea()
+DetTarea  --> DetProy         : verProyecto()
+DetTarea  --> DetEmp          : verResponsable()
+DetTarea  --> DetTarea        : verSubtarea()
+DetTarea  --> DetTarea        : guardarSnapshot()
+DetTarea  --> ListTarea       : volver()
+
+' ── P6 · Análisis ─────────────────────────────────────────────
+Metricas   --> Metricas       : calcularMetrica()
+Metricas   --> Metricas       : guardarSnapshot()
+Graficos   --> Graficos       : filtrarGraficos()
+Graficos   --> Graficos       : guardarSnapshot()
+Asistencia --> Asistencia     : guardarSnapshot()
+Manager    --> DetEmp         : seleccionarEmpleado()
+
+' ── P8 · Utilidades ───────────────────────────────────────────
+Busqueda --> DetEmp           : seleccionarEmpleado()
+Busqueda --> DetProy          : seleccionarProyecto()
+Busqueda --> DetTarea         : seleccionarTarea()
+
+' ── P9 · Snapshots ────────────────────────────────────────────
+Visor    --> DetSnap          : seleccionarSnapshot()
+Visor    --> NoAuth           : cerrarSesion()
+DetSnap  --> Visor            : volver()
+
+@enduml
