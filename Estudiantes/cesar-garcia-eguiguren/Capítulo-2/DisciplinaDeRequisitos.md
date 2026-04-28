@@ -658,7 +658,7 @@ Todos los casos de uso están documentados en detalle en: [Disciplina de Requisi
 
 **Observación:** El borrado es definitivo, sin papelera ni versiones previas. Tras el borrado, volver a guardar el mismo día con los mismos parámetros crea una snapshot nueva a través de CU-17.
 
-**Relaciones:** Ninguna.
+**Relaciones:** `<<include>>` hacia CU-18 y CU-19.
 
 ---
 
@@ -859,6 +859,12 @@ El Responsable tiene acceso a 18 casos de uso, pero con datos filtrados automát
 #### 1. Relaciones de Inclusión `<<include>>`
 
 Todos los casos de uso del sistema (excepto CU-01 Autenticarse) requieren sesión autenticada activa. La relación `<<include>>` hacia CU-01 se considera implícita en toda la arquitectura y **no se representa individualmente** en los diagramas para evitar sobrecarga visual.
+
+| Inclusión                             | Desde → Hacia               | Descripción                                                       |
+| ------------------------------------- | --------------------------- | ----------------------------------------------------------------- |
+| Eliminación de snapshot desde listado | CU-18 → CU-20               | El actor puede eliminar una snapshot directamente desde la tabla. |
+| Eliminación de snapshot desde detalle | CU-19 → CU-20               | El actor puede eliminar la snapshot desde la ficha abierta.       |
+
 
 #### 2. Relaciones de Extensión `<<extend>>`
 
