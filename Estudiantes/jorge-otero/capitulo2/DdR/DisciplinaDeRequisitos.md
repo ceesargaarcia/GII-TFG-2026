@@ -163,157 +163,134 @@ De este modo, el sistema permite enriquecer la información de las solicitudes i
 |---------|---------|
 |![CdU](./Detallar_CdU/imagen/VerSolicitudes.png)|[Ver código](./Detallar_CdU/codigo/VerSolicitudes.puml)|
 
+El caso de uso CA3 Ver solicitudes describe el proceso mediante el cual el técnico consulta la información procesada por el sistema a través de una interfaz de visualización.
+
+El flujo se inicia cuando el técnico accede a la vista desarrollada en Power BI, que actúa como herramienta de explotación de datos. En ese momento, el sistema realiza la carga de la información almacenada en la base de datos.
+
+Una vez cargados los datos, la plataforma presenta las solicitudes registradas junto con su información asociada, permitiendo al técnico obtener una visión general del estado del sistema.
+
+Adicionalmente, el técnico puede interactuar con la vista aplicando filtros o realizando búsquedas específicas, lo que permite refinar la información mostrada en función de sus necesidades. Cada interacción actualiza dinámicamente la visualización sin alterar los datos originales.
+
+Finalmente, el flujo concluye cuando el técnico finaliza la consulta, habiendo podido analizar y revisar la información disponible de forma estructurada.
+
+De este modo, la vista en Power BI proporciona una capa de acceso eficiente a los datos, facilitando su interpretación sin intervenir en los procesos internos del sistema.
+
+**Criterios de Aceptación**
++ El técnico debe poder acceder a la vista de solicitudes.
++ El sistema debe cargar los datos almacenados en la base de datos.
++ La vista debe mostrar las solicitudes y formularios registradas con su información asociada.
++ El técnico debe poder aplicar filtros o búsquedas sobre los datos.
++ La visualización debe actualizarse dinámicamente al aplicar filtros.
++ El sistema no debe permitir la modificación directa de los datos desde la vista.
++ Los datos mostrados deben reflejar la información almacenada en el sistema.
+
 ## Prototipar Casos de Uso 
 
-### Caso de Uso - Enviar Solicitud
+En el desarrollo del sistema propuesto, el uso de prototipos de interfaz de usuario no resulta aplicable en la mayoría de los casos de uso. Esto se debe a que la solución se basa principalmente en un modelo de automatización, donde los procesos se ejecutan de forma autónoma sin interacción directa del usuario.
 
-![Prototipo](./Prototipar_CdU/EnviarSolicitud.png)
+Los casos de uso principales, como CA1 Recibir solicitud y CA2 Recibir formulario, se activan mediante eventos externos procedentes de servicios como el correo electrónico o los formularios, y su ejecución consiste en una secuencia de procesamiento interno. En estos escenarios, no existe una interfaz gráfica ni puntos de interacción con el usuario que justifiquen la creación de prototipos, ya que el sistema opera de manera transparente.
 
-### Caso de Uso - Recibir Respuesta
-
-![Prototipo](./Prototipar_CdU/RecibirRespuesta.png)
-
-### Caso de Uso - Ver Solicitudes Pendientes
+### Caso de Uso - Ver Solicitudes
 
 ![Prototipo](./Prototipar_CdU/VerSolicitudesPendientes.png)
 
-### Caso de Uso - Actualizar Estado
-
-![Prototipo](./Prototipar_CdU/ActualizarEstado.png)
-
-### Caso de Uso - Completar Formulario
-
-![Prototipo](./Prototipar_CdU/CompletarFormulario.png)
-
 ## Estructurar la Descripción de los Casos de Uso
 
-### CA1 – Enviar solicitud
+### CA1 – Recibir solicitud
 
-- **Actor:** Cliente  
+- **Actor:** Exchange Online  
 
 - **Descripción:**  
-El cliente genera y envía una solicitud al sistema para comunicar una necesidad o incidencia.
+El sistema recibe un correo electrónico en el buzón corporativo y procesa automáticamente la solicitud, generando una respuesta o ejecutando acciones en función de su contenido.
 
 - **Precondiciones:**  
-- El cliente dispone de la información necesaria para redactar la solicitud.  
+- El buzón de correo corporativo está configurado e integrado con el sistema.  
+- Existe una solicitud enviada por un usuario externo.  
 
 - **Postcondiciones:**  
 - La solicitud queda registrada en el sistema.  
+- Se envía una respuesta al remitente o se ejecuta la acción correspondiente.  
 
 - **Flujo principal:**  
-1. El cliente redacta la solicitud.  
-2. El cliente revisa la información introducida.  
-3. El cliente envía la solicitud.  
-4. El sistema registra la solicitud.  
+1. Se recibe un correo en el buzón corporativo.  
+2. El sistema evalúa el asunto del correo.  
+3. Si el asunto no coincide con casos predefinidos, el sistema analiza el contenido.  
+4. El sistema identifica la intención de la solicitud.  
+5. El sistema registra la fecha, hora e intención en la base de datos.  
+6. El sistema consulta la base de datos si la solicitud lo requiere.  
+7. El sistema procesa los datos obtenidos.  
+8. El sistema genera una respuesta.  
+9. El sistema registra la información procesada.  
+10. El sistema envía la respuesta al remitente.  
 
 - **Flujos alternativos:**  
-- 2a. El cliente detecta errores → modifica la solicitud antes de enviarla.  
+- 2a. El asunto es “TE:FORMRESUELTO” → se actualiza el estado del formulario.  
+- 2b. El asunto es “Envío documentación acuerdo” → se mueve el correo a la carpeta correspondiente.  
+- 2c. El asunto es “Envío documentación desacuerdo” → se mueve el correo a la carpeta correspondiente.  
+- 4a. La intención no es válida → se envía una respuesta mediante correo plantilla.  
 
 - **Criterios de aceptación:**  
-- La solicitud contiene información mínima obligatoria.  
-- El sistema confirma la recepción de la solicitud.  
+- El sistema se activa automáticamente al recibir un correo.  
+- El sistema clasifica correctamente el correo según su asunto.  
+- El sistema identifica la intención de la solicitud.  
+- El sistema registra la información básica de la solicitud.  
+- El sistema genera y envía una respuesta en todos los casos.  
 
-### CA2 – Recibir respuesta
+### CA2 – Recibir formulario
 
-- **Actor:** Cliente  
+- **Actor:** Microsoft Forms  
 
 - **Descripción:**  
-El cliente recibe la respuesta generada por el sistema tras el procesamiento de su solicitud.
+El sistema recibe un formulario completado y procesa la información adicional proporcionada, almacenándola en la base de datos.
 
 - **Precondiciones:**  
-- Existe una solicitud previamente enviada.  
+- Existe un formulario previamente enviado al usuario.  
+- El sistema está integrado con Microsoft Forms.  
 
 - **Postcondiciones:**  
-- El cliente dispone de una respuesta asociada a su solicitud.  
+- La información del formulario queda registrada en la base de datos.  
+- Se envía un correo con instrucciones si procede.  
 
 - **Flujo principal:**  
-1. El sistema procesa la solicitud.  
-2. El sistema genera una respuesta.  
-3. El sistema envía la respuesta al cliente.  
-4. El cliente recibe y visualiza la respuesta.  
+1. Se recibe un formulario completado.  
+2. El sistema analiza la información recibida.  
+3. El sistema procesa las respuestas del formulario.  
+4. El sistema guarda la información en la base de datos.  
 
 - **Flujos alternativos:**  
-- 1a. La información es insuficiente → el sistema solicita información adicional.  
+- 2a. Se marca la opción de documentación → el sistema envía un correo con instrucciones para el envío de la documentación.  
 
 - **Criterios de aceptación:**  
-- La respuesta es generada correctamente.  
-- El cliente puede visualizar la respuesta.  
+- El sistema se activa automáticamente al completarse un formulario.  
+- El sistema procesa correctamente los datos recibidos.  
+- El sistema envía instrucciones cuando se solicita documentación.  
+- El sistema almacena toda la información del formulario.  
 
-### CA3 – Ver solicitudes pendientes
+### CA3 – Ver solicitudes
 
 - **Actor:** Técnico  
 
 - **Descripción:**  
-El técnico consulta las solicitudes o formularios pendientes para su gestión.
+El técnico consulta las solicitudes procesadas a través de una vista de visualización de datos.
 
 - **Precondiciones:**  
-- Existen solicitudes o formularios pendientes en el sistema.  
+- Existen solicitudes registradas en el sistema.  
+- La vista en Power BI está disponible.  
 
 - **Postcondiciones:**  
-- El técnico visualiza la información necesaria para su gestión.  
+- El técnico visualiza la información de las solicitudes.  
 
 - **Flujo principal:**  
-1. El técnico accede a la vista de datos.  
-2. El sistema recupera las solicitudes pendientes.  
-3. El sistema muestra la información al técnico.  
+1. El técnico accede a la vista de solicitudes.  
+2. El sistema carga los datos desde la base de datos.  
+3. Se muestran las solicitudes en la interfaz.  
+4. El técnico consulta la información disponible.  
 
 - **Flujos alternativos:**  
-- 2a. Error en la carga de datos → el sistema muestra un mensaje de error.  
+- 4a. El técnico aplica filtros o búsquedas → la vista se actualiza dinámicamente.  
 
 - **Criterios de aceptación:**  
-- Solo se muestran solicitudes no resueltas.  
-- La información es accesible y está actualizada.  
-
-### CA4 – Actualizar estado
-
-- **Actor:** Técnico  
-
-- **Descripción:**  
-El técnico actualiza el estado de un formulario o solicitud en el sistema.
-
-- **Precondiciones:**  
-- Existe una solicitud o formulario pendiente.  
-
-- **Postcondiciones:**  
-- El estado queda actualizado correctamente o no se modifica si no procede.  
-
-- **Flujo principal:**  
-1. El técnico selecciona una solicitud o formulario.  
-2. El técnico marca como resuelto.  
-3. El sistema verifica si existe formulario asociado.  
-4. El sistema actualiza el estado.  
-
-- **Flujos alternativos:**  
-- 3a. No existe formulario → el sistema no realiza cambios.  
-
-- **Criterios de aceptación:**  
-- El estado se actualiza correctamente si se cumplen las condiciones.  
-- El sistema valida la existencia del formulario.  
-
-
-### CA5 – Completar formulario
-
-- **Actor:** Cliente  
-
-- **Descripción:**  
-El cliente completa un formulario para aportar información adicional a una solicitud.
-
-- **Precondiciones:**  
-- El sistema ha solicitado información adicional.  
-
-- **Postcondiciones:**  
-- La información adicional queda registrada en el sistema.  
-
-- **Flujo principal:**  
-1. El cliente accede al formulario.  
-2. El cliente completa los campos requeridos.  
-3. El cliente revisa la información.  
-4. El cliente envía el formulario.  
-5. El sistema registra la información.  
-
-- **Flujos alternativos:**  
-- 3a. El cliente detecta errores → modifica la información antes de enviarla.  
-
-- **Criterios de aceptación:**  
-- Los campos obligatorios están cumplimentados.  
-- El formulario se registra correctamente.  
+- El técnico puede acceder a la vista.  
+- El sistema muestra correctamente las solicitudes registradas.  
+- El técnico puede filtrar o buscar información.  
+- La visualización refleja los datos almacenados en el sistema.  
