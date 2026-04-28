@@ -5,25 +5,17 @@ skinparam packageStyle rectangle
 hide empty members
 
 package "Vistas" {
-  class EnvioSolicitudView
-  class RespuestaSolicitudView
-  class FormularioView
-  class SolicitudesPendientesView
-  class ActualizarEstadoView
+  class SolicitudesView
 }
 
 package "Controladores" {
-  class EnviarSolicitudController
-  class RecibirRespuestaController
-  class CompletarFormularioController
-  class VerSolicitudesPendientesController
-  class ActualizarEstadoController
+  class RecibirSolicitudController
+  class RecibirFormularioController
 }
 
 package "Modelos" {
   class Solicitud
   class Formulario
-  class Respuesta
 }
 
 @enduml

@@ -1,0 +1,22 @@
+@startuml VerSolicitudes
+top to bottom direction
+
+actor Tecnico
+
+package "VerSolicitudes()" {
+
+  rectangle "SolicitudesView" as View
+  rectangle "Solicitud" as Solicitud
+  rectangle "Formulario" as Formulario
+
+  Solicitud -[hidden]right-> Formulario
+  View -[hidden]right-> Solicitud
+  View -[hidden]right-> Formulario
+  View --> Solicitud
+  View --> Formulario
+
+}
+
+Tecnico --> View
+
+@enduml

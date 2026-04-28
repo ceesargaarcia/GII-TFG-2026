@@ -1,0 +1,19 @@
+@startuml RecibirSolicitud
+top to bottom direction
+
+actor "Exchange Online" as Exchange
+
+package "RecibirSolicitud()" {
+
+  rectangle "RecibirSolicitudController" as Controller
+  rectangle "Solicitud" as Solicitud
+
+  Controller -[hidden]-> Solicitud
+
+  Controller --> Solicitud
+
+}
+
+Exchange --> Controller
+
+@enduml

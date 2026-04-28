@@ -1,0 +1,37 @@
+@startuml Decision_Tecnologica
+
+top to bottom direction
+skinparam packageStyle rectangle
+
+rectangle "Exchange Online\n(Buzón corporativo)" as Exchange
+rectangle "Microsoft Forms\n(Sistema de formularios)" as Forms
+
+package "Power Automate\n(Capa de Control)" {
+  rectangle "Flujo RecibirSolicitudController" as FlujoCorreo
+  rectangle "Flujo RecibirFormularioController" as FlujoForms
+}
+
+database "Servicios de Información\n(Workflows externos / APIs)" as ServiciosExternos
+
+database "Repositorio de Datos\n(Dataset Power BI)" as BBDD
+
+rectangle "Power BI\n(SolicitudesView)" as PowerBI
+
+actor Tecnico
+
+Exchange --> FlujoCorreo : Nuevo correo
+FlujoCorreo --> Exchange : Envío respuesta
+
+FlujoCorreo --> ServiciosExternos : Consulta información
+
+FlujoCorreo --> BBDD : Registrar Solicitud
+
+Forms --> FlujoForms : Formulario completado
+FlujoForms --> Exchange : Envío correo (opcional)
+FlujoForms --> BBDD : Registrar Formulario
+
+BBDD --> PowerBI : Proveer datos
+
+Tecnico --> PowerBI : Consulta solicitudes
+
+@enduml

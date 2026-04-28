@@ -6,16 +6,19 @@ En este capítulo se aborda el análisis y diseño del sistema a partir de los r
 
 ## Análisis
 
-El análisis del sistema tiene como finalidad definir la estructura lógica de la solución a partir de los requisitos y casos de uso obtenidos en el capítulo anterior. Para ello, se adopta el patrón Modelo-Vista-Controlador (MVC), siguiendo el esquema propuesto en la asignatura: cada caso de uso detallado da lugar a una clase controladora, la interfaz asociada al caso de uso se representa mediante una clase vista, y las entidades del dominio implicadas se modelan como clases del modelo.
+El sistema se basa en un enfoque de automatización orientada a eventos, en el que la mayor parte de los procesos se ejecutan sin intervención directa del usuario. El sistema gestiona solicitudes recibidas a través del correo electrónico, permite su ampliación mediante formularios y ofrece una capa de visualización para su consulta.
 
-De este modo, el análisis permite pasar de una descripción funcional del sistema a una primera organización estructurada de sus elementos, sin entrar todavía en detalles tecnológicos o de implementación. El resultado de esta fase es un diagrama de clases de análisis, complementado con diagramas de colaboración para los casos de uso más representativos.
+A partir de los diagramas de contexto definidos previamente, se identifican los siguientes actores:
 
-En el caso de este proyecto, el sistema se centra en la gestión de solicitudes realizadas por el cliente, su posible ampliación mediante formularios, y el seguimiento posterior por parte del técnico. A partir de los diagramas de contexto definidos previamente, se identifican dos actores principales:
+Exchange Online, que actúa como origen del flujo principal al generar eventos cuando se recibe un correo en el buzón corporativo.
+Microsoft Forms, que genera eventos cuando un formulario es completado, permitiendo ampliar la información de las solicitudes.
+Técnico, que consulta la información procesada a través de una vista en Power BI.
 
-+ Cliente, que interactúa con el sistema para enviar solicitudes, recibir respuestas y completar formularios.
-+ Técnico, que consulta las solicitudes pendientes y actualiza su estado.
+A diferencia de sistemas tradicionales, el cliente no se considera actor directo, ya que su interacción se realiza a través de servicios intermedios (correo y formularios), sin comunicación directa con la solución.
 
-A partir de estas interacciones, se construye el análisis del sistema siguiendo la estructura MVC.
+A partir de estas interacciones, se construye el análisis del sistema siguiendo la estructura MVC. Sin embargo, es importante destacar que la aplicación de este patrón presenta particularidades en este proyecto: los casos de uso principales (recepción de solicitudes y formularios) no disponen de interfaz de usuario, por lo que las clases vista no están presentes en estos procesos. En su lugar, la capa de visualización se concentra exclusivamente en el caso de uso de consulta, implementado mediante Power BI.
+
+En consecuencia, el sistema se organiza en torno a una capa de control que gestiona los flujos automatizados, una capa de modelo que representa las entidades del dominio (como solicitudes y detalles asociados), y una capa de vista limitada a la visualización de datos para el técnico.
 
 ### Identificación de clases de análisis
 
@@ -23,61 +26,74 @@ A partir de estas interacciones, se construye el análisis del sistema siguiendo
 |----------|---------------|
 |![ModeloVistaControlador](./MVC/imagen/MVC.png)|[Ver Código](./MVC/codigo/MVC.puml)
 
-El diagrama de clases de análisis representa la estructura lógica del sistema organizada según el patrón Modelo-Vista-Controlador (MVC). En esta fase, el objetivo es identificar las clases principales del sistema y clasificarlas en función de su responsabilidad, sin entrar todavía en detalles de implementación ni en las relaciones específicas entre ellas.
+### Identificación de clases de análisis
 
-Para facilitar su comprensión, las clases se agrupan en tres paquetes: Vistas, Controladores y Modelos.
+### Identificación de clases de análisis
 
-El paquete Vistas recoge las clases encargadas de representar los puntos de interacción entre los actores y el sistema. Estas clases abstraen las distintas interfaces a través de las cuales se realizan las operaciones principales, como el envío de solicitudes, la recepción de respuestas, la cumplimentación de formularios o la consulta de solicitudes pendientes. En esta fase de análisis, no se modelan como interfaces gráficas concretas, sino como representaciones conceptuales de dichas interacciones.
+En el paquete de **Vistas** se define la clase *SolicitudesView*, que representa la única interfaz de usuario del sistema. Esta vista está implementada mediante Power BI y permite al técnico consultar las solicitudes procesadas. Dado que el sistema se basa en automatización, no existen otras interfaces de interacción directa con el usuario.
 
-El paquete Controladores incluye las clases responsables de gestionar la lógica asociada a cada caso de uso. Siguiendo el enfoque adoptado, cada caso de uso detallado se corresponde con una clase controladora, encargada de coordinar el flujo de información entre las vistas y los modelos. De este modo, los controladores actúan como intermediarios que reciben las acciones desde las vistas y ejecutan las operaciones necesarias sobre las entidades del sistema.
+En la capa de **Controladores** se incluyen las clases *RecibirSolicitudController*, *RecibirFormularioController* y *VerSolicitudesController*. Estas clases representan la lógica de control asociada a los distintos casos de uso identificados. A diferencia de sistemas tradicionales, estos controladores no responden a acciones directas del usuario, sino a eventos externos. En concreto, los dos primeros gestionan flujos automáticos activados por servicios externos, mientras que el tercero gestiona la interacción del técnico con la vista de consulta.
 
-Por último, el paquete Modelos contiene las entidades del dominio que representan la información gestionada por el sistema. En este caso, la clase Solicitud constituye el elemento central, ya que modela las peticiones realizadas por los usuarios y su evolución. La clase Formulario representa la información adicional que puede ser requerida para completar una solicitud, mientras que la clase Respuesta recoge el resultado del procesamiento de dicha solicitud.
+En el paquete de **Modelos** se encuentran las clases *Solicitud* y *Formulario*, que representan las entidades principales del dominio. La clase *Solicitud* constituye el elemento central del sistema, ya que recoge la información asociada a cada petición recibida. La clase *Formulario* permite almacenar la información adicional proporcionada por el usuario mediante formularios, complementando así los datos de la solicitud.
 
 ### Diagramas de Colaboración
 
-#### Enviar Solicitud
+#### Recibir Solicitud
 
 | Diagrama | Código Fuente |
 |----------|---------------|
-|![EnviarSolicitud](./DdC/imagen/EnviarSolicitud.png)|[Ver Código](./DdC/codigo/EnviarSolicitud.puml)
+|![EnviarSolicitud](./DdC/imagen/RecibirSolicitud.png)|[Ver Código](./DdC/codigo/RecibirSolicitud.puml)
 
-#### Recibir Respuesta
+En este caso, el actor **Exchange Online** actúa como origen del evento, enviando la solicitud al sistema cuando se recibe un nuevo correo en el buzón corporativo. Este evento es capturado por la clase **RecibirSolicitudController**, que constituye el elemento encargado de gestionar la lógica del proceso.
 
-| Diagrama | Código Fuente |
-|----------|---------------|
-|![RecibirRespuesta](./DdC/imagen/RecibirRespuesta.png)|[Ver Código](./DdC/codigo/RecibirRespuesta.puml)
+El controlador actúa como intermediario entre el actor externo y el modelo, delegando en la clase **Solicitud** la gestión de la información asociada a la petición. De este modo, el modelo se encarga de representar y almacenar los datos relevantes del dominio.
 
-#### Ver Solicitudes Pendientes
+Cabe destacar que, a diferencia de otros casos de uso, no existe una clase vista asociada, ya que el proceso se ejecuta de forma automática sin intervención directa del usuario.
 
-| Diagrama | Código Fuente |
-|----------|---------------|
-|![RecibirRespuesta](./DdC/imagen/VerSolicitudesPendientes.png)|[Ver Código](./DdC/codigo/VerSolicitudesPendientes.puml)
+En conjunto, el diagrama refleja una interacción simple y coherente con un sistema orientado a eventos, donde el controlador centraliza la lógica y el modelo gestiona los datos, manteniendo la separación de responsabilidades propia del patrón MVC.
 
-#### Actualizar Estado
+#### Recibir Formulario
 
 | Diagrama | Código Fuente |
 |----------|---------------|
-|![RecibirRespuesta](./DdC/imagen/ActualizarEstado.png)|[Ver Código](./DdC/codigo/ActualizarEstado.puml)
+|![EnviarSolicitud](./DdC/imagen/RecibirFormulario.png)|[Ver Código](./DdC/codigo/RecibirFormulario.puml)
 
-#### Completar Formulario
+
+En este caso, el actor **Microsoft Forms** actúa como origen del evento, enviando los datos al sistema cuando un formulario es completado. Este evento es recibido por la clase **RecibirFormularioController**, que se encarga de gestionar el proceso asociado.
+
+El controlador actúa como intermediario entre el actor externo y el modelo, delegando en la clase **Formulario** la gestión de la información recibida. Esta clase representa los datos introducidos en el formulario y permite su almacenamiento dentro del sistema.
+
+Al igual que en el caso de uso anterior, no existe una clase vista asociada, ya que el proceso se ejecuta automáticamente sin interacción directa del usuario.
+
+#### Ver Solicitudes
 
 | Diagrama | Código Fuente |
 |----------|---------------|
-|![RecibirRespuesta](./DdC/imagen/CompletarFormulario.png)|[Ver Código](./DdC/codigo/CompletarFormulario.puml)
+|![EnviarSolicitud](./DdC/imagen/VerSolicitudes.png)|[Ver Código](./DdC/codigo/VerSolicitudes.puml)
+
+En este caso, el actor **Técnico** interactúa directamente con la clase *SolicitudesView*, que representa la vista implementada en Power BI. Esta vista permite acceder a la información almacenada en el sistema de forma estructurada.
+
+A diferencia de otros casos de uso, no existe una clase controladora intermedia, ya que la herramienta de visualización accede directamente a los datos. De este modo, la vista se conecta directamente con las clases del modelo *Solicitud* y *Formulario*, que contienen la información necesaria para su representación.
+
+La clase *Solicitud* recoge los datos principales asociados a cada petición, mientras que la clase *Formulario* contiene la información adicional proporcionada por el usuario. Ambas entidades son utilizadas por la vista para construir la visualización completa de las solicitudes.
 
 ## Decisión Tecnológica
 
-Dado que el sistema se basa en la gestión automática de solicitudes a partir de correos electrónicos, se ha optado por utilizar herramientas del ecosistema Microsoft, concretamente Power Automate, Outlook y Power BI.
+| Diagrama | Código Fuente |
+|----------|---------------|
+|![Decision_Tecnologica](./DecisionTecnologica/imagen/Decision_Tecnologica.png)|[Ver Código](./DecisionTecnologica/codigo/Decision_Tecnologica.puml)
 
-Esta decisión está alineada con el entorno tecnológico de la organización, ya que Telefónica trabaja de forma habitual con soluciones de Microsoft. En particular, el buzón de correo utilizado para la gestión de solicitudes se encuentra en Outlook, lo que facilita la integración directa del sistema con los procesos existentes sin necesidad de introducir nuevas herramientas o plataformas externas.
+El sistema se estructura en torno a una capa de control implementada mediante Power Automate, donde se definen dos flujos principales: **RecibirSolicitudController** y **RecibirFormularioController**. Estos flujos se activan de forma automática a partir de eventos externos y constituyen el núcleo de la lógica del sistema.
 
-Por un lado, Power Automate se utiliza como núcleo del sistema, ya que permite automatizar el procesamiento de los correos entrantes, aplicar lógica de decisión y coordinar las acciones necesarias sin necesidad de desarrollar una aplicación desde cero. Frente al desarrollo de una solución web tradicional, esta alternativa presenta ventajas significativas en términos de tiempo. El desarrollo de una aplicación web en el entorno corporativo requiere la aprobación por parte de gerencia, la validación del presupuesto y el cumplimiento de estrictos requisitos de seguridad, lo que puede alargar el proceso hasta aproximadamente seis meses. En este caso, se prioriza la rapidez de desarrollo, dado que la necesidad del sistema está directamente relacionada con el proceso de ERE previsto para el 1 de marzo. Por ello, se opta por una solución basada en automatización que permite una implementación mucho más ágil.
+Por un lado, **Exchange Online** actúa como punto de entrada para las solicitudes. Cuando se recibe un nuevo correo en el buzón corporativo, se activa el flujo *RecibirSolicitudController*, que procesa la información, consulta en caso necesario los **servicios de información externos** (como APIs o workflows auxiliares) y registra los datos relevantes en el **repositorio de datos**. Además, el sistema genera y envía una respuesta al remitente a través del propio servicio de correo.
 
-Outlook se emplea como punto de entrada y salida de información, siendo el canal a través del cual los usuarios envían solicitudes y reciben respuestas. Esto permite integrarse directamente con el flujo de trabajo existente en la organización, evitando cambios en la forma de interacción de los usuarios.
+Por otro lado, **Microsoft Forms** permite la recogida de información adicional mediante formularios. Cuando un formulario es completado, se activa el flujo *RecibirFormularioController*, que procesa los datos recibidos, puede enviar un correo adicional si procede y registra la información en el repositorio de datos.
 
-Por otro lado, Power BI se utiliza para la consulta y visualización de datos, facilitando la creación de vistas que permiten al personal técnico acceder a la información de las solicitudes pendientes de forma estructurada. Además, esta herramienta ya se utiliza en otros ámbitos dentro de la organización, por lo que no es necesario adquirir nuevas licencias, lo que reduce el coste de la solución.
+El **repositorio de datos**, implementado como dataset de Power BI, actúa como almacenamiento central del sistema, donde se guardan las entidades principales, como solicitudes y formularios.
 
-En cuanto a la gestión de datos, la solución ideal pasaría por la utilización de Dataverse como base de datos dentro del ecosistema Microsoft. Sin embargo, la creación y configuración de este entorno requiere un proceso adicional. Por este motivo, y como solución temporal, se emplea Power BI como repositorio intermedio de datos, permitiendo almacenar y consultar la información mientras se completa la infraestructura definitiva.
+Finalmente, **Power BI** proporciona la capa de visualización a través de la vista *SolicitudesView*, permitiendo al técnico consultar la información almacenada. El técnico interactúa directamente con esta herramienta, que accede al repositorio de datos sin necesidad de una capa intermedia.
+
+De este modo, la arquitectura separa claramente la captura de eventos, el procesamiento automático, la integración con servicios externos, el almacenamiento de la información y su posterior visualización, garantizando una solución modular y coherente con un sistema orientado a eventos.
 
 ## Diseño 
 

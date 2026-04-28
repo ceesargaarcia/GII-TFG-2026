@@ -1,0 +1,19 @@
+@startuml RecibirFormulario
+top to bottom direction
+
+actor "Microsoft Forms" as Forms
+
+package "RecibirFormulario()" {
+
+  rectangle "RecibirFormularioController" as Controller
+  rectangle "Formulario" as Formulario
+
+  Controller -[hidden]-> Formulario
+
+  Controller --> Formulario
+
+}
+
+Forms --> Controller
+
+@enduml
