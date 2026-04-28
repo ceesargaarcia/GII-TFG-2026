@@ -13,8 +13,7 @@ skinparam NoteBorderColor #38BDF8
 title CU-16 · Cerrar Sesión
 
 start
-:El actor selecciona la opción
-de cerrar sesión;
+:El actor solicita cerrar la sesión;
 :El sistema invalida la sesión activa
 y elimina las credenciales almacenadas
 en el navegador;

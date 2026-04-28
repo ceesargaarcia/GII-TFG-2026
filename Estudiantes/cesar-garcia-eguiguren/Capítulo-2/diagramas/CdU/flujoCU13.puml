@@ -13,8 +13,7 @@ skinparam NoteBorderColor #38BDF8
 title CU-13 · Analizar Rentabilidad Financiera (Director exclusivo)
 
 start
-:El actor intenta acceder a la página
-de rentabilidad;
+:El actor solicita acceder a la página de rentabilidad;
 
 if (¿Director?) then (NO)
   :Pantalla de acceso restringido

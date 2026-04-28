@@ -13,7 +13,7 @@ skinparam NoteBorderColor #38BDF8
 title CU-20 · Eliminar Snapshot (Director exclusivo)
 
 start
-:El actor pulsa "Eliminar" desde el
+:El actor solicita eliminar una snapshot desde el
 listado (CU-18) o desde el detalle (CU-19);
 
 :El sistema muestra un diálogo
@@ -25,10 +25,7 @@ if (¿Confirma?) then (NO)
   :Cancela · mantiene la vista anterior;
   stop
 else (SÍ)
-  :Envía la petición al backend:
-  · DELETE /snapshots/metrics/{id}
-  · DELETE /snapshots/charts/{id}
-  · DELETE /snapshots/entities/{id};
+  :Envía la petición al backend;
 
   if (¿Eliminación correcta?) then (NO)
     :Mensaje de error

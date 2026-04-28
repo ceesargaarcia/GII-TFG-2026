@@ -30,9 +30,6 @@
 |---|---|---|
 | **Sistema ERP (Odoo v16)** | Actor externo. Fuente única de datos operativos. El módulo de analítica solo lee de su base de datos. | Solo lectura — el sistema consulta al ERP, no al contrario |
 
-#### Diagrama de relaciones entre actores y sistema
-![Diagrama de contexto con actores y sistema externo](./imagenes/diagramaActores.png)
-
 ---
 
 ### 1.2 Criterio de diseño del modelo
@@ -51,9 +48,9 @@ Los CU de resumen son el panel analítico de cada entidad: agregan indicadores, 
 ---
 
 ### 1.3 Lista de casos de uso
-
-El sistema se organiza en **9 paquetes funcionales** que agrupan los **21 casos de uso** identificados. Los CUs marcados con ★ son exclusivos del rol *Director*; el resto están disponibles para ambos actores (*Director* y *Responsable*) con el filtrado de ámbito que corresponda a cada uno.
-
+ 
+El sistema se organiza en **10 paquetes funcionales** que agrupan los **32 casos de uso** identificados. Los CUs marcados con ★ son exclusivos del rol *Director*; el resto están disponibles para ambos actores (*Director* y *Responsable*) con el filtrado de ámbito que corresponda a cada uno.
+ 
 | Paquete | CU | Nombre | Director | Responsable |
 |---|---|---|---|---|
 | **P1 · Autenticación** | CU-01 | Autenticarse en el sistema | ✅ | ✅ |
@@ -66,27 +63,39 @@ El sistema se organiza en **9 paquetes funcionales** que agrupan los **21 casos 
 |                        | CU-07 | Visualizar resumen de proyecto | ✅ | ✅ [scope] |
 | **P5 · Tareas**        | CU-08 | Listar tareas | ✅ | ✅ [scope] |
 |                        | CU-09 | Consultar detalle de tarea | ✅ | ✅ [scope] |
-| **P6 · Análisis**      | CU-10 | Consultar métrica operativa *(parametrizada)* | ✅ | ✅ [scope] |
+| **P6 · Análisis**      | CU-10 | Mostrar catálogo de métricas | ✅ | ✅ [scope] |
 |                        | CU-11 | Visualizar gráficos analíticos | ✅ | ✅ [scope] |
-|                          | CU-12 | Consultar asistencia vs imputaciones | ✅ | ✅ [modo equipo] |
-|                            | CU-21 | Consultar carga de trabajo del equipo | ✅ | ✅ [scope] |
-| **P7 · Rentabilidad ★** | CU-13 | Analizar rentabilidad financiera ★ | ✅ | ❌ |
-|                         | CU-14 | Listar líneas analíticas *(scope: proyecto &#124; cliente)* ★ | ✅ | ❌ |
+|                        | CU-12 | Consultar asistencia vs imputaciones | ✅ | ✅ [modo equipo] |
+|                        | CU-21 | Consultar carga de trabajo del equipo | ✅ | ✅ [scope] |
+| **P7 · Rentabilidad ★**| CU-13 | Analizar rentabilidad financiera ★ | ✅ | ❌ |
+|                        | CU-14 | Listar líneas analíticas *(scope: proyecto &#124; cliente)* ★ | ✅ | ❌ |
 | **P8 · Utilidades**    | CU-15 | Realizar búsqueda global | ✅ | ✅ [scope] |
-| **P9 · Snapshots**    | CU-17 | Guardar snapshot *(upsert diario)* | ✅ | ✅ |
+| **P9 · Snapshots**     | CU-17 | Guardar snapshot *(upsert diario)* | ✅ | ✅ |
 |                        | CU-18 | Listar snapshots | ✅ | ✅ |
 |                        | CU-19 | Consultar detalle de snapshot | ✅ | ✅ |
 |                        | CU-20 | Eliminar snapshot | ✅ | ❌ |
-
-**Totales:** Director → 21 CU · Responsable → 18 CU (excluidos CU-13, CU-14 y CU-20).
-
+| **P10 · Métricas Operativas** | CU-22 | Consultar productividad | ✅ | ✅ [scope] |
+|                        | CU-23 | Consultar cumplimiento de plazos | ✅ | ✅ [scope] |
+|                        | CU-24 | Consultar WIP de empleado | ✅ | ✅ [scope] |
+|                        | CU-25 | Consultar carga de trabajo de empleado | ✅ | ✅ [scope] |
+|                        | CU-26 | Consultar riesgo de proyecto | ✅ | ✅ [scope] |
+|                        | CU-27 | Consultar tasa de retrabajo | ✅ | ✅ [scope] |
+|                        | CU-28 | Consultar exactitud de estimación | ✅ | ✅ [scope] |
+|                        | CU-29 | Consultar lead time | ✅ | ✅ [scope] |
+|                        | CU-30 | Consultar tiempo por estado | ✅ | ✅ [scope] |
+|                        | CU-31 | Consultar tareas canceladas | ✅ | ✅ [scope] |
+|                        | CU-32 | Consultar tiempo invertido por prioridad | ✅ | ✅ [scope] |
+ 
+**Totales:** Director → 32 CU · Responsable → 29 CU (excluidos CU-13, CU-14 y CU-20).
+ 
 #### Observaciones sobre la consolidación de CUs
-
-Durante la identificación se han aplicado tres consolidaciones alineadas con los principios de RUP (mismo actor, misma precondición, misma postcondición, mismo flujo principal; solo difiere un parámetro):
-
-- **CU-10 Consultar Métrica Operativa** es un caso de uso único que sirve a quince servicios de métrica (productividad, WIP, workload, riesgo, cumplimiento, lead time, exactitud de estimación, tareas canceladas, distribución por cliente, tiempo por estado, retrabajo, eficiencia de proyecto, etc.). La elección de la métrica se modela como parámetro del CU, no como CUs separados.
-- **CU-14 Consultar Líneas Analíticas** unifica en un único CU el desglose por proyecto y por cliente que antes eran dos CUs separados. El ámbito (proyecto o cliente) se modela como parámetro.
-- **Guardar/Actualizar Snapshot** se modela como un único CU-17 con semántica *upsert diario*. Dado que existe como máximo una snapshot por combinación de tipo, parámetros y día, volver a guardar el mismo día sobrescribe la anterior. No existe CU separado de "Actualizar Snapshot"; la actualización queda embebida como flujo alternativo FA-01 de CU-17.
+ 
+Durante la identificación se han aplicado las siguientes decisiones de diseño:
+ 
+- **CU-10 Mostrar Catálogo de Métricas** es el punto de entrada a la página de métricas. Muestra la cuadrícula de las once métricas operativas disponibles agrupadas por categoría. No contiene lógica de cálculo propia; su función es permitir al actor navegar a la métrica que desea consultar. Cada selección invoca el caso de uso concreto del paquete P10 a través de una relación `<<extend>>`.
+- **P10 · Métricas Operativas** agrupa once casos de uso independientes (CU-22 a CU-32), uno por métrica. Cada caso de uso opera sobre un objeto distinto —empleado, proyecto, equipo o conjunto general— y aplica su propia fórmula, parámetros y umbrales. Todos comparten actores, precondición esencial y postcondición, e invocan CU-10 como punto de extensión. Todos ellos heredan además la relación `<<extend>>` hacia CU-17 al guardar snapshot.
+- **CU-14 Consultar Líneas Analíticas** unifica en un único CU el desglose por proyecto y por cliente. El ámbito (proyecto o cliente) se modela como parámetro.
+- **Guardar/Actualizar Snapshot** se modela como un único CU-17 con semántica *upsert diario*. La actualización queda embebida como flujo alternativo FA-01 de CU-17.
 
 ---
 
@@ -100,14 +109,15 @@ Durante la identificación se han aplicado tres consolidaciones alineadas con lo
 Ambos actores comparten la mayoría de los casos de uso. El Director tiene acceso exclusivo al módulo de rentabilidad financiera (CU-13, CU-14). El Responsable opera siempre con un filtro automático sobre su ámbito organizativo.
 
 **Resumen rápido:**
-- **Director:** Acceso a los 21 CU sin restricciones de ámbito.
-- **Responsable:** Acceso a 18 CU con filtro de ámbito (excluidos CU-13, CU-14 y CU-20).
+- **Director:** Acceso a los 32 CU sin restricciones de ámbito.
+- **Responsable:** Acceso a 29 CU con filtro de ámbito (excluidos CU-13, CU-14 y CU-20).
 
 ---
 
 ## 2. Priorizar Casos de Uso
 
 ### 2.1 Criterios
+Los siguientes criterios se han consolidado tras una reunión de priorización con el Director de la empresa. Cada caso de uso se ha evaluado en una escala del 1 al 3 para cada criterio, donde 3 representa el mayor impacto o importancia.
 
 | Criterio | Descripción | Escala |
 |---|---|---|
@@ -126,7 +136,7 @@ Ambos actores comparten la mayoría de los casos de uso. El Director tiene acces
 | CU-06 | Listar proyectos | 3 | 2 | 3 | 1 | Dato base para paneles de proyecto y rentabilidad. |
 | CU-07 | Resumen de proyecto | 2 | 3 | 3 | 2 | Vista canónica sobre el estado de un proyecto. |
 | CU-08 | Listar tareas | 2 | 3 | 3 | 2 | Consulta operativa de alta frecuencia. |
-| CU-10 | Consultar métrica operativa | 2 | 3 | 3 | 3 | Indicadores que guían la decisión diaria. |
+| CU-10 | Mostrar catálogo de métricas | 2 | 3 | 3 | 3 | Indicadores que guían la decisión diaria. |
 | CU-13 | Rentabilidad financiera ★ | 2 | 3 | 2 | 3 | Indicador económico global del Director. |
 | CU-21 | Consultar carga de trabajo de equipo | 2 | 3 | 2 | 2 | Control de la carga de trabajo de los empleados. |
 | CU-17 | Guardar snapshot | 1 | 3 | 2 | 2 | Permite persistir el estado para seguimiento histórico. |
@@ -381,33 +391,26 @@ Todos los casos de uso están documentados en detalle en: [Disciplina de Requisi
 
 ---
 
-### CU-10 – Consultar Métrica Operativa
-
+### CU-10 – Mostrar Catálogo de Métricas
+ 
 | Campo | Valor |
 |---|---|
 | **Actores** | Director, Responsable |
-| **Precondición** | CU-01 completado. Los parámetros que requiera la métrica elegida están dentro del ámbito del actor. |
-| **Postcondición** | El actor ha consultado el valor de una métrica con los filtros configurados. |
-
+| **Precondición** | CU-01 completado. |
+| **Postcondición** | El actor visualiza el catálogo de métricas disponibles. Si selecciona una, el sistema muestra su panel de detalle. |
+ 
 ![Diagrama de flujo](./imagenes/CdU/flujoCU10.png)
-
+ 
 **Flujo principal:**
 1. El actor accede a la página de métricas.
-2. El sistema muestra las métricas disponibles agrupadas por categoría (proyecto, empleado, equipo y generales).
-3. El actor selecciona una métrica.
-4. El sistema muestra los parámetros que requiere esa métrica (empleado, proyecto, departamento, rango de fechas, etc.).
-5. El actor configura los parámetros y confirma.
-6. El sistema verifica que los parámetros están dentro del ámbito del actor.
-7. El sistema calcula la métrica y muestra el panel de detalle con sus indicadores y gráficos específicos.
+2. El sistema muestra las métricas disponibles agrupadas por categoría (proyecto, empleado y generales).
+3. El actor puede seleccionar una métrica de la cuadrícula. Si no selecciona ninguna, permanece en la vista de catálogo.
+4. Si el actor selecciona una métrica, el sistema invoca el caso de uso correspondiente del paquete P10 vía `<<extend>>` (CU-22 a CU-32) y muestra su panel de parámetros y resultado.
 
-**Flujos alternativos:**
-- `FA-01`: Parámetro obligatorio sin informar → el sistema muestra un estado vacío solicitando el parámetro.
-- `FA-02`: Parámetros fuera del ámbito del actor → acceso denegado.
-- `FA-03`: Sin datos para los filtros → el sistema muestra un panel vacío con mensaje informativo.
-
-**Observación:** Caso de uso único parametrizado por el nombre de la métrica. Cada métrica concreta se modela como un **subcaso** de CU-10 que comparte actores, precondición esencial, postcondición y flujo principal con el padre, y solo añade los parámetros específicos, la fórmula de cálculo y los umbrales de interpretación. Los subcasos documentados son CU-10.1 a CU-10.11; el detalle de cada uno (con su diagrama de flujo) se recoge en el documento [Casos de Uso de Métricas](./docs/subCasosDeUso.md). La métrica de carga de trabajo admite además el modo agregado de equipo, que se activa cuando el actor no especifica un empleado concreto.
-
-**Relaciones:** `<<extend>>` hacia CU-17 (guardar snapshot de la métrica calculada). Cada subcaso CU-10.x hereda esta misma relación.
+**Observación:** CU-10 actúa exclusivamente como punto de entrada y presentación del catálogo. La lógica de cálculo, los parámetros específicos y los umbrales de interpretación de cada métrica se recogen en el paquete P10. El detalle completo de cada caso de uso de métrica se documenta en [Casos de Uso de Métricas Operativas](./docs/CasosDeUsoMetricas.md).
+ 
+**Relaciones:** Extendido por CU-22 a CU-32 (cada uno se activa cuando el actor selecciona la métrica correspondiente).
+ 
 
 ---
 
@@ -546,7 +549,7 @@ Todos los casos de uso están documentados en detalle en: [Disciplina de Requisi
 ![Diagrama de flujo](./imagenes/CdU/flujoCU16.png)
 
 **Flujo principal:**
-1. El actor pulsa "Cerrar sesión".
+1. El actor solicita cerrar la sesión.
 2. El sistema invalida la sesión y elimina los datos almacenados en el navegador.
 3. El sistema redirige al actor a la pantalla de inicio de sesión.
 
@@ -567,7 +570,7 @@ Todos los casos de uso están documentados en detalle en: [Disciplina de Requisi
 ![Diagrama de flujo](./imagenes/CdU/flujoCU17.png)
 
 **Flujo principal:**
-1. El actor pulsa "Guardar snapshot" desde la vista calculada actual.
+1. El actor solicita guardar una snapshot de la vista actual mediante el botón correspondiente.
 2. El sistema determina el tipo de snapshot (métrica, gráfico o entidad) y toma los parámetros y datos ya mostrados en pantalla.
 3. El sistema registra la fecha actual y el actor responsable.
 4. Si ya existe una snapshot del mismo tipo con los mismos parámetros y fecha, el sistema la sobrescribe. Si no existe, la crea nueva.
@@ -578,7 +581,7 @@ Todos los casos de uso están documentados en detalle en: [Disciplina de Requisi
 
 **Restricciones:** Como máximo una snapshot por combinación de tipo, parámetros y día.
 
-**Relaciones:** Invocado vía `<<extend>>` desde CU-03, CU-05, CU-07, CU-09, CU-10, CU-11 y CU-13.
+**Relaciones:** Invocado vía `<<extend>>` desde CU-03, CU-05, CU-07, CU-09, CU-22 a CU-32, CU-11 y CU-13
 
 ---
 
@@ -647,7 +650,7 @@ Todos los casos de uso están documentados en detalle en: [Disciplina de Requisi
 ![Diagrama de flujo](./imagenes/CdU/flujoCU20.png)
 
 **Flujo principal:**
-1. El actor pulsa "Eliminar".
+1. El actor solicita eliminar la snapshot desde el listado (CU-18) o desde la ficha de detalle (CU-19).
 2. El sistema muestra un diálogo de confirmación advirtiendo que la operación es permanente.
 3. Tras confirmar, el sistema elimina la snapshot.
 4. El sistema recarga la tabla (si el origen es CU-18) o navega al listado (si el origen es CU-19).
@@ -658,7 +661,7 @@ Todos los casos de uso están documentados en detalle en: [Disciplina de Requisi
 
 **Observación:** El borrado es definitivo, sin papelera ni versiones previas. Tras el borrado, volver a guardar el mismo día con los mismos parámetros crea una snapshot nueva a través de CU-17.
 
-**Relaciones:** `<<include>>` hacia CU-18 y CU-19.
+**Relaciones:** `<<include>>` hacia CU-18.
 
 ---
 
@@ -686,7 +689,7 @@ Todos los casos de uso están documentados en detalle en: [Disciplina de Requisi
 - `FA-01`: No existen empleados en el estado seleccionado → estado vacío con mensaje informativo.
 - `FA-02`: Filtro de departamento activo → el sistema recalcula toda la distribución limitándola a los empleados del departamento elegido.
 
-**Observación:** Este caso de uso tiene su propia página dedicada (`/manager`) y actúa como punto de entrada a la supervisión de equipo. Se diferencia de CU-10 (Consultar Métrica Operativa) en que no forma parte del catálogo de métricas parametrizadas, sino que ofrece una vista de gestión agregada y navegable del estado del equipo, con paginación server-side. El cálculo de carga que subyace es el mismo que CU-10.4 (Workload individual), pero aplicado sobre todos los empleados del ámbito simultáneamente.
+**Observación:** Este caso de uso tiene su propia página dedicada (`/manager`) y actúa como punto de entrada a la supervisión de equipo. Se diferencia de CU-10 (Mostrar Catálogo de Métricas) en que no forma parte del catálogo de métricas parametrizadas, sino que ofrece una vista de gestión agregada y navegable del estado del equipo, con paginación server-side. El cálculo de carga que subyace es el mismo que CU-25 (Workload individual), pero aplicado sobre todos los empleados del ámbito simultáneamente.
 
 **Relaciones:** Navega a CU-03 (al seleccionar un empleado del listado).
 
@@ -769,7 +772,7 @@ Ficha de tarea con secciones de información general, personas, horas con barra 
 
 ---
 
-### Prototipo CU-10 – Consultar Métrica Operativa
+### Prototipo CU-10 – Mostrar Catálogo de Métricas
 Página de métricas con cuadrícula de tarjetas a la izquierda y panel de detalle de la métrica seleccionada a la derecha. Panel de filtros en la parte superior.
 
 ![Prototipo de métricas](./imagenes/prototipado/CU-P7.png)
@@ -832,29 +835,21 @@ Panel de supervisión global para responsables que presenta cinco tarjetas numé
 
 ### 5.1 Diagrama de Contexto – Director
 
-![Diagrama de Contexto - Director](./imagenes/contexto_director.png)
+![navDirector](./imagenes/navDirector.png)
 
-El Director tiene acceso a los 21 casos de uso sin restricciones de ámbito. Es el único actor con acceso al módulo de rentabilidad financiera (CU-13 y CU-14).
+El Director tiene acceso a los 32 casos de uso sin restricciones de ámbito. Es el único actor con acceso al módulo de rentabilidad financiera (CU-13 y CU-14).
 
 ---
 
 ### 5.2 Diagrama de Contexto – Responsable
 
-![Diagrama de Contexto - Responsable](./imagenes/contexto_responsable.png)
-
-El Responsable tiene acceso a 18 casos de uso, pero con datos filtrados automáticamente a su ámbito organizativo (empleados, departamentos y proyectos bajo su responsabilidad).
-
-### 5.3 Diagramas de navegación
-
-#### 5.3.1 Diagrama de navegación del director
-![navDirector](./imagenes/navDirector.png)
-
-#### 5.3.2 Diagrama de navegación del responsable
 ![navResponsable](./imagenes/navResponsable.png)
+
+El Responsable tiene acceso a 29 casos de uso, pero con datos filtrados automáticamente a su ámbito organizativo (empleados, departamentos y proyectos bajo su responsabilidad).
 
 ---
 
-### 5.4 Relaciones include / extend
+### 5.3 Relaciones include / extend
 
 #### 1. Relaciones de Inclusión `<<include>>`
 
@@ -862,24 +857,35 @@ Todos los casos de uso del sistema (excepto CU-01 Autenticarse) requieren sesió
 
 | Inclusión                             | Desde → Hacia               | Descripción                                                       |
 | ------------------------------------- | --------------------------- | ----------------------------------------------------------------- |
-| Eliminación de snapshot desde listado | CU-18 → CU-20               | El actor puede eliminar una snapshot directamente desde la tabla. |
-| Eliminación de snapshot desde detalle | CU-19 → CU-20               | El actor puede eliminar la snapshot desde la ficha abierta.       |
-
+| Eliminación de snapshot desde listado | CU-20 → CU-18               | Tras eliminar una snapshot se vuelve a la tabla de listado.       |
 
 #### 2. Relaciones de Extensión `<<extend>>`
-
+ 
 | Extensión | Desde → Hacia | Condición |
 |---|---|---|
-| Desglose de rentabilidad | CU-13 → CU-14 | Actor pulsa "Ver detalles" sobre una fila de la tabla por proyecto (ámbito=proyecto) o por cliente (ámbito=cliente). |
-| Guardar snapshot de métrica | CU-10 → CU-17 | Actor pulsa "Guardar snapshot" desde una vista calculada de métrica. |
+| Consultar productividad | CU-10 → CU-22 | Actor selecciona la métrica *Productividad* en el catálogo. |
+| Consultar cumplimiento | CU-10 → CU-23 | Actor selecciona la métrica *Cumplimiento de Plazos* en el catálogo. |
+| Consultar WIP | CU-10 → CU-24 | Actor selecciona la métrica *WIP* en el catálogo. |
+| Consultar carga de trabajo | CU-10 → CU-25 | Actor selecciona la métrica *Carga de Trabajo* en el catálogo. |
+| Consultar riesgo de proyecto | CU-10 → CU-26 | Actor selecciona la métrica *Índice de Riesgo* en el catálogo. |
+| Consultar tasa de retrabajo | CU-10 → CU-27 | Actor selecciona la métrica *Tasa de Retrabajo* en el catálogo. |
+| Consultar exactitud de estimación | CU-10 → CU-28 | Actor selecciona la métrica *Exactitud de Estimación* en el catálogo. |
+| Consultar lead time | CU-10 → CU-29 | Actor selecciona la métrica *Lead Time* en el catálogo. |
+| Consultar tiempo por estado | CU-10 → CU-30 | Actor selecciona la métrica *Tiempo por Estado* en el catálogo. |
+| Consultar tareas canceladas | CU-10 → CU-31 | Actor selecciona la métrica *Tareas Canceladas* en el catálogo. |
+| Consultar tiempo por prioridad | CU-10 → CU-32 | Actor selecciona la métrica *Tiempo por Prioridad* en el catálogo. |
+| Desglose de rentabilidad | CU-13 → CU-14 | Actor pulsa "Ver detalles" sobre una fila de la tabla por proyecto o por cliente. |
+| Guardar snapshot de métrica | CU-22..CU-32 → CU-17 | Actor pulsa "Guardar snapshot" desde una vista calculada de métrica. |
 | Guardar snapshot de gráfico | CU-11 → CU-17 | Actor pulsa "Guardar snapshot" sobre un gráfico concreto. |
 | Guardar snapshot de rentabilidad ★ | CU-13 → CU-17 | Director pulsa "Guardar snapshot" sobre el resumen financiero. |
 | Guardar snapshot de entidad | CU-03, CU-05, CU-07, CU-09 → CU-17 | Actor pulsa "Guardar snapshot" desde la ficha de una entidad. |
 | Detalle de snapshot listada | CU-18 → CU-19 | Actor selecciona una fila en la tabla del visor. |
 | Eliminación de snapshot | CU-19 → CU-20 | Actor pulsa "Eliminar" sobre la ficha abierta. |
-
+ 
 #### Notas
-
+ 
 - **CU-14** es el único CU cuya activación ocurre **exclusivamente** a través de `<<extend>>` (desde CU-13). No tiene ruta de entrada propia desde el menú principal.
-- **CU-17** actúa como punto de extensión universal para cualquier vista calculada. Su FA-01 (upsert) absorbe la semántica de actualización sin necesidad de un CU separado.
-- La navegación lateral entre entidades (por ejemplo, CU-09 → CU-07) no es una relación `<<extend>>`: son transiciones de navegación declaradas en el diagrama de contexto, no dependencias funcionales entre CUs.
+- **CU-22 a CU-32** extienden CU-10 en función de la métrica seleccionada. Desde la perspectiva del actor, CU-10 es la pantalla que ve; los CUs de P10 son el comportamiento específico que se activa.
+- **CU-17** actúa como punto de extensión universal para cualquier vista calculada, incluidos todos los CUs del paquete P10.
+- La navegación lateral entre entidades (por ejemplo, CU-09 → CU-07) no es una relación `<<extend>>`: son transiciones de navegación declaradas en el diagrama de contexto.
+ 

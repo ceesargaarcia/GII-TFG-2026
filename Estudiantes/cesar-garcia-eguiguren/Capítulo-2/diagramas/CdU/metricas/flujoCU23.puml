@@ -1,4 +1,4 @@
-@startuml CU10.8_LeadTime
+@startuml CU23_Cumplimiento
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,36 +9,37 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-10.8 · Consultar Lead Time
+title CU-23 · Consultar Cumplimiento de Plazos
 
 start
-:El actor accede a la página de métricas;
-:El actor selecciona la métrica Lead Time;
+:El actor selecciona la métrica
+Cumplimiento de Plazos;
 :El actor puede aplicar filtros opcionales:
 · Empleado concreto
 · Proyecto concreto;
 
-:El sistema calcula el tiempo medio transcurrido
-desde la asignación hasta el cierre de las
-tareas completadas en el ámbito seleccionado;
+:El sistema calcula el porcentaje de tareas
+cerradas que se completaron antes o en
+la fecha límite establecida;
 
-if (¿Existen tareas con fecha de asignación y cierre?) then (NO)
+if (¿Existen tareas con fecha límite y cierre?) then (NO)
   :El sistema muestra que no hay datos
   disponibles para los filtros aplicados;
   stop
 else (SÍ)
   :El sistema muestra:
-  · Tiempo medio de ciclo en días
-  · Total de tareas analizadas
-  · Indicador visual de referencia;
+  · Tasa de cumplimiento (%)
+  · Número de tareas a tiempo
+  · Número de tareas con retraso
+  · Indicador visual de semáforo;
   stop
 endif
 
 note right
   Semáforo de referencia:
-  < 5 días  → verde (ciclo ágil)
-  5-10 días → naranja (ciclo moderado)
-  > 10 días → rojo (ciclo lento)
+  ≥ 80% → verde (cumplimiento bueno)
+  ≥ 60% → naranja (cumplimiento aceptable)
+  < 60% → rojo (cumplimiento deficiente)
 end note
 
 @enduml

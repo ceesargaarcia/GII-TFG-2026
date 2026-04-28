@@ -1,4 +1,4 @@
-@startuml CU10_1_Productividad   
+@startuml CU22_Productividad   
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,10 +9,9 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-10.1 · Consultar Productividad
+title CU-22 · Consultar Productividad
                
 start
-:El actor accede a la página de métricas;
 :El actor selecciona la métrica Productividad;
 :El actor puede aplicar filtros opcionales:
 · Empleado concreto

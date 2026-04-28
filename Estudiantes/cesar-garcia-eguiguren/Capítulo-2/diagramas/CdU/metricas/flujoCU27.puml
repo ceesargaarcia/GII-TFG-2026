@@ -1,4 +1,4 @@
-@startuml CU10.10_TareasCanceladas
+@startuml CU27_Retrabajo
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,38 +9,36 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-10.10 · Consultar Tareas Canceladas
+title CU-27 · Consultar Tasa de Retrabajo
 
 start
-:El actor accede a la página de métricas;
-:El actor selecciona la métrica
-Tareas Canceladas;
+:El actor selecciona la métrica Tasa de Retrabajo;
 :El actor puede aplicar filtros opcionales:
 · Proyecto concreto
-· Rango de fechas;
+· Empleado concreto;
 
-:El sistema identifica las tareas cuya etapa
-corresponde a una etapa de cancelación
-y calcula su porcentaje sobre el total;
+:El sistema analiza el historial de cambios
+de estado de las tareas y detecta las que
+fueron cerradas y posteriormente reabiertas;
 
-if (¿Existen tareas en el ámbito?) then (NO)
+if (¿Existen tareas cerradas en el ámbito?) then (NO)
   :El sistema muestra que no hay datos
   disponibles para los filtros aplicados;
   stop
 else (SÍ)
   :El sistema muestra:
-  · Porcentaje de tareas canceladas
-  · Número de tareas canceladas
-  · Total de tareas analizadas
+  · Tasa de retrabajo (%)
+  · Número de tareas reabiertos
+  · Total de tareas cerradas analizadas
   · Indicador visual de semáforo;
   stop
 endif
 
 note right
   Semáforo de referencia:
-  < 5%   → verde (nivel normal)
-  5-10%  → naranja (nivel a vigilar)
-  > 10%  → rojo (nivel elevado)
+  < 8%  → verde (nivel aceptable)
+  8-15% → naranja (nivel a vigilar)
+  > 15% → rojo (nivel problemático)
 end note
 
 @enduml

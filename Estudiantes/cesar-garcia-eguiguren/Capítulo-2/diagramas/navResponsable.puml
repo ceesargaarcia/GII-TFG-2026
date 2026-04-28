@@ -1,4 +1,4 @@
-@startuml diagrama-navegacion-director
+@startuml diagrama-navegacion-responsable
 left to right direction
 skinparam linetype polyline
 
@@ -12,84 +12,135 @@ state "PROYECTOS_ABIERTO"           as ListProy
 state "PROYECTO_ABIERTO"            as DetProy
 state "TAREAS_ABIERTO"              as ListTarea
 state "TAREA_ABIERTA"               as DetTarea
-state "METRICAS_ABIERTO"            as Metricas
+state "CATALOGO_METRICAS_ABIERTO"   as Metricas
 state "GRAFICOS_ABIERTO"            as Graficos
 state "ASISTENCIA_ABIERTO"          as Asistencia
 state "MANAGER_ABIERTO"             as Manager
 state "BUSQUEDA_ABIERTO"            as Busqueda
 state "VISOR_SNAPSHOTS_ABIERTO"     as Visor
 state "SNAPSHOT_DETALLE_ABIERTO"    as DetSnap
+state "VISOR_INICIAL_ABIERTO"       as VisorInicial
+
+' ── Estados individuales de métricas (P10) ────────────────────
+state "PRODUCTIVIDAD_ABIERTO"       as MetProd
+state "CUMPLIMIENTO_ABIERTO"        as MetCumpl
+state "WIP_ABIERTO"                 as MetWIP
+state "WORKLOAD_ABIERTO"            as MetWorkload
+state "RIESGO_ABIERTO"              as MetRiesgo
+state "RETRABAJO_ABIERTO"           as MetRetrabajo
+state "ESTIMACION_ABIERTO"          as MetEstimacion
+state "LEADTIME_ABIERTO"            as MetLeadTime
+state "TIEMPO_ESTADO_ABIERTO"       as MetTiempoEstado
+state "CANCELADAS_ABIERTO"          as MetCanceladas
+state "TIEMPO_PRIORIDAD_ABIERTO"    as MetTiempoPrioridad
 
 [*] --> NoAuth
 
 ' ── Autenticación ─────────────────────────────────────────────
-NoAuth      --> Overview    : iniciarSesion()
-Overview    --> NoAuth      : cerrarSesion()
+NoAuth        --> Overview     : autenticarse()
+Overview      --> NoAuth       : cerrarSesion()
+NoAuth        --> VisorInicial : iniciarSesion()
+VisorInicial  --> Visor        : listarSnapshots()
+VisorInicial  --> NoAuth       : cerrarSesion()
 
 ' ── Navegación principal desde Overview ───────────────────────
 Overview --> ListEmp        : listarEmpleados()
 Overview --> ListDept       : listarDepartamentos()
 Overview --> ListProy       : listarProyectos()
 Overview --> ListTarea      : listarTareas()
-Overview --> Metricas       : consultarMetricas()
-Overview --> Graficos       : consultarGraficos()
-Overview --> Asistencia     : consultarAsistencia()
+Overview --> Metricas       : mostrarCatalogoMetricas()
+Overview --> Graficos       : visualizarGraficosAnaliticos()
+Overview --> Asistencia     : consultarAsistenciaVsImputaciones()
 Overview --> Manager        : consultarCargaEquipo()
 Overview --> Busqueda       : buscarGlobal()
-NoAuth --> Visor          : iniciarSesion()
-ListDept --> Overview : volver()
-ListEmp --> Overview : volver()
-ListProy --> Overview : volver()
+
+ListDept  --> Overview : volver()
+ListEmp   --> Overview : volver()
+ListProy  --> Overview : volver()
 ListTarea --> Overview : volver()
-Metricas --> Overview : volver()
+Metricas  --> Overview : volver()
 Asistencia --> Overview : volver()
-Busqueda --> Overview : volver()
-Manager --> Overview : volver()
-Graficos --> Overview : volver()
+Busqueda  --> Overview : volver()
+Manager   --> Overview : volver()
+Graficos  --> Overview : volver()
 
 ' ── P2 · Empleados ────────────────────────────────────────────
-ListEmp  --> DetEmp         : seleccionarEmpleado()
-DetEmp   --> ListTarea      : verTareasEmpleado()
-DetEmp   --> DetEmp         : guardarSnapshot()
-DetEmp   --> ListEmp        : volver()
+ListEmp  --> DetEmp          : visualizarResumenEmpleado()
+DetEmp   --> ListTarea       : listarTareas()
+DetEmp   --> DetEmp          : guardarSnapshot()
+DetEmp   --> ListEmp         : volver()
 
 ' ── P3 · Departamentos ────────────────────────────────────────
-ListDept --> DetDept         : seleccionarDepartamento()
-DetDept  --> DetEmp          : seleccionarEmpleado()
-DetDept  --> DetDept         : guardarSnapshot()
-DetDept  --> ListDept        : volver()
+ListDept --> DetDept          : visualizarResumenDepartamento()
+DetDept  --> DetEmp           : visualizarResumenEmpleado()
+DetDept  --> DetDept          : guardarSnapshot()
+DetDept  --> ListDept         : volver()
 
 ' ── P4 · Proyectos ────────────────────────────────────────────
-ListProy --> DetProy          : seleccionarProyecto()
-DetProy  --> ListTarea        : verTareasProyecto()
-DetProy  --> DetEmp           : seleccionarEmpleado()
-DetProy  --> DetProy          : guardarSnapshot()
-DetProy  --> ListProy         : volver()
+ListProy --> DetProy           : visualizarResumenProyecto()
+DetProy  --> ListTarea         : listarTareas()
+DetProy  --> DetEmp            : visualizarResumenEmpleado()
+DetProy  --> DetProy           : guardarSnapshot()
+DetProy  --> ListProy          : volver()
 
 ' ── P5 · Tareas ───────────────────────────────────────────────
-ListTarea --> DetTarea        : seleccionarTarea()
-DetTarea  --> DetProy         : verProyecto()
-DetTarea  --> DetEmp          : verResponsable()
-DetTarea  --> DetTarea        : verSubtarea()
-DetTarea  --> DetTarea        : guardarSnapshot()
-DetTarea  --> ListTarea       : volver()
+ListTarea --> DetTarea         : consultarDetalleTarea()
+DetTarea  --> DetProy          : visualizarResumenProyecto()
+DetTarea  --> DetEmp           : visualizarResumenEmpleado()
+DetTarea  --> DetTarea         : consultarDetalleTarea()
+DetTarea  --> DetTarea         : guardarSnapshot()
+DetTarea  --> ListTarea        : volver()
 
-' ── P6 · Análisis ─────────────────────────────────────────────
-Metricas   --> Metricas       : calcularMetrica()
-Metricas   --> Metricas       : guardarSnapshot()
-Graficos   --> Graficos       : filtrarGraficos()
+' ── P6 · Catálogo de métricas → P10 Métricas individuales ─────
+Metricas --> MetProd            : consultarProductividad()
+Metricas --> MetCumpl           : consultarCumplimiento()
+Metricas --> MetWIP             : consultarWIP()
+Metricas --> MetWorkload        : consultarCargaTrabajo()
+Metricas --> MetRiesgo          : consultarRiesgoProyecto()
+Metricas --> MetRetrabajo       : consultarRetrabajo()
+Metricas --> MetEstimacion      : consultarExactitudEstimacion()
+Metricas --> MetLeadTime        : consultarLeadTime()
+Metricas --> MetTiempoEstado    : consultarTiempoPorEstado()
+Metricas --> MetCanceladas      : consultarTareasCanceladas()
+Metricas --> MetTiempoPrioridad : consultarTiempoPorPrioridad()
+
+' ── P10 · Métricas individuales (patrón común, scope aplicado) ─
+MetProd          --> MetProd          : guardarSnapshot()
+MetProd          --> Metricas         : volver()
+MetCumpl         --> MetCumpl         : guardarSnapshot()
+MetCumpl         --> Metricas         : volver()
+MetWIP           --> MetWIP           : guardarSnapshot()
+MetWIP           --> Metricas         : volver()
+MetWorkload      --> MetWorkload      : guardarSnapshot()
+MetWorkload      --> Metricas         : volver()
+MetRiesgo        --> MetRiesgo        : guardarSnapshot()
+MetRiesgo        --> Metricas         : volver()
+MetRetrabajo     --> MetRetrabajo     : guardarSnapshot()
+MetRetrabajo     --> Metricas         : volver()
+MetEstimacion    --> MetEstimacion    : guardarSnapshot()
+MetEstimacion    --> Metricas         : volver()
+MetLeadTime      --> MetLeadTime      : guardarSnapshot()
+MetLeadTime      --> Metricas         : volver()
+MetTiempoEstado  --> MetTiempoEstado  : guardarSnapshot()
+MetTiempoEstado  --> Metricas         : volver()
+MetCanceladas    --> MetCanceladas    : guardarSnapshot()
+MetCanceladas    --> Metricas         : volver()
+MetTiempoPrioridad --> MetTiempoPrioridad : guardarSnapshot()
+MetTiempoPrioridad --> Metricas       : volver()
+
+' ── P6 · Otros análisis ───────────────────────────────────────
 Graficos   --> Graficos       : guardarSnapshot()
 Asistencia --> Asistencia     : guardarSnapshot()
-Manager    --> DetEmp         : seleccionarEmpleado()
+Manager    --> DetEmp         : visualizarResumenEmpleado()
 
 ' ── P8 · Utilidades ───────────────────────────────────────────
-Busqueda --> DetEmp           : seleccionarEmpleado()
-Busqueda --> DetProy          : seleccionarProyecto()
-Busqueda --> DetTarea         : seleccionarTarea()
+Busqueda --> DetEmp           : visualizarResumenEmpleado()
+Busqueda --> DetProy          : visualizarResumenProyecto()
+Busqueda --> DetTarea         : consultarDetalleTarea()
 
 ' ── P9 · Snapshots ────────────────────────────────────────────
-Visor    --> DetSnap          : seleccionarSnapshot()
-Visor    --> NoAuth           : cerrarSesion()
+Visor    --> DetSnap          : consultarDetalleSnapshot()
 DetSnap  --> Visor            : volver()
+Visor --> VisorInicial     : volver()
 
 @enduml

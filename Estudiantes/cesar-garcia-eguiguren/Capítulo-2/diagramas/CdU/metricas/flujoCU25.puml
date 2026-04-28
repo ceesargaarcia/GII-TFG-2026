@@ -1,4 +1,4 @@
-@startuml CU10.4_Workload
+@startuml CU25_Workload
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,10 +9,9 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-10.4 · Consultar Carga de Trabajo de Empleado
+title CU-25 · Consultar Carga de Trabajo de Empleado
 
 start
-:El actor accede a la página de métricas;
 :El actor selecciona un empleado;
 :El actor selecciona la métrica
 Carga de Trabajo;

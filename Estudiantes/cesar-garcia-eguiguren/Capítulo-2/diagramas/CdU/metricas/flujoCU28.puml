@@ -1,4 +1,4 @@
-@startuml CU10.7_ExactitudEstimacion
+@startuml CU28_ExactitudEstimacion
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,10 +9,9 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-10.7 · Consultar Exactitud de Estimación
+title CU-28 · Consultar Exactitud de Estimación
 
 start
-:El actor accede a la página de métricas;
 :El actor selecciona un empleado
 como responsable de las tareas;
 :El actor selecciona la métrica

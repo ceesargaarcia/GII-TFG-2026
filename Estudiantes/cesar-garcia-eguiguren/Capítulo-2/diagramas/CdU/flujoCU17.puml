@@ -21,21 +21,17 @@ ya mostrado en pantalla:
 · Resumen de entidad (CU-03, CU-05, CU-07, CU-09)
 · Página de rentabilidad (CU-13);
 
-:El actor pulsa "Guardar snapshot";
+:El actor solicita guardar una snapshot de la vista actual;
 
-:El sistema determina el tipo:
-· métrica → POST /snapshots/metrics
-· gráfico → POST /snapshots/charts
-· entidad → POST /snapshots/entities;
-
-:Construye payload:
-· tipo (metric_name / chart_name / entity_type+id)
+:El sistema determina el tipo de snapshot a guardar según el contexto;
+:El sistema construye payload:
+· tipo   (métrica, gráfico o entidad)
 · params (filtros actuales de la vista)
 · data   (respuesta ya calculada);
 
 :El backend calcula:
-· params_hash = SHA-256 normalizado de params
-· snapshot_date = hoy (UTC);
+· hash de los parámetros para comparación futura
+· fecha actual para control de unicidad diaria;
 
 if (¿Existe snapshot con la misma clave?\n(tipo, params_hash, snapshot_date)) then (SÍ)
   :**FA-01 Upsert:** sobrescribe

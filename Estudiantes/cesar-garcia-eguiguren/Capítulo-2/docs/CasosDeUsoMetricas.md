@@ -1,28 +1,30 @@
-# Casos de Uso de Métricas (CU-10)
+# Casos de Uso de Métricas Operativas (P10)
 
-Este documento detalla cada uno de los **subcasos de uso** que componen CU-10 *Consultar Métrica Operativa*. Tal y como se justifica en la sección 1.3 de la [Disciplina de Requisitos](../DisciplinaDeRequisitos.md), CU-10 es un caso de uso único parametrizado por el nombre de la métrica: comparten actores, precondición esencial (sesión activa y parámetros dentro del ámbito), postcondición (el actor ha consultado el valor de una métrica) y flujo principal (selección de métrica → configuración de parámetros → cálculo y visualización).
+Este documento detalla cada uno de los **casos de uso** que componen el paquete P10 *Métricas Operativas* (CU-22 a CU-32). Todos ellos son accesibles desde la vista de catálogo de métricas (CU-10 *Consultar catálogo de métricas*), con la que mantienen una relación `<<extend>>`: el actor llega a CU-10, selecciona una métrica concreta y el sistema invoca el caso de uso correspondiente.
 
-Cada subcaso recoge únicamente lo que distingue a esa métrica del flujo padre: parámetros adicionales, fórmula concreta, umbrales de interpretación y particularidades del cálculo. Los flujos alternativos transversales del padre (parámetro obligatorio sin informar, parámetros fuera del ámbito, sin datos para los filtros) se aplican implícitamente a todos los subcasos y no se repiten.
+Cada caso de uso de este paquete comparte los mismos actores, precondición esencial (sesión activa y parámetros dentro del ámbito) y postcondición (el actor ha consultado el valor de la métrica). Lo que distingue a cada uno es el objeto sobre el que opera —la entidad o dimensión que se analiza—, los parámetros de entrada específicos, la fórmula de cálculo y los umbrales de interpretación.
 
-Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU-17 *Guardar Snapshot* cuando el actor pulsa «Guardar snapshot» sobre el panel calculado.
+Los flujos alternativos transversales de CU-10 (parámetro obligatorio sin informar, parámetros fuera del ámbito, sin datos para los filtros) se aplican implícitamente a todos los casos de uso de este paquete y no se repiten en cada ficha.
+
+Todos los casos de uso de este paquete comparten además una relación `<<extend>>` hacia CU-17 *Guardar Snapshot* cuando el actor pulsa «Guardar snapshot» sobre el panel calculado.
 
 ## Índice
 
-- [CU-10.1 — Consultar Productividad](#cu-101--consultar-productividad)
-- [CU-10.2 — Consultar Cumplimiento de Plazos](#cu-102--consultar-cumplimiento-de-plazos)
-- [CU-10.3 — Consultar WIP de Empleado](#cu-103--consultar-wip-de-empleado)
-- [CU-10.4 — Consultar Carga de Trabajo de Empleado](#cu-104--consultar-carga-de-trabajo-de-empleado)
-- [CU-10.5 — Consultar Riesgo de Proyecto](#cu-105--consultar-riesgo-de-proyecto)
-- [CU-10.6 — Consultar Tasa de Retrabajo](#cu-106--consultar-tasa-de-retrabajo)
-- [CU-10.7 — Consultar Exactitud de Estimación](#cu-107--consultar-exactitud-de-estimación)
-- [CU-10.8 — Consultar Lead Time](#cu-108--consultar-lead-time)
-- [CU-10.9 — Consultar Tiempo por Estado](#cu-109--consultar-tiempo-por-estado)
-- [CU-10.10 — Consultar Tareas Canceladas](#cu-1010--consultar-tareas-canceladas)
-- [CU-10.11 — Consultar Tiempo Invertido por Prioridad](#cu-1011--consultar-tiempo-invertido-por-prioridad)
+- [CU-22 — Consultar Productividad](#cu-22--consultar-productividad)
+- [CU-23 — Consultar Cumplimiento de Plazos](#cu-23--consultar-cumplimiento-de-plazos)
+- [CU-24 — Consultar WIP de Empleado](#cu-24--consultar-wip-de-empleado)
+- [CU-25 — Consultar Carga de Trabajo de Empleado](#cu-25--consultar-carga-de-trabajo-de-empleado)
+- [CU-26 — Consultar Riesgo de Proyecto](#cu-26--consultar-riesgo-de-proyecto)
+- [CU-27 — Consultar Tasa de Retrabajo](#cu-27--consultar-tasa-de-retrabajo)
+- [CU-28 — Consultar Exactitud de Estimación](#cu-28--consultar-exactitud-de-estimación)
+- [CU-29 — Consultar Lead Time](#cu-29--consultar-lead-time)
+- [CU-30 — Consultar Tiempo por Estado](#cu-30--consultar-tiempo-por-estado)
+- [CU-31 — Consultar Tareas Canceladas](#cu-31--consultar-tareas-canceladas)
+- [CU-32 — Consultar Tiempo Invertido por Prioridad](#cu-32--consultar-tiempo-invertido-por-prioridad)
 
 ---
 
-## CU-10.1 — Consultar Productividad
+## CU-22 — Consultar Productividad
 
 | Campo | Valor |
 |---|---|
@@ -33,7 +35,7 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 ![Diagrama de flujo](../imagenes/CdU/metricas/flujoCU10.1.png)
 
 **Flujo principal:**
-1. El actor accede a la página de métricas y selecciona la métrica *Productividad*.
+1. El actor selecciona la métrica *Productividad*.
 2. El actor puede aplicar filtros opcionales: empleado concreto, proyecto concreto y rango de fechas.
 3. El sistema calcula la productividad sobre las tareas cerradas que tengan horas estimadas y horas reales registradas.
 4. El sistema muestra la productividad media del conjunto, el total de tareas analizadas y el ranking de tareas ordenadas por productividad.
@@ -43,11 +45,11 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 
 **Observación:** La fórmula aplicada es `(horas estimadas / horas reales) × 100`. Solo se consideran tareas cerradas en las que ambos valores son mayores que cero. Valores superiores al 100 % indican que la tarea se completó en menos tiempo del estimado.
 
-**Relaciones:** `<<extend>>` hacia CU-17 (guardar snapshot del panel calculado).
+**Relaciones:** Invocado desde CU-10 vía `<<extend>>`. `<<extend>>` hacia CU-17 (guardar snapshot del panel calculado).
 
 ---
 
-## CU-10.2 — Consultar Cumplimiento de Plazos
+## CU-23 — Consultar Cumplimiento de Plazos
 
 | Campo | Valor |
 |---|---|
@@ -68,11 +70,11 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 
 **Observación:** El semáforo de referencia clasifica el cumplimiento como bueno cuando supera el 80 %, aceptable entre el 60 % y el 80 %, y deficiente por debajo del 60 %. Solo se consideran tareas cerradas con `date_end` y `date_deadline` informadas.
 
-**Relaciones:** `<<extend>>` hacia CU-17.
+**Relaciones:** Invocado desde CU-10 vía `<<extend>>`. `<<extend>>` hacia CU-17.
 
 ---
 
-## CU-10.3 — Consultar WIP de Empleado
+## CU-24 — Consultar WIP de Empleado
 
 | Campo | Valor |
 |---|---|
@@ -83,7 +85,7 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 ![Diagrama de flujo](../imagenes/CdU/metricas/flujoCU10.3.png)
 
 **Flujo principal:**
-1. El actor selecciona la métrica *WIP* y elige un empleado.
+1. El actor selecciona la métrica *WIP*.
 2. El sistema verifica que el empleado pertenece al ámbito del actor.
 3. El sistema cuenta las tareas abiertas asignadas actualmente al empleado.
 4. El sistema clasifica el nivel de paralelismo: óptimo, aceptable o sobrecargado.
@@ -95,11 +97,11 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 
 **Observación:** Los umbrales aplicados son: hasta 3 tareas óptimo, hasta 5 tareas aceptable, más de 5 tareas sobrecargado. La métrica refleja la cantidad de cambios de contexto a los que está expuesto el empleado.
 
-**Relaciones:** `<<extend>>` hacia CU-17.
+**Relaciones:** Invocado desde CU-10 vía `<<extend>>`. `<<extend>>` hacia CU-17.
 
 ---
 
-## CU-10.4 — Consultar Carga de Trabajo de Empleado
+## CU-25 — Consultar Carga de Trabajo de Empleado
 
 | Campo | Valor |
 |---|---|
@@ -110,7 +112,7 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 ![Diagrama de flujo](../imagenes/CdU/metricas/flujoCU10.4.png)
 
 **Flujo principal:**
-1. El actor selecciona la métrica *Carga de Trabajo* y elige un empleado.
+1. El actor selecciona la métrica *Carga de Trabajo*.
 2. El sistema verifica que el empleado pertenece al ámbito del actor.
 3. El sistema calcula las horas pendientes del empleado en sus tareas abiertas y las contrasta con la jornada de referencia.
 4. El sistema clasifica al empleado como sobrecargado, normal o subcargado.
@@ -120,15 +122,13 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 - `FA-01`: Empleado fuera del ámbito → acceso denegado.
 - `FA-02`: Empleado sin usuario vinculado → carga = 0.
 
-**Observación:** La fórmula aplicada es `(Σ horas_pendientes / 40 horas de jornada de referencia) × 100`, donde las horas pendientes se calculan como `max(planned_hours − worked_hours, 0)` por tarea abierta asignada. Los estados se clasifican como sobrecargado por encima del 120 %, normal entre el 70 % y el 120 %, y subcargado por debajo del 70 %.
+**Observación:** La fórmula aplicada es `(Σ horas_pendientes / 40 horas de jornada de referencia) × 100`, donde las horas pendientes se calculan como `max(planned_hours − worked_hours, 0)` por tarea abierta asignada. Los estados se clasifican como sobrecargado por encima del 120 %, normal entre el 70 % y el 120 %, y subcargado por debajo del 70 %. Este caso de uso opera sobre un único empleado; la vista agregada de equipo queda cubierta por CU-21.
 
-**Variante de equipo:** Si el actor accede a esta métrica desde el panel de manager sin especificar un empleado concreto, se activa el modo agregado de equipo. En esta variante, el sistema calcula la distribución del equipo (sobrecargados, normales, subcargados, sin tareas) y devuelve el ranking de los empleados más cargados, sin desglosar la información de un único individuo. La elección entre modo individual y modo equipo es una particularidad de esta métrica frente al resto.
-
-**Relaciones:** `<<extend>>` hacia CU-17.
+**Relaciones:** Invocado desde CU-10 vía `<<extend>>`. `<<extend>>` hacia CU-17.
 
 ---
 
-## CU-10.5 — Consultar Riesgo de Proyecto
+## CU-26 — Consultar Riesgo de Proyecto
 
 | Campo | Valor |
 |---|---|
@@ -139,7 +139,7 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 ![Diagrama de flujo](../imagenes/CdU/metricas/flujoCU10.5.png)
 
 **Flujo principal:**
-1. El actor selecciona la métrica *Índice de Riesgo* y elige un proyecto.
+1. El actor selecciona la métrica *Índice de Riesgo*.
 2. El sistema verifica que el proyecto pertenece al ámbito del actor.
 3. El sistema analiza las tareas abiertas del proyecto que tienen fecha límite establecida.
 4. El sistema identifica las tareas en riesgo: las vencidas y las que han consumido una parte importante del plazo entre asignación y fecha límite.
@@ -152,11 +152,11 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 
 **Observación:** Una tarea se considera en riesgo si su `date_deadline` ya está vencida o si se ha consumido al menos el 80 % del intervalo entre `date_assign` y `date_deadline`. Los niveles del índice se clasifican como bajo por debajo del 20 %, medio entre el 20 % y el 50 %, y alto por encima del 50 %.
 
-**Relaciones:** `<<extend>>` hacia CU-17.
+**Relaciones:** Invocado desde CU-10 vía `<<extend>>`. `<<extend>>` hacia CU-17.
 
 ---
 
-## CU-10.6 — Consultar Tasa de Retrabajo
+## CU-27 — Consultar Tasa de Retrabajo
 
 | Campo | Valor |
 |---|---|
@@ -177,11 +177,11 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 
 **Observación:** La detección de tareas reabiertas se basa en el historial inmutable de cambios que mantiene Odoo en `mail_tracking_value` sobre el campo de etapa. El semáforo aplicado clasifica el retrabajo como aceptable por debajo del 8 %, a vigilar entre el 8 % y el 15 %, y problemático por encima del 15 %.
 
-**Relaciones:** `<<extend>>` hacia CU-17.
+**Relaciones:** Invocado desde CU-10 vía `<<extend>>`. `<<extend>>` hacia CU-17.
 
 ---
 
-## CU-10.7 — Consultar Exactitud de Estimación
+## CU-28 — Consultar Exactitud de Estimación
 
 | Campo | Valor |
 |---|---|
@@ -192,7 +192,7 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 ![Diagrama de flujo](../imagenes/CdU/metricas/flujoCU10.7.png)
 
 **Flujo principal:**
-1. El actor selecciona la métrica *Exactitud de Estimación* y elige un empleado como responsable.
+1. El actor selecciona la métrica *Exactitud de Estimación* y el empleado responsable.
 2. El sistema verifica que el empleado pertenece al ámbito del actor.
 3. El sistema analiza las tareas cerradas de las que el empleado era responsable y compara horas estimadas con horas reales.
 4. El sistema determina el sesgo de estimación: subestima, sobreestima o preciso.
@@ -202,13 +202,13 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 - `FA-01`: Empleado fuera del ámbito → acceso denegado.
 - `FA-02`: Sin tareas con ambos valores informados → sin datos.
 
-**Observación:** El cálculo se basa en el ratio medio `(horas reales / horas estimadas)` de las tareas cerradas en las que el empleado fue responsable. El sesgo se clasifica como subestima cuando la exactitud supera el 110 %, sobreestima por debajo del 90 %, y preciso entre el 90 % y el 110 %. El indicador *subestima* señala que la dedicación real suele superar a la planificada.
+**Observación:** El cálculo se basa en el ratio medio `(horas reales / horas estimadas)` de las tareas cerradas en las que el empleado fue responsable. El sesgo se clasifica como subestima cuando la exactitud supera el 110 %, sobreestima por debajo del 90 %, y preciso entre el 90 % y el 110 %.
 
-**Relaciones:** `<<extend>>` hacia CU-17.
+**Relaciones:** Invocado desde CU-10 vía `<<extend>>`. `<<extend>>` hacia CU-17.
 
 ---
 
-## CU-10.8 — Consultar Lead Time
+## CU-29 — Consultar Lead Time
 
 | Campo | Valor |
 |---|---|
@@ -229,11 +229,11 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 
 **Observación:** El cálculo aplica `(date_end − date_assign)` para cada tarea cerrada y promedia los días resultantes. El semáforo de referencia clasifica el ciclo como ágil por debajo de 5 días, moderado entre 5 y 10 días, y lento por encima de 10 días.
 
-**Relaciones:** `<<extend>>` hacia CU-17.
+**Relaciones:** Invocado desde CU-10 vía `<<extend>>`. `<<extend>>` hacia CU-17.
 
 ---
 
-## CU-10.9 — Consultar Tiempo por Estado
+## CU-30 — Consultar Tiempo por Estado
 
 | Campo | Valor |
 |---|---|
@@ -254,11 +254,11 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 
 **Observación:** Los datos provienen del historial de cambios de etapa registrado por Odoo en `mail_tracking_value`. Sin ese registro no es posible reconstruir los tiempos por estado. Esta métrica permite identificar etapas-cuello-de-botella donde las tareas se acumulan antes de avanzar.
 
-**Relaciones:** `<<extend>>` hacia CU-17.
+**Relaciones:** Invocado desde CU-10 vía `<<extend>>`. `<<extend>>` hacia CU-17.
 
 ---
 
-## CU-10.10 — Consultar Tareas Canceladas
+## CU-31 — Consultar Tareas Canceladas
 
 | Campo | Valor |
 |---|---|
@@ -279,11 +279,11 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 
 **Observación:** Una tarea se considera cancelada cuando el nombre de su etapa contiene la palabra «cancelado» (sin distinción de mayúsculas). El semáforo de referencia clasifica el nivel como normal por debajo del 5 %, a vigilar entre el 5 % y el 10 %, y elevado por encima del 10 %.
 
-**Relaciones:** `<<extend>>` hacia CU-17.
+**Relaciones:** Invocado desde CU-10 vía `<<extend>>`. `<<extend>>` hacia CU-17.
 
 ---
 
-## CU-10.11 — Consultar Tiempo Invertido por Prioridad
+## CU-32 — Consultar Tiempo Invertido por Prioridad
 
 | Campo | Valor |
 |---|---|
@@ -304,4 +304,4 @@ Todos los subcasos comparten además una relación común: `<<extend>>` hacia CU
 
 **Observación:** Esta métrica permite identificar si las tareas urgentes consumen desproporcionadamente más tiempo que las de prioridad normal, lo que puede indicar problemas en la planificación o en la priorización del equipo. El cálculo agrupa por el campo `priority` de la tarea (`"0"` Normal, `"1"` Urgente) y promedia las horas reales registradas.
 
-**Relaciones:** `<<extend>>` hacia CU-17.
+**Relaciones:** Invocado desde CU-10 vía `<<extend>>`. `<<extend>>` hacia CU-17.

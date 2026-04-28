@@ -1,4 +1,4 @@
-@startuml CU10.3_WIP
+@startuml CU24S_WIP
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,10 +9,9 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-10.3 · Consultar WIP de Empleado
+title CU-24 · Consultar WIP de Empleado
 
 start
-:El actor accede a la página de métricas;
 :El actor selecciona un empleado;
 :El actor selecciona la métrica WIP;
 :El sistema verifica que el empleado
