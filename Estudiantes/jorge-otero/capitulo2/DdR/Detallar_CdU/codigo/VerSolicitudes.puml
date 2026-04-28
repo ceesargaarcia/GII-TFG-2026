@@ -1,0 +1,48 @@
+@startuml VerSolicitudes
+
+skinparam linetype polyline
+
+state verSolicitudes as "verSolicitudes()" {
+
+state " " as AccesoVista
+state " " as CargandoDatos
+state " " as MostrandoDatos
+state " " as FiltrandoDatos
+
+[*] -[#green]-> AccesoVista
+note on link
+<b>Técnico</b> accede a la
+vista en Power BI
+end note
+
+AccesoVista -[#green]-> CargandoDatos
+note on link
+<b>Sistema</b> consulta la
+base de datos
+end note
+
+CargandoDatos -[#green]-> MostrandoDatos
+note on link
+<b>Power BI</b> muestra las
+solicitudes registradas
+end note
+
+MostrandoDatos -[#green]-> FiltrandoDatos
+note on link
+<b>Técnico</b> aplica filtros
+o búsquedas
+end note
+
+FiltrandoDatos -[#green]-> MostrandoDatos
+note on link
+Se actualiza la visualización
+end note
+
+MostrandoDatos -[#green]-> [*]
+note on link
+El técnico finaliza la consulta
+end note
+
+}
+
+@enduml

@@ -1,0 +1,148 @@
+@startuml RecibirSolicitud
+
+skinparam linetype polyline
+
+state recibirSolicitud as "recibirSolicitud()" {
+
+state " " as CorreoRecibido
+state " " as EvaluandoAsunto
+state " " as ActualizandoFormulario
+state " " as MoviendoDocumentacionAcuerdo
+state " " as MoviendoDocumentacionDesacuerdo
+state " " as AnalizandoCorreo
+state " " as RegistrandoAnalisis
+state " " as ConsultandoBBDD
+state " " as ProcesandoDatos
+state " " as GenerandoRespuesta
+state " " as RegistrandoSolicitud
+state " " as EnviandoRespuesta
+state " " as EnviandoPlantilla
+state " " as CorreoEnviado
+
+[*] -[#green]-> CorreoRecibido
+note on link
+<b>Exchange Online</b> detecta
+un nuevo correo en el buzón
+corporativo
+end note
+
+CorreoRecibido -[#green]-> EvaluandoAsunto
+note on link
+<b>Sistema</b> evalúa el asunto
+del correo recibido
+end note
+
+EvaluandoAsunto -[#green]-> ActualizandoFormulario
+note on link
+Asunto:
+<b>TE:FORMRESUELTO</b>
+end note
+
+ActualizandoFormulario -[#green]-> [*]
+note on link
+<b>Sistema</b> actualiza el estado
+del formulario asociado
+end note
+
+EvaluandoAsunto -[#green]-> MoviendoDocumentacionAcuerdo
+note on link
+Asunto:
+<b>Envío documentación acuerdo</b>
+end note
+
+MoviendoDocumentacionAcuerdo -[#green]-> [*]
+note on link
+<b>Sistema</b> mueve el correo
+a la carpeta correspondiente
+end note
+
+EvaluandoAsunto -[#green]-> MoviendoDocumentacionDesacuerdo
+note on link
+Asunto:
+<b>Envío documentación desacuerdo</b>
+end note
+
+MoviendoDocumentacionDesacuerdo -[#green]-> [*]
+note on link
+<b>Sistema</b> mueve el correo
+a la carpeta correspondiente
+end note
+
+EvaluandoAsunto -[#green]-> AnalizandoCorreo
+note on link
+El asunto no coincide con
+los casos anteriores
+end note
+
+AnalizandoCorreo -[#green]-> RegistrandoAnalisis
+note on link
+<b>Sistema</b> analiza el contenido
+del correo y guarda:
+• Fecha y hora
+• Intención detectada
+end note
+
+RegistrandoAnalisis -[#green]-> ConsultandoBBDD
+note on link
+Intención detectada:
+• Consulta
+• Reclamación
+• Peligro
+end note
+
+RegistrandoAnalisis -[#green]-> EnviandoPlantilla
+note on link
+Intención detectada:
+• Separata
+• Asesoramiento
+• Canalización
+• Otra
+end note
+
+EnviandoPlantilla -[#green]-> CorreoEnviado
+note on link
+<b>Sistema</b> responde mediante
+correo plantilla
+end note
+
+ConsultandoBBDD -[#green]-> ProcesandoDatos
+note on link
+<b>Sistema</b> obtiene los datos
+necesarios desde la BBDD
+end note
+
+ProcesandoDatos -[#green]-> GenerandoRespuesta
+note on link
+<b>Sistema</b> procesa la información
+obtenida
+end note
+
+GenerandoRespuesta -[#green]-> RegistrandoSolicitud
+note on link
+<b>Sistema</b> genera la respuesta
+según los datos obtenidos
+end note
+
+RegistrandoSolicitud -[#green]-> EnviandoRespuesta
+note on link
+<b>Sistema</b> registra:
+• Numero
+• Provincia
+• EECC
+• Responsable asignado
+end note
+
+EnviandoRespuesta -[#green]-> CorreoEnviado
+note on link
+<b>Sistema</b> envía la respuesta
+al remitente
+end note
+
+CorreoEnviado -[#green]-> [*]
+note on link
+Correo enviado correctamente
+end note
+
+}
+
+@enduml

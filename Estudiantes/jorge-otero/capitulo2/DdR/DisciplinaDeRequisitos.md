@@ -91,116 +91,77 @@ Este diagrama muestra la relación entre Microsoft Forms y el sistema. Microsoft
 
 ## Priorizar Casos de Uso 
 
-| ID  | Caso de uso                | Prioridad | Justificación                                                                              |
-| --- | -------------------------- | --------- | ------------------------------------------------------------------------------------------ |
-| CA1 | Enviar solicitud           | Alta      | Es el punto de entrada del sistema y condición necesaria para el resto de funcionalidades. |
-| CA2 | Recibir respuesta          | Alta      | Constituye la finalidad principal del sistema: proporcionar respuesta al cliente.          |
-| CA3 | Ver solicitudes pendientes | Media     | Permite la gestión por parte del técnico, pero depende de solicitudes previas.             |
-| CA4 | Actualizar estado          | Media     | Necesario para la gestión interna, ligado al seguimiento de solicitudes.                   |
-| CA5 | Completar formulario       | Baja      | Funcionalidad complementaria para aportar información adicional en casos específicos.      |
-
+| ID  | Caso de uso        | Prioridad | Justificación                                                                                                                     |
+| --- | ------------------ | --------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| CA1 | Recibir solicitud  | Alta      | Es el punto de entrada del sistema, ya que inicia el flujo principal a partir de los correos recibidos en el buzón corporativo.   |
+| CA2 | Recibir formulario | Media     | Permite ampliar la información de las solicitudes mediante formularios, siendo un proceso complementario al flujo principal.      |
+| CA3 | Ver solicitudes    | Media     | Facilita la consulta de la información procesada a través de la vista en Power BI, permitiendo el seguimiento de las solicitudes. |
 
 ## Detallar Casos de Uso
 
-### Caso de Uso - Enviar Solicitud
+### Caso de Uso - Recibir Solicitud
 
 | Diagrama | Código |
 |---------|---------|
-|![CdU](./Detallar_CdU/imagen/EnviarSolicitud.png)|[Ver código](./Detallar_CdU/codigo/EnviarSolicitud.puml)|
+|![CdU](./Detallar_CdU/imagen/RecibirSolicitud.png)|[Ver código](./Detallar_CdU/codigo/RecibirSolicitud.puml)|
 
-Este caso de uso describe el proceso mediante el cual el cliente genera y envía una solicitud al sistema. El flujo comienza cuando el cliente identifica una necesidad, ya sea un problema o una consulta, lo que le lleva a redactar la solicitud.
+El caso de uso CA1 Recibir solicitud describe el proceso completo mediante el cual el sistema gestiona un correo entrante desde su recepción hasta el envío de una respuesta o la ejecución de una acción automática.
 
-Antes de enviarla, el cliente revisa su contenido para comprobar que la información es correcta. En caso de no estar conforme, puede modificarla tantas veces como sea necesario. Una vez validada, la solicitud es enviada al sistema.
+El flujo se inicia cuando el servicio de correo Exchange Online detecta la llegada de un nuevo mensaje en el buzón corporativo, lo que activa el sistema de automatización.
 
-Este proceso garantiza que las solicitudes recibidas tengan un mínimo nivel de calidad y coherencia, facilitando su posterior procesamiento.
+En primer lugar, el sistema evalúa el asunto del correo con el objetivo de identificar si corresponde a alguno de los casos predefinidos. Si el asunto indica que un formulario ha sido resuelto (“TE:FORMRESUELTO”), el sistema procede a actualizar el estado del formulario asociado. En los casos en los que el correo contiene documentación de acuerdo o desacuerdo, el sistema clasifica automáticamente el mensaje y lo mueve a la carpeta correspondiente para su gestión documental, finalizando así el flujo sin necesidad de procesamiento adicional.
+
+Si el asunto no coincide con ninguno de estos casos, el sistema inicia una fase de análisis del contenido del correo. En esta etapa, se identifica la intención del mensaje y, de forma simultánea, se registra en la base de datos información básica como la fecha, la hora y la intención detectada, garantizando la trazabilidad del proceso desde sus primeras fases.
+
+A continuación, el flujo se bifurca en función de la intención identificada. Si esta corresponde a una consulta, reclamación o situación de posible riesgo asociada a un identificador válido, el sistema realiza una consulta a las bases de datos para obtener la información necesaria. Con los datos recuperados, se lleva a cabo el procesamiento de la solicitud y la generación de una respuesta adaptada al contexto. Posteriormente, el sistema registra la información completa de la solicitud, incluyendo los datos procesados y el responsable asignado, y finalmente envía la respuesta al remitente.
+
+Por el contrario, si la intención detectada no se corresponde con los casos contemplados, el sistema genera y envía automáticamente una respuesta basada en una plantilla predefinida, asegurando así una comunicación coherente y evitando solicitudes sin tratamiento.
+
+En ambos escenarios, el flujo concluye con el envío de un correo electrónico al usuario, garantizando que toda solicitud recibida obtiene una respuesta o una acción asociada. De este modo, el sistema combina una lógica basada en reglas con capacidades de análisis, permitiendo una gestión automatizada, estructurada y completa de las solicitudes entrantes.
 
 **Criterios de Aceptación**
-+ El cliente puede redactar una solicitud con la información necesaria.
-+ El cliente puede modificar la solicitud antes de enviarla.
-+ El sistema permite el envío únicamente cuando la solicitud contiene información válida.
-+ La solicitud queda registrada en el sistema tras su envío.
-+ El sistema confirma la recepción de la solicitud al cliente.
++ El sistema debe activarse automáticamente cuando se recibe un nuevo correo en el buzón corporativo.
++ El sistema debe identificar el tipo de solicitud en función del asunto del correo recibido.
++ El sistema debe ejecutar acciones automáticas (actualización de formulario o movimiento de correo) cuando el asunto coincide con los casos predefinidos.
++ El sistema debe analizar el contenido del correo cuando el asunto no coincide con los casos establecidos.
++ El sistema debe identificar la intención de la solicitud a partir del contenido del mensaje.
++ El sistema debe registrar en la base de datos la fecha, hora e intención detectada de la solicitud.
++ El sistema debe consultar la base de datos cuando la solicitud requiera información adicional para su resolución.
++ El sistema debe generar una respuesta adecuada en función de los datos obtenidos.
++ El sistema debe enviar una respuesta mediante correo plantilla cuando la intención no corresponda a los casos contemplados.
++ El sistema debe registrar la información procesada de la solicitud antes de enviar la respuesta.
 
-### Caso de Uso - Recibir Respuesta
-
-| Diagrama | Código |
-|---------|---------|
-|![CdU](./Detallar_CdU/imagen/RecibirRespuesta.png)|[Ver código](./Detallar_CdU/codigo/RecibirRespuesta.puml)|
-
-Este caso de uso describe el proceso mediante el cual el cliente recibe una respuesta tras haber enviado una solicitud al sistema.
-
-El flujo comienza con el cliente en espera de una respuesta. A continuación, el sistema procesa la solicitud previamente enviada y genera una respuesta, que es posteriormente enviada al cliente.
-
-Finalmente, el cliente recibe y revisa la respuesta. En caso de necesitar aportar información adicional, podrá iniciar un nuevo caso de uso independiente mediante el formulario.
-
-**Criterios de aceptación**
-
-+ El sistema procesa la solicitud previamente enviada por el cliente.
-+ El sistema genera una respuesta adecuada en función de la solicitud.
-+ La respuesta es enviada correctamente al cliente.
-+ El cliente puede recibir y visualizar la respuesta.
-+ El cliente puede iniciar un nuevo proceso en caso de requerir aportar información adicional.
-
-### Caso de Uso - Ver Solicitudes Pendientes
+### Caso de Uso - Recibir Formulario
 
 | Diagrama | Código |
 |---------|---------|
-|![CdU](./Detallar_CdU/imagen/VerSolicitudesPendientes.png)|[Ver código](./Detallar_CdU/codigo/VerSolicitudesPendientes.puml)|
+|![CdU](./Detallar_CdU/imagen/RecibirFormulario.png)|[Ver código](./Detallar_CdU/codigo/RecibirFormulario.puml)|
 
-Este caso de uso describe el proceso mediante el cual el técnico accede y consulta las solicitudes pendientes en el sistema.
+El caso de uso CA2 Recibir formulario describe el proceso mediante el cual el sistema gestiona la información adicional proporcionada por el usuario a través de un formulario.
 
-El flujo comienza cuando el técnico accede a la vista correspondiente. El sistema recupera la información disponible y la presenta al técnico, quien puede revisar el estado y contenido de las solicitudes.
+El flujo se inicia cuando el servicio Microsoft Forms detecta que un formulario ha sido completado, lo que activa automáticamente el sistema de automatización.
 
-En caso de producirse un error en la carga de la información, el sistema no podrá mostrar las solicitudes.
+En primer lugar, el sistema analiza la información recibida para comprobar si se ha seleccionado alguna opción relacionada con el envío de documentación. En caso afirmativo, se ejecuta una acción adicional consistente en el envío automático de un correo electrónico con las instrucciones necesarias para remitir dicha documentación.
 
-**Criterios de aceptación**
+Independientemente de esta condición, el sistema continúa con el procesamiento de los datos del formulario. En esta fase, se analizan las respuestas proporcionadas y se preparan para su almacenamiento.
 
-+ El técnico puede acceder a la vista de solicitudes pendientes.
-+ El sistema muestra correctamente las solicitudes no resueltas.
-+ La información presentada incluye los datos necesarios para su revisión.
-+ El sistema gestiona errores en la carga de datos mostrando un mensaje adecuado.
-+ Las solicitudes se muestran actualizadas en el momento de la consulta.
+Finalmente, toda la información recibida es registrada en la base de datos, garantizando su disponibilidad para su consulta y su integración en la gestión global de solicitudes.
 
-### Caso de Uso - Actualizar Estado
+De este modo, el sistema permite enriquecer la información de las solicitudes iniciales, manteniendo un flujo uniforme de procesamiento y asegurando la correcta gestión de los datos.
 
+**Criterios de Aceptación**
++ El sistema debe activarse automáticamente cuando se completa un formulario.
++ El sistema debe recibir y procesar los datos introducidos en el formulario.
++ El sistema debe identificar si se ha marcado la opción de envío de documentación.
++ El sistema debe enviar un correo con instrucciones cuando la opción de documentación esté marcada.
++ El sistema debe procesar las respuestas del formulario independientemente de la opción de documentación.
++ El sistema debe almacenar toda la información del formulario en la base de datos.
++ El sistema debe garantizar que los datos quedan disponibles para su consulta posterior.
+
+### Caso de Uso - Ver Solicitudes
 | Diagrama | Código |
 |---------|---------|
-|![CdU](./Detallar_CdU/imagen/ActualizarEstado.png)|[Ver código](./Detallar_CdU/codigo/ActualizarEstado.puml)|
-
-Este caso de uso describe el proceso mediante el cual el técnico actualiza el estado de una solicitud en el sistema.
-
-El flujo comienza cuando el técnico selecciona una solicitud pendiente y la marca como resuelta. A continuación, el sistema verifica si existe un formulario asociado a dicha solicitud. En caso de existir, el sistema registra el nuevo estado. Si no existe formulario, el proceso finaliza sin realizar ninguna modificación.
-
-Este comportamiento garantiza la coherencia de los datos y evita cambios innecesarios en el sistema.
-
-**Criterios de aceptación**
-
-+ El técnico puede marcar la solicitud como resuelta.
-+ El sistema verifica la existencia de un formulario asociado.
-+ Si el formulario existe, el estado de la solicitud se actualiza correctamente.
-+ Si no existe formulario, el sistema no realiza cambios en el estado.
-+ El sistema refleja el estado actualizado de forma correcta tras la operación.
-
-### Caso de Uso - Completar Formulario
-
-| Diagrama | Código |
-|---------|---------|
-|![CdU](./Detallar_CdU/imagen/CompletarFormulario.png)|[Ver código](./Detallar_CdU/codigo/CompletarFormulario.puml)|
-
-Este caso de uso describe el proceso mediante el cual el cliente aporta información adicional a través de un formulario.
-
-El flujo comienza cuando el cliente accede al formulario y completa los campos requeridos. A continuación, revisa la información introducida antes de enviarla. Si está conforme, el formulario es enviado al sistema. En caso contrario, puede modificar los datos antes de realizar el envío.
-
-Este proceso permite complementar la información de una solicitud previa de forma estructurada y controlada.
-
-**Criterios de aceptación**
-
-+ El cliente puede crear un formulario para detallar su solicitud.
-+ El cliente puede completar los campos requeridos del formulario.
-+ El cliente puede revisar y modificar la información antes de enviarla.
-+ El sistema valida que los campos obligatorios estén cumplimentados.
-+ El formulario es enviado correctamente al sistema.
-+ La información adicional queda registrada y asociada a la solicitud correspondiente.
+|![CdU](./Detallar_CdU/imagen/VerSolicitudes.png)|[Ver código](./Detallar_CdU/codigo/VerSolicitudes.puml)|
 
 ## Prototipar Casos de Uso 
 

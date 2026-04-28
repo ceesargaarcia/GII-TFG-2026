@@ -1,0 +1,55 @@
+@startuml RecibirFormulario
+
+skinparam linetype polyline
+
+state recibirFormulario as "recibirFormulario()" {
+
+state " " as FormularioRecibido
+state " " as EvaluandoDocumentacion
+state " " as EnviandoInstrucciones
+state " " as ProcesandoDatos
+state " " as GuardandoBBDD
+
+[*] -[#green]-> FormularioRecibido
+note on link
+<b>Microsoft Forms</b> detecta
+un formulario completado
+end note
+
+FormularioRecibido -[#green]-> EvaluandoDocumentacion
+note on link
+<b>Sistema</b> analiza si se ha
+marcado opción de documentación
+end note
+
+EvaluandoDocumentacion -[#green]-> EnviandoInstrucciones
+note on link
+Opción documentación marcada
+end note
+
+EvaluandoDocumentacion -[#green]-> ProcesandoDatos
+note on link
+No se ha marcado documentación
+end note
+
+EnviandoInstrucciones -[#green]-> ProcesandoDatos
+note on link
+<b>Sistema</b> envía correo con
+instrucciones de envío
+end note
+
+ProcesandoDatos -[#green]-> GuardandoBBDD
+note on link
+<b>Sistema</b> procesa las respuestas
+del formulario
+end note
+
+GuardandoBBDD -[#green]-> [*]
+note on link
+<b>Sistema</b> guarda toda la información
+en la base de datos
+end note
+
+}
+
+@enduml
