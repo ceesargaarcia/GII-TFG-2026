@@ -3,7 +3,7 @@ left to right direction
 skinparam linetype polyline
 
 state "SESION_CERRADA"              as NoAuth
-state "OVERVIEW"                    as Overview
+state "PAGINA_INICIAL_ABIERTA"     as Overview
 state "EMPLEADOS_LISTADOS"           as ListEmp
 state "EMPLEADO_DETALLE"            as DetEmp
 state "DEPARTAMENTOS_LISTADOS"       as ListDept
@@ -17,8 +17,8 @@ state "GRAFICOS_ABIERTO"            as Graficos
 state "ASISTENCIA_ABIERTO"          as Asistencia
 state "MANAGER_ABIERTO"             as Manager
 state "BUSQUEDA_ABIERTO"            as Busqueda
-state "VISOR_SNAPSHOTS_ABIERTO"     as Visor
-state "SNAPSHOT_DETALLE_ABIERTO"    as DetSnap
+state "SNAPSHOTS_LISTADAS"     as Visor
+state "SNAPSHOT_DETALLE"    as DetSnap
 state "VISOR_INICIAL_ABIERTO"       as VisorInicial
 
 ' ── Estados individuales de métricas (P10) ────────────────────
@@ -37,7 +37,7 @@ state "TIEMPO_PRIORIDAD_ABIERTO"    as MetTiempoPrioridad
 [*] --> NoAuth
 
 ' ── Autenticación ─────────────────────────────────────────────
-NoAuth        --> Overview     : autenticarse()
+NoAuth        --> Overview     : iniciarSesion()
 Overview      --> NoAuth       : cerrarSesion()
 NoAuth        --> VisorInicial : iniciarSesion()
 VisorInicial  --> Visor        : listarSnapshots()
