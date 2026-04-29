@@ -4,14 +4,14 @@ skinparam linetype polyline
 
 state "SESION_CERRADA"              as NoAuth
 state "OVERVIEW"                    as Overview
-state "EMPLEADOS_ABIERTO"           as ListEmp
-state "EMPLEADO_ABIERTO"            as DetEmp
-state "DEPARTAMENTOS_ABIERTO"       as ListDept
-state "DEPARTAMENTO_ABIERTO"        as DetDept
-state "PROYECTOS_ABIERTO"           as ListProy
-state "PROYECTO_ABIERTO"            as DetProy
-state "TAREAS_ABIERTO"              as ListTarea
-state "TAREA_ABIERTA"               as DetTarea
+state "EMPLEADOS_LISTADOS"           as ListEmp
+state "EMPLEADO_DETALLE"            as DetEmp
+state "DEPARTAMENTOS_LISTADOS"       as ListDept
+state "DEPARTAMENTO_DETALLE"        as DetDept
+state "PROYECTOS_LISTADOS"           as ListProy
+state "PROYECTO_DETALLE"            as DetProy
+state "TAREAS_LISTADAS"              as ListTarea
+state "TAREA_DETALLE"               as DetTarea
 state "CATALOGO_METRICAS_ABIERTO"   as Metricas
 state "GRAFICOS_ABIERTO"            as Graficos
 state "ASISTENCIA_ABIERTO"          as Asistencia
