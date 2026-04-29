@@ -1,0 +1,35 @@
+@startuml CU13-consultarRentabilidad-analisis
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":PAGINA_INICIAL_ABIERTA" as Overview
+
+package "consultarRentabilidadFinanciera()" {
+    rectangle #629EF9 "Rentability.jsx" as View
+    rectangle #b5bd68 "RentabilityService" as Service
+    rectangle #F2AC4E "RentabilityRepository" as Repo
+    rectangle #F2AC4E "Timesheet\n[amount €]" as TSModel
+    rectangle #F2AC4E "Project" as ProjectModel
+    rectangle #F2AC4E "Employee" as EmpModel
+    rectangle #F2AC4E "Partner" as PartnerModel
+}
+
+rectangle #CDEBA5 ":LINEAS_ANALITICAS_ABIERTO" as SalidaLineas
+rectangle #CDEBA5 ":SNAPSHOT_GUARDADO" as SalidaSnapshot
+
+Overview -down-> View : consultarRentabilidadFinanciera()
+
+View -d-> Service : obtenerResumen(filtros) : ResumenGlobal
+Service --> Repo : totalGlobal(periodo) : {ingresos, gastos, neto}
+Service --> Repo : totalPorProyecto(filtros) : List<FilaProyecto>
+Service --> Repo : metadatosProyectos(proyectos) : Map<proyecto,{nombre,cliente}>
+Repo -- TSModel
+Repo -- ProjectModel
+Repo -- EmpModel
+Repo -- PartnerModel
+
+View --> Service : obtenerDesglose(modo, filtros) : List<FilaDesglose>
+Service --> Repo : totalPorCliente(filtros) : List<FilaCliente>
+
+View ..> SalidaLineas : consultarLineasAnaliticas()
+View ..> SalidaSnapshot : guardarSnapshot()
+@enduml

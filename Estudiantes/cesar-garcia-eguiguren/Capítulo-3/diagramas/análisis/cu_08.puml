@@ -1,0 +1,42 @@
+@startuml CU08-listarTareas-analisis
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":EMPLEADO_DETALLE" as EntradaEmp
+rectangle #CDEBA5 ":PROYECTO_DETALLE" as EntradaProj
+rectangle #CDEBA5 ":PAGINA_INICIAL_ABIERTA" as Overview
+
+package "listarTareas()" {
+    rectangle #629EF9 "Tasks.jsx" as View
+    rectangle #b5bd68 "TaskService" as Service
+    rectangle #F2AC4E "TaskRepository" as TaskRepo
+    rectangle #F2AC4E "TimesheetRepository" as TSRepo
+    rectangle #F2AC4E "Task" as TaskModel
+    rectangle #F2AC4E "TaskStage" as StageModel
+    rectangle #F2AC4E "Project" as ProjectModel
+    rectangle #F2AC4E "Employee" as EmpModel
+    rectangle #F2AC4E "TaskAssignment" as AssignModel
+    rectangle #F2AC4E "Timesheet" as TSModel
+}
+
+rectangle #CDEBA5 ":TAREA_DETALLE" as SalidaTarea
+
+EntradaEmp -down-> View : listarTareas()
+EntradaProj -down-> View : listarTareas()
+Overview -down-> View : listarTareas()
+
+View -d-> Service : listarTareas(actor, filtros) : List<Task>
+Service --> TaskRepo : buscarTareas(filtrosEfectivos) : List<Task>
+TaskRepo -- TaskModel
+TaskRepo -- StageModel
+TaskRepo -- ProjectModel
+TaskRepo -- EmpModel
+TaskRepo -- AssignModel
+
+View --> Service : filtrarTareas(criterio) : List<Task>
+Service --> TaskRepo : buscarPorCriterio(criterio) : List<Task>
+
+Service --> TSRepo : horasPorTarea(listaTareas) : Map<Task,horas>
+TSRepo -- TSModel
+
+View ..> SalidaTarea : verDetalleTarea()
+@enduml

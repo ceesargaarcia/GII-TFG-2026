@@ -1,0 +1,43 @@
+@startuml CU17-guardarSnapshot-analisis
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":EMPLEADO_DETALLE" as EntradaEmp
+rectangle #CDEBA5 ":PROYECTO_DETALLE" as EntradaProj
+rectangle #CDEBA5 ":TAREA_DETALLE" as EntradaTarea
+rectangle #CDEBA5 ":DEPARTAMENTO_DETALLE" as EntradaDept
+rectangle #CDEBA5 ":METRICA_CONSULTADA" as EntradaMetrica
+rectangle #CDEBA5 ":GRAFICO_CONSULTADO" as EntradaGrafico
+rectangle #CDEBA5 ":RENTABILIDAD_CONSULTADA" as EntradaRent
+rectangle #CDEBA5 ":ASISTENCIA_ABIERTO" as EntradaAsistencia
+
+package "guardarSnapshot()" {
+    rectangle #629EF9 "SaveSnapshotButton.jsx" as View
+    rectangle #b5bd68 "SnapshotService" as Service
+    rectangle #F2AC4E "SnapshotRepository" as Repo
+    rectangle #F2AC4E "CapturaDeMetrica\n[unicidad: nombre+params+fecha]" as MetricaColl
+    rectangle #F2AC4E "CapturaDeGrafico\n[unicidad: nombre+params+fecha]" as GraficoColl
+    rectangle #F2AC4E "CapturaDeEntidad\n[unicidad: tipo+id+fecha]" as EntidadColl
+    rectangle #F2AC4E "AutorDeCaptura\n[referencia embebida]" as Autor
+}
+
+EntradaEmp --> View : guardarSnapshot()
+EntradaProj --> View : guardarSnapshot()
+EntradaMetrica --> View : guardarSnapshot()
+EntradaGrafico --> View : guardarSnapshot()
+EntradaRent --> View : guardarSnapshot()
+EntradaAsistencia --> View : guardarSnapshot()
+EntradaTarea --> View : guardarSnapshot()
+EntradaDept --> View : guardarSnapshot()
+
+View -d-> Service : guardarCaptura(actor, tipo, nombre, parametros, datos) : ResultadoGuardado
+Service --> Repo : guardarMetrica(nombre, parametros, datos, autor) : ResultadoGuardado
+Service --> Repo : guardarGrafico(nombre, parametros, datos, autor) : ResultadoGuardado
+Service --> Repo : guardarEntidad(tipo, id, datos, autor) : ResultadoGuardado
+Repo -- MetricaColl
+Repo -- GraficoColl
+Repo -- EntidadColl
+MetricaColl -- Autor
+GraficoColl -- Autor
+EntidadColl -- Autor
+
+@enduml

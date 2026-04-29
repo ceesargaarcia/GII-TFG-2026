@@ -1,0 +1,75 @@
+@startuml CU03-verResumenEmpleado-analisis
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":EMPLEADOS_LISTADOS" as EntradaLista
+rectangle #CDEBA5 ":DEPARTAMENTO_DETALLE" as EntradaDept
+rectangle #CDEBA5 ":PROYECTO_DETALLE" as EntradaProyecto
+rectangle #CDEBA5 ":TAREA_DETALLE" as EntradaTarea
+rectangle #CDEBA5 ":MANAGER_ABIERTO" as EntradaManager
+
+package "verResumenEmpleado()" {
+    rectangle #629EF9 "EmployeeDetail.jsx" as View
+
+    rectangle #b5bd68 "EmployeeService" as EmpService
+    rectangle #b5bd68 "DashboardService" as DashService
+    rectangle #b5bd68 "WorkloadService" as WorkSvc
+    rectangle #b5bd68 "WIPService" as WIPSvc
+    rectangle #b5bd68 "ProductivityService" as ProdSvc
+    rectangle #b5bd68 "TaskService" as TaskSvc
+
+    rectangle #F2AC4E "EmployeeRepository" as EmpRepo
+    rectangle #F2AC4E "WorkloadRepository" as WorkRepo
+    rectangle #F2AC4E "WIPRepository" as WIPRepo
+    rectangle #F2AC4E "ProductivityRepository" as ProdRepo
+    rectangle #F2AC4E "TaskRepository" as TaskRepo
+    rectangle #F2AC4E "Employee" as EmpModel
+    rectangle #F2AC4E "Task" as TaskModel
+    rectangle #F2AC4E "TaskStage" as StageModel
+    rectangle #F2AC4E "Timesheet" as TSModel
+    rectangle #F2AC4E "TaskAssignment" as AssignModel
+}
+
+rectangle #CDEBA5 ":TAREAS_LISTADAS" as SalidaTareas
+rectangle #CDEBA5 ":SNAPSHOT_GUARDADO" as SalidaSnapshot
+
+EntradaLista  -down-> View : verResumenEmpleado()
+EntradaDept   -down-> View : verResumenEmpleado()
+EntradaProyecto -down-> View : verResumenEmpleado()
+EntradaTarea  -down-> View : verResumenEmpleado()
+EntradaManager -down-> View : verResumenEmpleado()
+
+View -d-> EmpService  : obtenerEmpleado(actor, empleado) : Employee
+EmpService --> EmpRepo : buscarPorId(empleado) : Employee
+EmpRepo -- EmpModel
+
+View -d-> DashService : obtenerResumenEmpleado(actor, empleado) : Resumen
+DashService --> WorkSvc : calcular(empleado, periodo) : WorkloadResult
+WorkSvc --> WorkRepo : tareasAbiertasAsignadas(empleado) : List<Task>
+WorkSvc --> WorkRepo : tareasCerradasAsignadas(empleado, periodo) : List<Task>
+WorkRepo -- TaskModel
+WorkRepo -- StageModel
+WorkRepo -- TSModel
+WorkRepo -- AssignModel
+
+DashService --> WIPSvc : calcular(empleado) : WIPResult
+WIPSvc --> WIPRepo : contarTareasAbiertasAsignadas(empleado) : int
+WIPRepo -- TaskModel
+WIPRepo -- StageModel
+WIPRepo -- AssignModel
+
+DashService --> ProdSvc : calcular(empleado, periodo) : ProductivityResult
+ProdSvc --> ProdRepo : tareasConHoras(empleado, periodo) : List<Task>
+ProdRepo -- TaskModel
+ProdRepo -- StageModel
+ProdRepo -- TSModel
+
+View -d-> TaskSvc : listarTareasEmpleado(actor, empleado, filtros) : List<Task>
+TaskSvc --> TaskRepo : filtrarTareas(empleado, filtros) : List<Task>
+TaskRepo -- TaskModel
+TaskRepo -- StageModel
+TaskRepo -- TSModel
+TaskRepo -- AssignModel
+
+View ..> SalidaTareas   : listarTareas()
+View ..> SalidaSnapshot : guardarSnapshot()
+@enduml

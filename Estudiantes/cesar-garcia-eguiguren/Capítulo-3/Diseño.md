@@ -1,12 +1,14 @@
 # Disciplina de Diseño
 
+Esta sección materializa las decisiones identificadas en la disciplina de análisis, concretando la estructura del sistema en términos de componentes, tecnologías y responsabilidades, e introduciendo detalles de implementación necesarios para su construcción.
+
 ## Índice
 
 5. [Diseño de la Arquitectura](#5-diseño-de-la-arquitectura)
-   - 5.1 [Patrón arquitectónico](#51-patrón-arquitectónico)
-   - 5.2 [Stack tecnológico](#52-stack-tecnológico)
-   - 5.3 [Seguridad: JWT y RBAC](#53-seguridad-jwt-y-rbac)
-   - 5.4 [Arquitectura física desplegada](#54-arquitectura-física-desplegada)
+   - 5.1 [Diagrama de arquitectura del sistema](#51-diagrama-de-arquitectura-del-sistema)
+   - 5.2 [Patrón arquitectónico](#52-patrón-arquitectónico)
+   - 5.3 [Stack tecnológico](#53-stack-tecnológico)
+   - 5.4 [Seguridad: JWT y RBAC](#54-seguridad-jwt-y-rbac)
 6. [Diseño de Casos de Uso](#6-diseño-de-casos-de-uso)
    - 6.1 [CU-02 — Listar empleados](#61-cu-02--listar-empleados)
    - 6.2 [CU-03 — Ver resumen de empleado](#62-cu-03--ver-resumen-de-empleado)
@@ -26,16 +28,28 @@
    - 7.7 [Subsistema de snapshots](#77-subsistema-de-snapshots-snapshotservice--snapshotrepository--mongodb)
    - 7.8 [Capa de presentación: Frontend ↔ Routes ↔ Services](#78-capa-de-presentación-frontend--routes--services)
 8. [Diseño de Paquetes](#8-diseño-de-paquetes)
-   - 8.1 [Principios aplicados en la organización de paquetes](#81-principios-aplicados-en-la-organización-de-paquetes)
-   - 8.2 [Métricas de calidad](#82-métricas-de-calidad)
+   - 8.1 [Estructura de paquetes](#81-estructura-de-paquetes)
+   - 8.2 [Principios aplicados en la organización de paquetes](#82-principios-aplicados-en-la-organización-de-paquetes)
+   - 8.3 [Métricas de calidad](#83-métricas-de-calidad)
 9. [Prototipos de Interfaz](#9-prototipos-de-interfaz)
 
 
 ## 5. Diseño de la Arquitectura
 
-### 5.1 Patrón arquitectónico
 
-El sistema materializa una **arquitectura por capas de cuatro niveles** en el backend, complementada con dos aplicaciones independientes (frontend principal y visor de capturas) que consumen el mismo backend. Aunque la terminología MVC es utilizada como herramienta de análisis para clasificar las clases, la estructura de implementación va más allá del MVC clásico de tres niveles por razones de complejidad del dominio analítico.
+### 5.1 Diagrama de arquitectura del sistema
+
+
+![Diagrama de Componentes](./imagenes/paquetesSistema.png)
+
+Este diagrama muestra la arquitectura física desplegada: el frontend principal y el visor se comunican con el mismo backend a través de HTTP; el backend accede a la base de datos del ERP en modo solo lectura y, adicionalmente, a la base documental para las colecciones de capturas en modo lectura/escritura. El backend se organiza en capas (rutas, servicios, repositorios y modelos) que siguen principios de separación de responsabilidades y una única razón para cambiar.
+
+En desarrollo, cada frontend corre con su propio servidor Vite y un proxy inverso hacia `:8000/api`. En producción ambos se sirven como bundles estáticos detrás del mismo reverse proxy (Nginx / Caddy). El acceso a Odoo permanece en modo solo lectura mediante un usuario de base de datos con privilegios `SELECT` únicamente sobre las tablas relevantes; el acceso a MongoDB es de lectura/escritura restringido a las tres colecciones de snapshots.
+
+
+### 5.2 Patrón arquitectónico
+
+El sistema materializa una **arquitectura por capas** en el backend, complementada con dos aplicaciones independientes (frontend principal y visor de capturas) que consumen el mismo backend. Aunque la terminología MVC es utilizada como herramienta de análisis para clasificar las clases, la estructura de implementación va más allá del MVC clásico de tres niveles por razones de complejidad del dominio analítico.
 
 | Concepto MVC | Materialización en la solución |
 |---|---|
@@ -45,7 +59,7 @@ El sistema materializa una **arquitectura por capas de cuatro niveles** en el ba
 
 La capa de servicios no existe en el MVC puro de tres capas. Se introduce porque los cálculos de métricas operativas requieren orquestar múltiples consultas y aplicar fórmulas complejas; concentrar esa lógica en los controladores produciría módulos de cientos de líneas con baja cohesión.
 
-### 5.2 Stack tecnológico
+### 5.3 Stack tecnológico
 
 | Capa | Tecnología | Justificación |
 |---|---|---|
@@ -58,7 +72,7 @@ La capa de servicios no existe en el MVC puro de tres capas. Se introduce porque
 | Autenticación | JWT HS256 (python-jose) | Token stateless con scope embebido; passlib para hash Odoo |
 | Comunicación | REST + JSON | Proxy Vite en desarrollo para ambos frontends; CORS configurado para producción |
 
-### 5.3 Seguridad: JWT y RBAC
+### 5.4 Seguridad: JWT y RBAC
 
 El control de acceso se resuelve en dos momentos:
 
@@ -76,52 +90,10 @@ Hay tres capas distintas donde el scope del JWT actúa:
 
 **Capa 3 — Filtrado de listados** (capa de servicio): Cuando el actor lista entidades sin especificar un ID, el servicio extrae `cu.employee_ids`, `cu.department_ids` o `cu.project_ids` del token y los pasa al repositorio como filtro.
 
-| CU | Capa 1 | Capa 2 | Capa 3 — filtrado de scope |
-|---|---|---|---|
-| CU-02 Listar empleados | `require_manager_or_above` | — | `emp_ids = cu.employee_ids if cu.is_responsable` → `get_filtered_employees_query(emp_ids)` |
-| CU-03 Ver resumen empleado | `require_manager_or_above` | `verify_employee_scope(cu, id)` en `EmployeeService` y en `DashboardService` | — |
-| CU-04 Listar departamentos | `require_manager_or_above` | — | `dept_ids = cu.department_ids if cu.is_responsable` → `get_filtered_departments_query(dept_ids)` |
-| CU-05 Ver detalle departamento | `require_manager_or_above` | `verify_department_scope(cu, id)` en `DepartmentService` | — |
-| CU-06 Listar proyectos | `require_manager_or_above` | — | `[p for p in projects if p.id in cu.project_ids]` en `ProjectService.list_projects` |
-| CU-07 Ver detalle proyecto | `require_manager_or_above` | `verify_project_scope(cu, id)` en `ProjectService` | — |
-| CU-08 Listar tareas | `require_manager_or_above` | `verify_employee_scope` si se filtra por empleado; `verify_project_scope` si se filtra por proyecto | `effective_project_ids = cu.project_ids if cu.is_responsable` en `TaskService.filter_tasks` |
-| CU-10 Mostrar catálogo de métricas | `require_manager_or_above` | — | Aplica filtrado por scope si el actor es responsable|
-| CU-22 a CU-32 Métricas operativas (P10) | `require_manager_or_above` | `verify_employee_scope` / `verify_project_scope` / `verify_department_scope` según la métrica y el parámetro presente | — |
-| CU-13 Consultar rentabilidad financiera ★ | `require_director` | — | — (dato global exclusivo del Director) |
-| CU-14 Consultar líneas analíticas ★ | `require_director` | — | — (drill-down desde CU-13 sobre datos ya autorizados por rol) |
-| CU-17 Guardar snapshot | `require_manager_or_above` | — | No aplica filtrado por scope: la snapshot captura el resultado ya mostrado en pantalla, que ya pasó los controles de scope de su CU de origen |
-| CU-18 Listar snapshots | `require_manager_or_above` | — | **Decisión consciente:** el listado no aplica filtrado por scope (véase justificación más abajo) |
-| CU-19 Detalle de snapshot | `require_manager_or_above` | — | Mismo criterio que CU-18 |
-| CU-20 Eliminar snapshot | `require_director` | — | Mismo criterio que CU-18 |
+**Este enfoque permite mantener un equilibrio entre seguridad y rendimiento, evitando recalcular el ámbito en cada petición y delegando la coherencia del mismo al momento de autenticación.**
 
 **Justificación de la ausencia de filtrado por scope en los CU de snapshot (CU-18/19/20).** Las snapshots son lecturas inmutables de momentos pasados y no exponen información distinta a la que ya es visible en la capa operativa filtrada por scope. Además, las snapshots de rentabilidad (CU-13, CU-14) solo pueden ser generadas por el Director (Capa 1), por lo que un Responsable nunca podrá consultarlas en detalle salvo que hayan sido previamente creadas por un Director dentro de la misma organización. El sistema acepta esta exposición limitada como compromiso razonable frente a la complejidad de aplicar scope retroactivamente sobre documentos almacenados.
 
-
-### 5.4 Arquitectura física desplegada
-
-```
-┌──────────────────────┐   ┌──────────────────────┐
-│ Frontend principal   │   │ Visor de snapshots   │
-│ React · Vite · :3000 │   │ React · Vite · :3001 │
-└─────────┬────────────┘   └──────────┬───────────┘
-          │   HTTP + JWT              │   HTTP + JWT
-          └───────────┬───────────────┘
-                      ▼
-           ┌─────────────────────┐
-           │   Backend FastAPI   │
-           │   uvicorn · :8000   │
-           └──┬───────────────┬──┘
-              │               │
-        SQL :5432       BSON :27017
-              │               │
-   ┌──────────▼────────┐   ┌──▼──────────────┐
-   │ PostgreSQL         │   │ MongoDB          │
-   │ (Odoo v16 RO)     │   │ (snapshots RW)   │
-   │ pool_size=5       │   │ pymongo client   │
-   └───────────────────┘   └──────────────────┘
-```
-
-En desarrollo, cada frontend corre con su propio servidor Vite y un proxy inverso hacia `:8000/api`. En producción ambos se sirven como bundles estáticos detrás del mismo reverse proxy (Nginx / Caddy). El acceso a Odoo permanece en modo solo lectura mediante un usuario de base de datos con privilegios `SELECT` únicamente sobre las tablas relevantes; el acceso a MongoDB es de lectura/escritura restringido a las tres colecciones de snapshots.
 
 ---
 
@@ -427,7 +399,96 @@ El diagrama se apoya en la **disposición espacial estricta por columnas**: pág
 
 ## 8. Diseño de Paquetes
 
-### 8.1 Principios aplicados en la organización de paquetes
+### 8.1 Estructura de paquetes
+
+#### Backend
+```
+app/
+├── core/
+│   ├── config.py        → Configuración por entorno
+│   ├── database.py      → Conexión a la base relacional del ERP (solo lectura)
+│   ├── mongo.py         → Cliente de la base documental (lectura/escritura)
+│   └── security.py      → Generación y validación de sesiones + guards de rol
+├── models/              → Clases del dominio operativo (una por entidad del ERP)
+├── schemas/             → Contratos de entrada/salida del backend
+│   └── snapshot.py      → Esquemas de las capturas de métrica, gráfico y entidad
+├── repositories/
+│   ├── employee.py      → Acceso al dominio de empleados
+│   ├── project.py       → Acceso al dominio de proyectos
+│   ├── department.py    → Acceso al dominio de departamentos
+│   ├── task.py          → Acceso al dominio de tareas
+│   ├── tracking.py      → Acceso al dominio de partes de horas
+│   ├── attendance.py    → Acceso al dominio de fichajes
+│   ├── snapshot.py      → Acceso a las tres colecciones documentales
+│   └── metrics/         → Sub-paquete: una función por métrica operativa
+├── services/
+│   ├── metric/          → Implementaciones por métrica (CU-22 a CU-32)
+│   ├── dashboard.py     → Composición para los resúmenes de entidad
+│   ├── chart.py         → Datos para los gráficos analíticos
+│   ├── search.py        → Búsqueda global
+│   ├── auth.py          → Autenticación y construcción del ámbito
+│   └── snapshot.py      → Orquestación del subsistema de capturas
+├── routes/
+│   ├── auth.py
+│   ├── resources/       → Endpoints de las entidades operativas
+│   ├── metrics/         → Endpoints de las métricas operativas (CU-10, CU-22 a CU-32)
+│   ├── charts/          → Endpoints de los gráficos analíticos
+│   ├── dashboards/      → Endpoints de los resúmenes y de rentabilidad
+│   └── snapshots.py     → Endpoints para guardar, listar, consultar y eliminar capturas
+└── utils/               → Paginación, traducción de nombres multilingües y validaciones de ámbito
+```
+
+**`core/`** agrupa todo lo que es infraestructura transversal: configuración, generación y validación de sesiones, pool de conexiones a la base del ERP y cliente a la base documental, y guards de rol. Cambia solo cuando cambia la infraestructura, no el negocio. La adición del módulo de conexión documental respeta este criterio: aísla el cliente en un único punto, independiente del acceso a la base relacional.
+
+**`models/`** contiene exclusivamente el mapeo sobre el dominio operativo del ERP. Ningún modelo ejecuta lógica; solo declara columnas y relaciones. No se añaden modelos para el subsistema de capturas porque la base documental no requiere tal mapeo: la serialización se delega a la capa de esquemas.
+
+**`repositories/`** encapsula cada consulta como una función pura que recibe una sesión y devuelve datos crudos. El sub-paquete `repositories/metrics/` extiende esta idea con un submódulo por métrica (uno por cada CU del paquete P10), evitando que un único fichero acumule consultas heterogéneas. El repositorio de capturas es el único que no opera sobre la base relacional: ejecuta directamente operaciones de inserción, lectura, actualización, listado paginado y borrado sobre las tres colecciones documentales a través del cliente de infraestructura.
+
+**`services/`** aplica las reglas de negocio sobre los datos recuperados por los repositorios. El sub-paquete `services/metrics/` sigue la misma granularidad que `repositories/metrics/`: una clase, una métrica, una razón de cambio. El servicio de capturas añade responsabilidades propias del subsistema: normalizar parámetros, calcular el resumen único que identifica a la captura, construir el autor a partir de la sesión del usuario, fijar la fecha y decidir entre insertar o actualizar (semántica de actualización diaria) según la existencia previa.
+
+**`routes/`** actúa como capa de entrada HTTP. Las rutas no contienen lógica de negocio: validan parámetros, comprueban la autenticación y delegan en el servicio correspondiente. El sub-paquete `routes/metrics/` expone un endpoint por cada métrica operativa (CU-22 a CU-32) más el endpoint del catálogo (CU-10), siguiendo el principio OCP: añadir una nueva métrica implica añadir un único fichero nuevo sin modificar los existentes.
+
+**`utils/`** recoge funciones reutilizables que no pertenecen a ningún dominio: paginación, extracción de nombres multilingües, ordenación de diccionarios y validaciones de rango de fechas.
+
+#### Frontend
+**Frontend principal (actúa sobre la base de datos de Odoo):**
+```
+src/
+├── api/            → Un módulo por dominio (empleados, tareas, métricas, gráficos,
+│                     rentabilidad, capturas, búsqueda, autenticación)
+├── components/     → Componentes reutilizables (Card, Table, KpiCard, Sidebar,
+│                     SaveSnapshotButton…)
+├── context/        → Estado global de autenticación
+├── hooks/          → Lógica reutilizable (useApi, useDebounce)
+├── pages/          → Una página por recurso o funcionalidad
+├── styles/         → Variables CSS globales y tokens de diseño
+└── utils/          → Formateadores y helpers
+```
+Todas las páginas calculadas (detalle de métrica, gráficos, rentabilidad y las fichas de entidad) integran el botón de guardado de captura (`SaveSnapshotButton`), que llama al módulo de API correspondiente para disparar CU-17 desde el contexto actual de la vista.
+
+**Frontend del visor (actúa sobre la base de datos de capturas en MongoDB):**
+```
+src/
+├── api/
+│   ├── auth.js             → Mismo contrato que el frontend principal
+│   └── snapshots.js        → Lectura y borrado de las tres colecciones
+├── components/             → Tabla paginada, filtros, DateBadgePicker, JsonViewer
+├── context/                → Contexto de autenticación reutilizado
+├── pages/
+│   ├── Login.jsx
+│   ├── Home.jsx            → Resumen global más últimas capturas guardadas
+│   ├── MetricSnapshots.jsx → Listado de capturas de métricas (CU-18)
+│   ├── ChartSnapshots.jsx  → Listado de capturas de gráficos (CU-18)
+│   ├── EntitySnapshots.jsx → Listado de capturas de entidades (CU-18)
+│   └── SnapshotDetail.jsx  → Detalle reconstruido y eliminación (CU-19, CU-20)
+│       ├── MetricVisualizer  → Gauge, gráfico e indicadores según la métrica
+│       ├── ChartVisualizer   → Gráfico interactivo según el tipo
+│       └── EntityVisualizer  → Ficha con avatar, campos y barra de progreso
+└── vite.config.js          → Puerto 3001, proxy al backend
+```
+El visor no duplica los componentes de cálculo del frontend principal: sus renderizadores operan exclusivamente sobre los datos guardados en la base documental, sin llamar a ningún endpoint de cálculo sobre el ERP. Este desacoplamiento entre cálculo y visualización garantiza que una captura mantenga su representación original aunque los cálculos del frontend principal evolucionen en el futuro.
+
+### 8.2 Principios aplicados en la organización de paquetes
 
 **Jerarquización por capas (Principio de jerarquización)**
 
@@ -461,7 +522,7 @@ Cada repositorio agrupa únicamente consultas de un mismo dominio de datos. No e
 
 Los dos únicos casos de dependencia cruzada entre repositorios del mismo nivel (`repositories/metrics/` → `repositories/task.py` y `repositories/timesheet.py`) son de **acoplamiento por datos**: se comparten subqueries puras sin estado ni efectos secundarios. Este es el nivel más bajo de la escala de acoplamiento. `snapshot.py` no tiene ninguna dependencia cruzada con otros repositorios: su aislamiento es total.
 
-### 8.2 Métricas de calidad
+### 8.3 Métricas de calidad
 
 | Principio | Indicador | Valor | Estado |
 |---|---|---|---|
