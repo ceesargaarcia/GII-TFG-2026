@@ -18,6 +18,7 @@ skinparam NoteBackgroundColor #2e3852
 package "Frontend (páginas React)" {
   class Login
   class Overview
+  class "Manager" as FM2
   class "Employees / EmployeeDetail"    as FE
   class "Departments / DepartmentDetail" as FD
   class "Projects / ProjectDetail"      as FP
@@ -66,7 +67,7 @@ FA       --> RE
 FS       --> RS
 FM       --> RM
 FM       --> RC
-
+FM2 --> RDB
 RA  --> AuthService
 RA --> ScopeService
 RE  --> EmployeeService

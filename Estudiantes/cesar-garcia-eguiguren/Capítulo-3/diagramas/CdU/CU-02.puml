@@ -1,19 +1,26 @@
 @startuml secuencia_cu02
 !theme plain
 skinparam backgroundColor #07090F
-skinparam sequenceArrowColor #38BDF8
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
 skinparam sequenceParticipantBackgroundColor #141824
 skinparam sequenceParticipantBorderColor #2A3850
-skinparam sequenceLifeLineBorderColor #1E2840
-skinparam noteBorderColor #2A3850
+skinparam sequenceParticipantFontColor #E2E8F5
+skinparam sequenceActorBackgroundColor #1E2840
+skinparam sequenceActorBorderColor #38BDF8
+skinparam sequenceLifeLineBorderColor #2A3850
 skinparam noteBackgroundColor #141824
-skinparam noteFontColor #E2E8F5
-skinparam defaultFontColor #E2E8F5
+skinparam noteBorderColor #38BDF8
 skinparam sequenceGroupBackgroundColor #0D1018
 skinparam sequenceGroupBorderColor #2A3850
 skinparam sequenceGroupFontColor #38BDF8
 skinparam sequenceGroupHeaderFontColor #38BDF8
 skinparam sequenceGroupBodyBackgroundColor #0D1018
+skinparam sequenceDividerBackgroundColor #141824
+skinparam sequenceDividerBorderColor #2A3850
+skinparam sequenceDividerFontColor #38BDF8
+
+actor "Usuario\n(Responsable / Director)" as U
 
 participant "React SPA" as FE
 participant "Route\n(Controlador)" as ROUTE
@@ -22,7 +29,9 @@ participant "Service\n(Lógica)" as SVC
 participant "Repository\n(Datos)" as REPO
 participant "PostgreSQL\n(Odoo)" as DB
 
+U -> FE : navega a /empleados\n+ ajusta filtro
 FE -> ROUTE : GET /employees/?department_id=X&search=Y\n&sort_by=name&page=1&page_size=50
+
 ROUTE -> AUTH : require_manager_or_above()
 AUTH -> AUTH : decode_token(token)\nextraer role, employee_ids,\ndepartment_ids, project_ids
 AUTH --> ROUTE : CurrentUser(role, employee_ids, department_ids)
@@ -72,4 +81,5 @@ REPO --> SVC : query (sin paginar)
 SVC -> SVC : paginate(query, page, page_size)\nCOUNT(*) + OFFSET/LIMIT
 SVC --> ROUTE : PaginatedResponse[EmployeeDetail] {\n  items, total, page,\n  page_size, total_pages }
 ROUTE --> FE : 200 OK + JSON
+FE --> U : renderiza la lista de empleados con paginación
 @enduml

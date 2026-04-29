@@ -1,4 +1,4 @@
-@startuml CU19_TareasCanceladas
+@startuml flujoCU19
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,38 +9,48 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-19 · Consultar Tareas Canceladas
+
+title CU-19 · Consultar Detalle de Snapshot
 
 start
-:El actor accede a la página de métricas;
-:El actor selecciona la métrica
-Tareas Canceladas;
-:El actor puede aplicar filtros opcionales:
-· Proyecto concreto
-· Rango de fechas;
+:El actor selecciona una snapshot
+desde el listado (CU-18) o desde
+el resumen de la home del visor;
 
-:El sistema identifica las tareas cuya etapa
-corresponde a una etapa de cancelación
-y calcula su porcentaje sobre el total;
+:El sistema recupera la snapshot por ObjectId
+según el tipo:
+· GET /snapshots/metrics/{id}
+· GET /snapshots/charts/{id}
+· GET /snapshots/entities/{id};
 
-if (¿Existen tareas en el ámbito?) then (NO)
-  :El sistema muestra que no hay datos
-  disponibles para los filtros aplicados;
+if (¿Snapshot encontrada?) then (NO)
+  :HTTP 404 · mensaje de error
+  con opción de volver al listado;
   stop
 else (SÍ)
-  :El sistema muestra:
-  · Porcentaje de tareas canceladas
-  · Número de tareas canceladas
-  · Total de tareas analizadas
-  · Indicador visual de semáforo;
+  :Muestra la ficha:
+  · Metadatos (fecha, hash, created/updated by)
+  · Parámetros usados (métricas/gráficos)
+  · **Vista interpretada** del JSON data;
+
+  :El frontend elige el renderer según el subtipo:
+  · Métrica → gauge + gráfico + KPIs por métrica
+  · Gráfico → chart interactivo del mismo tipo
+  · Entidad → ficha con avatar, campos, barra;
+
+  :El actor puede expandir "Ver JSON completo"
+  para inspeccionar los datos originales;
+
+  if (¿Pulsa "Eliminar"?) then (SÍ)
+    :<<extend>> CU-20 Eliminar Snapshot;
+  endif
   stop
 endif
 
 note right
-  Semáforo de referencia:
-  < 5%   → verde (nivel normal)
-  5-10%  → naranja (nivel a vigilar)
-  > 10%  → rojo (nivel elevado)
+  El visor reconstruye a partir del JSON guardado. 
+  No recalcula nada contra PostgreSQL: 
+  el estado del día en que se guardó queda registrado en MongoDB.
 end note
 
 @enduml

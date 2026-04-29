@@ -12,7 +12,7 @@ skinparam NoteBorderColor #38BDF8
 title CU-06 · Listar Proyectos
 
 start
-:El actor accede al listado de proyectos;
+:El actor solicita acceder al listado de proyectos;
 :El sistema muestra los proyectos activos
 disponibles según el rol del actor;
 

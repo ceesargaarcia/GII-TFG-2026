@@ -1,0 +1,88 @@
+@startuml CU-19_DetalleSnapshot
+!theme plain
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam sequenceParticipantBackgroundColor #141824
+skinparam sequenceParticipantBorderColor #2A3850
+skinparam sequenceParticipantFontColor #E2E8F5
+skinparam sequenceActorBackgroundColor #1E2840
+skinparam sequenceActorBorderColor #38BDF8
+skinparam sequenceLifeLineBorderColor #2A3850
+skinparam noteBackgroundColor #141824
+skinparam noteBorderColor #38BDF8
+skinparam sequenceGroupBackgroundColor #0D1018
+skinparam sequenceGroupBorderColor #2A3850
+skinparam sequenceGroupFontColor #38BDF8
+skinparam sequenceGroupHeaderFontColor #38BDF8
+skinparam sequenceGroupBodyBackgroundColor #0D1018
+skinparam sequenceLifeLineBackgroundColor #0D1018
+skinparam sequenceLifeLineBorderColor #2A3850
+
+title CU-19 · Consultar Detalle de Snapshot (visor frontend2)
+
+actor "Actor\n(Director/Responsable)" as U
+participant "SnapshotDetail.jsx\n(visor frontend con datos persistentes)" as UI
+participant "Renderer\n(MetricView /\nChartView /\nEntityView)" as R
+participant "snapshotService.js" as FS
+participant "routes/snapshots.py" as RT
+participant "SnapshotService" as SS
+participant "snapshot.py\n(repo)" as REPO
+database "MongoDB" as MG
+
+U -> UI : entra desde CU-18\n(selecciona fila)
+UI -> FS : getSnapshot(type, id)
+FS -> RT : GET /snapshots/{type}/{id}\nAuthorization: Bearer JWT
+activate RT
+
+RT -> RT : require_manager_or_above(token)
+RT -> SS : get_by_id(type, id)
+activate SS
+SS -> REPO : find_by_id(type, id)
+activate REPO
+REPO -> MG : findOne({_id: ObjectId(id)})
+MG --> REPO : documento | null
+REPO --> SS : snapshot | None
+deactivate REPO
+
+alt no encontrada
+  SS --> RT : None
+  RT --> FS : 404 Not Found
+  FS --> UI : muestra mensaje\n"snapshot no encontrada"
+else encontrada
+  SS --> RT : snapshot
+  deactivate SS
+  RT --> FS : 200 JSON
+end
+deactivate RT
+
+FS --> UI : snapshot JSON
+
+UI -> UI : elige renderer según subtipo\n(metric_name · chart_name · entity_type)
+
+alt Métrica
+  UI -> R : <MetricView\n  data={data}\n  metric={metric_name}/>
+  R --> UI : gauge + gráfico + KPIs
+else Gráfico
+  UI -> R : <ChartView\n  data={data}\n  chart={chart_name}/>
+  R --> UI : chart interactivo
+else Entidad
+  UI -> R : <EntityView\n  data={data}\n  type={entity_type}/>
+  R --> UI : ficha con avatar,\ncampos y barra de progreso
+end
+
+UI --> U : vista reconstruida\n+ botón "Ver JSON completo"\n+ botón "Eliminar"
+
+opt Eliminar
+  U -> UI : pulsa "Eliminar"
+  UI -> UI : <<extend>> CU-20\nEliminar Snapshot
+end
+
+note right of UI
+  **Clave del diseño:** el visor reconstruye
+  la visualización exactamente como se guardó
+  el día de la snapshot. No se dispara cálculo
+  alguno sobre PostgreSQL.
+end note
+
+@enduml

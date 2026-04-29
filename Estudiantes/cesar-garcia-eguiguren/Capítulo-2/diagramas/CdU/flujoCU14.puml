@@ -1,4 +1,4 @@
-@startuml CU14_RiesgoProyecto
+@startuml flujoCU14
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,43 +9,48 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-14 · Consultar Riesgo de Proyecto
+
+title CU-14 · Consultar Líneas Analíticas (Director exclusivo)
 
 start
-:El actor accede a la página de métricas;
-:El actor selecciona un proyecto;
-:El actor selecciona la métrica
-Índice de Riesgo;
-:El sistema verifica que el proyecto
-pertenece al ámbito del actor;
+:El Director solicita el detalle de
+una fila desde CU-13 Rentabilidad;
 
-if (¿Proyecto en el ámbito?) then (NO)
-  :El sistema deniega el acceso;
+:El sistema determina el scope según
+la pestaña de origen:
+· scope = proyecto → drill-down de una fila
+  de la tabla "Por proyecto"
+· scope = cliente  → drill-down de una fila
+  de la tabla "Por cliente";
+
+if (scope) then (proyecto)
+  :Recupera las líneas analíticas
+  asociadas al proyecto seleccionado
+  en el período indicado;
+else (cliente)
+  :Recupera las líneas analíticas
+  agregadas de todos los proyectos
+  del cliente en el período;
+endif
+
+:Clasifica las líneas en:
+· Ingresos (importes positivos)
+· Gastos (importes negativos);
+
+if (¿Existen líneas?) then (NO)
+  :Muestra tablas vacías;
   stop
 else (SÍ)
-  :El sistema analiza las tareas abiertas
-  del proyecto con fecha límite establecida;
-
-  :El sistema identifica tareas en riesgo:
-  · Tareas con fecha límite vencida
-  · Tareas con gran parte del plazo consumido;
-
-  :El sistema clasifica el nivel de riesgo:
-  · Bajo: pocas tareas en riesgo
-  · Medio: nivel preocupante
-  · Alto: situación crítica;
-
-  :El sistema muestra:
-  · Índice de riesgo (%)
-  · Número de tareas en riesgo
-  · Total de tareas abiertas analizadas
-  · Nivel de riesgo con semáforo de color;
+  :Muestra dos tablas paralelas:
+  · Ingresos (fecha, descripción,
+    importe, horas, proyecto)
+  · Gastos (mismos campos);
   stop
 endif
 
 note right
-  FA-01: Proyecto fuera del ámbito → acceso denegado
-  FA-02: Sin tareas abiertas con fecha límite → riesgo = 0
+  Este CU se invoca siempre vía <<extend>> de CU-13.
+  Requiere rol Director (require_director).
 end note
 
 @enduml

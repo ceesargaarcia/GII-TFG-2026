@@ -1,88 +1,92 @@
-@startuml secuencia_cu08
+@startuml CU-08_Tareas_Filtradas
 !theme plain
 skinparam backgroundColor #07090F
-skinparam sequenceArrowColor #38BDF8
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
 skinparam sequenceParticipantBackgroundColor #141824
 skinparam sequenceParticipantBorderColor #2A3850
-skinparam sequenceLifeLineBorderColor #1E2840
-skinparam noteBorderColor #2A3850
+skinparam sequenceParticipantFontColor #E2E8F5
+skinparam sequenceActorBackgroundColor #1E2840
+skinparam sequenceActorBorderColor #38BDF8
+skinparam sequenceLifeLineBorderColor #2A3850
 skinparam noteBackgroundColor #141824
-skinparam noteFontColor #E2E8F5
-skinparam defaultFontColor #E2E8F5
+skinparam noteBorderColor #38BDF8
 skinparam sequenceGroupBackgroundColor #0D1018
 skinparam sequenceGroupBorderColor #2A3850
 skinparam sequenceGroupFontColor #38BDF8
 skinparam sequenceGroupHeaderFontColor #38BDF8
 skinparam sequenceGroupBodyBackgroundColor #0D1018
 
-participant "React SPA" as FE
-participant "Route\n(Controlador)" as ROUTE
-participant "Auth\nMiddleware" as AUTH
-participant "Service\n(Lógica)" as SVC
-participant "Repository\n(Datos)" as REPO
-participant "PostgreSQL\n(Odoo)" as DB
+title CU-08 · Consulta de Tareas con Filtros y Scope
 
-FE -> ROUTE : GET /tasks/filter?status=pending&project_id=X&employee_id=Y&...
+actor "Usuario\n(Responsable / Director)" as U
+participant "React SPA\n(TaskView)" as FE
+participant "TaskRoute\n(Controlador)" as ROUTE
+participant "AuthMiddleware" as AUTH
+participant "TaskService" as SVC
+participant "TaskRepository" as REPO
+database "PostgreSQL\n(Odoo)" as DB
+
+U -> FE : abre pantalla tareas\n+ aplica filtros
+FE -> ROUTE : GET /tasks/filter\n(status, project_id, employee_id, ...)
+
 ROUTE -> AUTH : require_manager_or_above()
-AUTH -> AUTH : decode_token(token)\nextraer role, employee_ids, project_ids
-AUTH --> ROUTE : CurrentUser(role, employee_ids, project_ids)
+AUTH -> AUTH : decode_token(token)\nrole + scopes
+AUTH --> ROUTE : CurrentUser
+
 note right of AUTH
-  **CAPA 1 — Guard de rol**
-  Bloquea si role == "empleado"
+**CAPA 1 — Control de acceso**
+Bloquea si role == "employee"
 end note
 
-ROUTE -> SVC : TaskService.filter_tasks(cu, status, project_id, employee_id, ...)
+ROUTE -> SVC : filter_tasks(cu, filtros)
 
-SVC -> SVC : Verificar scope de parámetros opcionales
+SVC -> SVC : validar parámetros opcionales
+
 note right of SVC
-  **CAPA 2 — Verificación individual (si aplica)**
-  Si employee_id proporcionado:
-    verify_employee_scope(cu, employee_id)
-    → Responsable: employee_id in cu.employee_ids
-  Si project_id proporcionado:
-    verify_project_exists + verify_project_scope(cu, project_id)
-    → Responsable: project_id in cu.project_ids
-  Si department_id proporcionado:
-    verify_department_scope(cu, department_id)
+**CAPA 2 — Validación de scope**
+- employee_id → pertenece a cu.employee_ids
+- project_id → pertenece a cu.project_ids
+- department_id → validación adicional
 end note
 
-SVC -> SVC : Calcular effective_project_ids
+SVC -> SVC : calcular effective_project_ids
+
 note right of SVC
-  **CAPA 3 — Filtrado de listado por scope**
-  if cu.is_responsable AND employee_id is None:
-    if project_id given:
-      effective_project_ids = [project_id]
-      (ya validado arriba que está en cu.project_ids)
-    else:
-      effective_project_ids = cu.project_ids
-      ← AQUÍ el responsable solo ve sus proyectos
-  else (director o hay employee_id):
-    effective_project_ids = None  ← sin restricción
-    effective_project_id  = project_id
+**CAPA 3 — Scope final**
+- Responsable sin employee_id:
+  usa cu.project_ids
+- Director o con employee_id:
+  sin restricción de proyecto
 end note
 
-SVC -> REPO : build_filtered_query(db,\n  project_ids=effective_project_ids,\n  project_id=effective_project_id,\n  employee_id, status, stage_id, ...)
+SVC -> REPO : build_filtered_query(\nproject_ids, employee_id, status,...)
+
 note right of REPO
-  project_ids IN (...cu.project_ids...)
-  se traduce a un WHERE project_id IN (...)
-  en la query SQL final
+Se traduce a SQL:
+WHERE project_id IN (:scope_ids)
+AND filtros adicionales
 end note
-REPO -> DB : SELECT project_task JOIN project_task_user_rel\nJOIN project_task_type\nWHERE project_id IN (:scope_ids)\nAND stage conditions AND date filters...
+
+REPO -> DB : SELECT tasks\nJOIN relations\nWHERE condiciones...
+
 DB --> REPO : rows
-REPO --> SVC : Query object (sin ejecutar aún)
+REPO --> SVC : query object
 
-SVC -> REPO : paginate(query, page, page_size)
-REPO -> DB : SELECT COUNT(*) [para total]\nSELECT ... LIMIT :size OFFSET :offset
-DB --> REPO : total + items
-REPO --> SVC : { items, total, pages }
+SVC -> REPO : paginate(query, page, size)
+REPO -> DB : SELECT COUNT(*) + LIMIT/OFFSET
+DB --> REPO : resultados paginados
+REPO --> SVC : {items, total}
 
-SVC -> REPO : get_worked_hours_batch(db, task_ids)
-REPO -> DB : SELECT task_id, SUM(unit_amount)\nFROM account_analytic_line\nWHERE task_id IN (:ids)\nGROUP BY task_id
-DB --> REPO : hours per task
+SVC -> REPO : get_worked_hours_batch(task_ids)
+REPO -> DB : SUM(unit_amount)\nGROUP BY task_id
+DB --> REPO : horas por tarea
 REPO --> SVC : hours_map
 
-SVC -> SVC : _build_items(tasks, status, employee_id,\n  responsable, hours_map)\nSelecciona constructor:\n  pending → _to_pending\n  completed → _to_completed\n  assigned → _to_assigned\n  default → TaskResponse
+SVC -> SVC : construir respuesta final\n(pending/completed/assigned)
 
-SVC --> ROUTE : PaginatedResponse[PendingTaskItem | CompletedTaskItem | AssignedTaskItem | TaskResponse]
+SVC --> ROUTE : PaginatedResponse
 ROUTE --> FE : 200 OK + JSON
+FE --> U : render lista filtrada con tareas + paginación
+
 @enduml

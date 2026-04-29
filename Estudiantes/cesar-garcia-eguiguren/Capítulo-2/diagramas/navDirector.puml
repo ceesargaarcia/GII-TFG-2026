@@ -1,0 +1,155 @@
+@startuml diagrama-navegacion-director
+left to right direction
+skinparam linetype polyline
+
+state "SESION_CERRADA"              as NoAuth
+state "PAGINA_INICIAL_ABIERTA"                    as Overview
+state "EMPLEADOS_LISTADOS"           as ListEmp
+state "EMPLEADO_DETALLE"            as DetEmp
+state "DEPARTAMENTOS_LISTADOS"       as ListDept
+state "DEPARTAMENTO_DETALLE"        as DetDept
+state "PROYECTOS_LISTADOS"           as ListProy
+state "PROYECTO_DETALLE"            as DetProy
+state "TAREAS_LISTADAS"              as ListTarea
+state "TAREA_DETALLE"               as DetTarea
+state "CATALOGO_METRICAS_ABIERTO"   as Metricas
+state "GRAFICOS_ABIERTO"            as Graficos
+state "ASISTENCIA_ABIERTO"          as Asistencia
+state "MANAGER_ABIERTO"             as Manager
+state "BUSQUEDA_ABIERTO"            as Busqueda
+state "RENTABILIDAD_ABIERTA"        as Rentabilidad
+state "LINEAS_ANALITICAS_ABIERTO"   as Lineas
+state "SNAPSHOTS_LISTADAS"     as Visor
+state "SNAPSHOT_DETALLE"    as DetSnap
+state "VISOR_INICIAL_ABIERTO"     as VisorInicial
+' ── Estados individuales de métricas (P10) ────────────────────
+state "PRODUCTIVIDAD_ABIERTO"       as MetProd
+state "CUMPLIMIENTO_ABIERTO"        as MetCumpl
+state "WIP_ABIERTO"                 as MetWIP
+state "WORKLOAD_ABIERTO"            as MetWorkload
+state "RIESGO_ABIERTO"              as MetRiesgo
+state "RETRABAJO_ABIERTO"           as MetRetrabajo
+state "ESTIMACION_ABIERTO"          as MetEstimacion
+state "LEADTIME_ABIERTO"            as MetLeadTime
+state "TIEMPO_ESTADO_ABIERTO"       as MetTiempoEstado
+state "CANCELADAS_ABIERTO"          as MetCanceladas
+state "TIEMPO_PRIORIDAD_ABIERTO"    as MetTiempoPrioridad
+
+[*] --> NoAuth
+
+' ── Autenticación ─────────────────────────────────────────────
+NoAuth      --> Overview    : iniciarSesion()
+Overview    --> NoAuth      : cerrarSesion()
+
+' ── Navegación principal desde Overview ───────────────────────
+Overview --> ListEmp        : listarEmpleados()
+Overview --> ListDept       : listarDepartamentos()
+Overview --> ListProy       : listarProyectos()
+Overview --> ListTarea      : listarTareas()
+Overview --> Metricas       : mostrarCatalogoMetricas()
+Overview --> Graficos       : visualizarGraficosAnaliticos()
+Overview --> Asistencia     : consultarAsistenciaVsImputaciones()
+Overview --> Manager        : consultarCargaEquipo()
+Overview --> Busqueda       : buscarGlobal()
+Overview --> Rentabilidad   : analizarRentabilidadFinanciera()
+VisorInicial   --> Visor          : listarSnapshots()
+NoAuth   --> VisorInicial   : iniciarSesion()
+
+ListDept     --> Overview : volver()
+ListEmp      --> Overview : volver()
+ListProy     --> Overview : volver()
+ListTarea    --> Overview : volver()
+Metricas     --> Overview : volver()
+Asistencia   --> Overview : volver()
+Rentabilidad --> Overview : volver()
+Busqueda     --> Overview : volver()
+Manager      --> Overview : volver()
+Graficos     --> Overview : volver()
+
+' ── P2 · Empleados ────────────────────────────────────────────
+ListEmp  --> DetEmp         : visualizarResumenEmpleado()
+DetEmp   --> ListTarea      : listarTareas()
+DetEmp   --> DetEmp         : guardarSnapshot()
+DetEmp   --> ListEmp        : volver()
+
+' ── P3 · Departamentos ────────────────────────────────────────
+ListDept --> DetDept         : visualizarResumenDepartamento()
+DetDept  --> DetEmp          : visualizarResumenEmpleado()
+DetDept  --> DetDept         : guardarSnapshot()
+DetDept  --> ListDept        : volver()
+
+' ── P4 · Proyectos ────────────────────────────────────────────
+ListProy --> DetProy          : visualizarResumenProyecto()
+DetProy  --> ListTarea        : listarTareas()
+DetProy  --> DetEmp           : visualizarResumenEmpleado()
+DetProy  --> DetProy          : guardarSnapshot()
+DetProy  --> ListProy         : volver()
+
+' ── P5 · Tareas ───────────────────────────────────────────────
+ListTarea --> DetTarea        : consultarDetalleTarea()
+DetTarea  --> DetProy         : visualizarResumenProyecto()
+DetTarea  --> DetEmp          : visualizarResumenEmpleado()
+DetTarea  --> DetTarea        : consultarDetalleTarea()
+DetTarea  --> DetTarea        : guardarSnapshot()
+DetTarea  --> ListTarea       : volver()
+
+' ── P6 · Catálogo de métricas → P10 Métricas individuales ─────
+Metricas --> MetProd            : consultarProductividad()
+Metricas --> MetCumpl           : consultarCumplimiento()
+Metricas --> MetWIP             : consultarWIP()
+Metricas --> MetWorkload        : consultarCargaTrabajo()
+Metricas --> MetRiesgo          : consultarRiesgoProyecto()
+Metricas --> MetRetrabajo       : consultarRetrabajo()
+Metricas --> MetEstimacion      : consultarExactitudEstimacion()
+Metricas --> MetLeadTime        : consultarLeadTime()
+Metricas --> MetTiempoEstado    : consultarTiempoPorEstado()
+Metricas --> MetCanceladas      : consultarTareasCanceladas()
+Metricas --> MetTiempoPrioridad : consultarTiempoPorPrioridad()
+
+' ── P10 · Métricas individuales (patrón común) ────────────────
+MetProd          --> MetProd          : guardarSnapshot()
+MetProd          --> Metricas         : volver()
+MetCumpl         --> MetCumpl         : guardarSnapshot()
+MetCumpl         --> Metricas         : volver()
+MetWIP           --> MetWIP           : guardarSnapshot()
+MetWIP           --> Metricas         : volver()
+MetWorkload      --> MetWorkload      : guardarSnapshot()
+MetWorkload      --> Metricas         : volver()
+MetRiesgo        --> MetRiesgo        : guardarSnapshot()
+MetRiesgo        --> Metricas         : volver()
+MetRetrabajo     --> MetRetrabajo     : guardarSnapshot()
+MetRetrabajo     --> Metricas         : volver()
+MetEstimacion    --> MetEstimacion    : guardarSnapshot()
+MetEstimacion    --> Metricas         : volver()
+MetLeadTime      --> MetLeadTime      : guardarSnapshot()
+MetLeadTime      --> Metricas         : volver()
+MetTiempoEstado  --> MetTiempoEstado  : guardarSnapshot()
+MetTiempoEstado  --> Metricas         : volver()
+MetCanceladas    --> MetCanceladas    : guardarSnapshot()
+MetCanceladas    --> Metricas         : volver()
+MetTiempoPrioridad --> MetTiempoPrioridad : guardarSnapshot()
+MetTiempoPrioridad --> Metricas       : volver()
+
+' ── P6 · Otros análisis ───────────────────────────────────────
+Graficos   --> Graficos       : guardarSnapshot()
+Asistencia --> Asistencia     : guardarSnapshot()
+Manager    --> DetEmp         : visualizarResumenEmpleado()
+
+' ── P7 · Rentabilidad ★ Director exclusivo ───────────────────
+Rentabilidad --> Lineas       : consultarLineasAnaliticas()
+Rentabilidad --> Rentabilidad : guardarSnapshot()
+Lineas       --> Rentabilidad : volver()
+
+' ── P8 · Utilidades ───────────────────────────────────────────
+Busqueda --> DetEmp           : visualizarResumenEmpleado()
+Busqueda --> DetProy          : visualizarResumenProyecto()
+Busqueda --> DetTarea         : consultarDetalleTarea()
+
+' ── P9 · Snapshots ────────────────────────────────────────────
+Visor    --> DetSnap          : consultarDetalleSnapshot()
+VisorInicial    --> NoAuth           : cerrarSesion()
+DetSnap  --> Visor            : eliminarSnapshot()
+DetSnap  --> Visor            : volver()
+Visor --> VisorInicial     : volver()
+
+@enduml

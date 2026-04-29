@@ -1,0 +1,44 @@
+@startuml CU27_Retrabajo
+!theme plain
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam ActivityBorderColor #1E2840
+skinparam ActivityBackgroundColor #141824
+skinparam ActivityDiamondBackgroundColor #0D1018
+skinparam ActivityDiamondBorderColor #38BDF8
+skinparam NoteBackgroundColor #141824
+skinparam NoteBorderColor #38BDF8
+title CU-27 · Consultar Tasa de Retrabajo
+
+start
+:El actor selecciona la métrica Tasa de Retrabajo;
+:El actor puede aplicar filtros opcionales:
+· Proyecto concreto
+· Empleado concreto;
+
+:El sistema analiza el historial de cambios
+de estado de las tareas y detecta las que
+fueron cerradas y posteriormente reabiertas;
+
+if (¿Existen tareas cerradas en el ámbito?) then (NO)
+  :El sistema muestra que no hay datos
+  disponibles para los filtros aplicados;
+  stop
+else (SÍ)
+  :El sistema muestra:
+  · Tasa de retrabajo (%)
+  · Número de tareas reabiertos
+  · Total de tareas cerradas analizadas
+  · Indicador visual de semáforo;
+  stop
+endif
+
+note right
+  Semáforo de referencia:
+  < 8%  → verde (nivel aceptable)
+  8-15% → naranja (nivel a vigilar)
+  > 15% → rojo (nivel problemático)
+end note
+
+@enduml

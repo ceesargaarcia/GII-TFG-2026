@@ -1,4 +1,4 @@
-@startuml CU10_Productividad
+@startuml flujoCU10
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,36 +9,56 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-10 · Consultar Productividad
+
+title CU-10 · Consultar Catálogo de Métricas
 
 start
-:El actor accede a la página de métricas;
-:El actor selecciona la métrica Productividad;
-:El actor puede aplicar filtros opcionales:
-· Empleado concreto
-· Proyecto concreto
-· Rango de fechas;
+:El actor solicita acceder a la página de métricas;
+:El sistema muestra la cuadrícula de métricas
+disponibles agrupadas por categoría:
+· Métricas de empleado (WIP, Carga de Trabajo,
+  Exactitud de Estimación)
+· Métricas de proyecto (Riesgo, Retrabajo,
+  Eficiencia, Lead Time, Tiempo por Estado)
+· Métricas generales (Productividad,
+  Cumplimiento, Canceladas, Tiempo por Prioridad);
 
-:El sistema calcula la productividad
-sobre las tareas cerradas con horas
-estimadas y reales registradas;
-
-if (¿Existen tareas con datos suficientes?) then (NO)
-  :El sistema muestra que no hay datos
-  disponibles para los filtros aplicados;
+if (¿El actor selecciona una métrica?) then (NO)
+  :El actor permanece en el catálogo;
   stop
 else (SÍ)
-  :El sistema muestra:
-  · Productividad media del conjunto
-  · Ranking de tareas por productividad
-  · Total de tareas analizadas;
+  if (Métrica seleccionada) then (Productividad)
+    :<<extend>> CU-22 Consultar Productividad;
+  else if (Métrica seleccionada) then (Cumplimiento de Plazos)
+    :<<extend>> CU-23 Consultar Cumplimiento de Plazos;
+  else if (Métrica seleccionada) then (WIP)
+    :<<extend>> CU-24 Consultar WIP de Empleado;
+  else if (Métrica seleccionada) then (Carga de Trabajo)
+    :<<extend>> CU-25 Consultar Carga de Trabajo de Empleado;
+  else if (Métrica seleccionada) then (Riesgo de Proyecto)
+    :<<extend>> CU-26 Consultar Riesgo de Proyecto;
+  else if (Métrica seleccionada) then (Tasa de Retrabajo)
+    :<<extend>> CU-27 Consultar Tasa de Retrabajo;
+  else if (Métrica seleccionada) then (Exactitud de Estimación)
+    :<<extend>> CU-28 Consultar Exactitud de Estimación;
+  else if (Métrica seleccionada) then (Lead Time)
+    :<<extend>> CU-29 Consultar Lead Time;
+  else if (Métrica seleccionada) then (Tiempo por Estado)
+    :<<extend>> CU-30 Consultar Tiempo por Estado;
+  else if (Métrica seleccionada) then (Tareas Canceladas)
+    :<<extend>> CU-31 Consultar Tareas Canceladas;
+  else (Tiempo por Prioridad)
+    :<<extend>> CU-32 Consultar Tiempo por Prioridad;
+  endif
   stop
 endif
 
 note right
-  Fórmula: (horas estimadas / horas reales) × 100
-  Solo se consideran tareas cerradas con
-  ambos valores mayores que cero.
+  CU-10 actúa exclusivamente como catálogo
+  y punto de entrada. La lógica de cálculo,
+  parámetros y umbrales de cada métrica
+  se recogen en los CU del paquete P10
+  (CU-22 a CU-32).
 end note
 
 @enduml

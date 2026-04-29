@@ -1,0 +1,43 @@
+@startuml CU29_LeadTime
+!theme plain
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam ActivityBorderColor #1E2840
+skinparam ActivityBackgroundColor #141824
+skinparam ActivityDiamondBackgroundColor #0D1018
+skinparam ActivityDiamondBorderColor #38BDF8
+skinparam NoteBackgroundColor #141824
+skinparam NoteBorderColor #38BDF8
+title CU-29 · Consultar Lead Time
+
+start
+:El actor selecciona la métrica Lead Time;
+:El actor puede aplicar filtros opcionales:
+· Empleado concreto
+· Proyecto concreto;
+
+:El sistema calcula el tiempo medio transcurrido
+desde la asignación hasta el cierre de las
+tareas completadas en el ámbito seleccionado;
+
+if (¿Existen tareas con fecha de asignación y cierre?) then (NO)
+  :El sistema muestra que no hay datos
+  disponibles para los filtros aplicados;
+  stop
+else (SÍ)
+  :El sistema muestra:
+  · Tiempo medio de ciclo en días
+  · Total de tareas analizadas
+  · Indicador visual de referencia;
+  stop
+endif
+
+note right
+  Semáforo de referencia:
+  < 5 días  → verde (ciclo ágil)
+  5-10 días → naranja (ciclo moderado)
+  > 10 días → rojo (ciclo lento)
+end note
+
+@enduml

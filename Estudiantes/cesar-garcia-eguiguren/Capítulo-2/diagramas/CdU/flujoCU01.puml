@@ -10,11 +10,11 @@ skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
 
-title CU-01 · Autenticarse en el Sistema
+title CU-01 · Iniciar Sesión en el Sistema
 
 start
-:El usuario accede a la pantalla de inicio de sesión;
-:Introduce sus credenciales (usuario y contraseña);
+:El actor introduce sus credenciales (usuario y contraseña);
+:El actor solicita iniciar sesión en el sistema;
 :El sistema valida las credenciales;
 
 if (¿Credenciales correctas?) then (NO)

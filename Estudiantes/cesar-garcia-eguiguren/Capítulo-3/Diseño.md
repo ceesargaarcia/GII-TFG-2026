@@ -1,63 +1,84 @@
 # Disciplina de Diseño
 
+Esta sección materializa las decisiones identificadas en la disciplina de análisis, concretando la estructura del sistema en términos de componentes, tecnologías y responsabilidades, e introduciendo detalles de implementación necesarios para su construcción.
+
 ## Índice
 
 5. [Diseño de la Arquitectura](#5-diseño-de-la-arquitectura)
-   - 5.1 [Patrón arquitectónico](#51-patrón-arquitectónico)
-   - 5.2 [Stack tecnológico](#52-stack-tecnológico)
-   - 5.3 [Seguridad: JWT y RBAC](#53-seguridad-jwt-y-rbac)
-   - 5.4 [Arquitectura física desplegada](#54-arquitectura-física-desplegada)
+   - 5.1 [Diagrama de arquitectura del sistema](#51-diagrama-de-arquitectura-del-sistema)
+   - 5.2 [Patrón arquitectónico](#52-patrón-arquitectónico)
+   - 5.3 [Stack tecnológico](#53-stack-tecnológico)
+   - 5.4 [Seguridad: JWT y RBAC](#54-seguridad-jwt-y-rbac)
 6. [Diseño de Casos de Uso](#6-diseño-de-casos-de-uso)
-   - 6.1 [CU-03 — Ver resumen de empleado](#61-cu-03--ver-resumen-de-empleado)
-   - 6.2 [CU-08 — Listar y filtrar tareas](#62-cu-08--listar-y-filtrar-tareas)
-   - 6.3 [CU-10 — Consultar productividad](#63-cu-10--consultar-productividad)
-   - 6.4 [CU-28 — Panel manager](#64-cu-28--panel-manager)
+   - 6.1 [CU-02 — Listar empleados](#61-cu-02--listar-empleados)
+   - 6.2 [CU-03 — Ver resumen de empleado](#62-cu-03--ver-resumen-de-empleado)
+   - 6.3 [CU-04 — Listar departamentos](#63-cu-04--listar-departamentos)
+   - 6.4 [CU-08 — Listar tareas](#64-cu-08--listar-tareas)
+   - 6.5 [CU-13 — Consultar rentabilidad financiera](#65-cu-13--consultar-rentabilidad-financiera)
+   - 6.6 [CU-17 — Guardar snapshot (upsert diario)](#66-cu-17--guardar-snapshot-upsert-diario)
+   - 6.7 [CU-19 — Consultar detalle de snapshot](#67-cu-19--consultar-detalle-de-snapshot)
 7. [Diseño de Clases](#7-diseño-de-clases)
-   - 7.1 [Diagrama 1 — Modelos ORM ↔ Repositorios](#71-diagrama-1--modelos-orm--repositorios)
-   - 7.2 [Diagrama 2 — Repositorios ↔ Servicios de dominio](#72-diagrama-2--repositorios--servicios-de-dominio)
-   - 7.3 [Diagrama 3 — Servicios de métricas ↔ Repositorios de métricas](#73-diagrama-3--servicios-de-métricas--repositorios-de-métricas)
-   - 7.4 [Diagrama 4 — Rutas ↔ Servicios (Backend) y Frontend ↔ Backend](#74-diagrama-4--rutas--servicios-backend-y-frontend--backend)
+   - 7.1 [Mapa general de clases por capa](#71-mapa-general-de-clases-por-capa)
+   - 7.2a [Repositorios base ↔ Modelos](#72a-repositorios-base-fuera-de-metrics--modelos)
+   - 7.2b [Repositorios de métricas ↔ Modelos](#72b-repositorios-de-métricas-dentro-de-metrics--modelos)
+   - 7.3 [Arquitectura de métricas: reutilización de subqueries](#73-arquitectura-de-métricas-reutilización-de-subqueries)
+   - 7.4 [Servicios de métricas ↔ Repositorios](#74-servicios-de-métricas--repositorios-de-métricas-correspondencia-11)
+   - 7.5 [DashboardService: orquestación](#75-dashboardservice-orquestación-por-composición)
+   - 7.6 [Servicios de dominio ↔ Repositorios base](#76-servicios-de-dominio--repositorios-base)
+   - 7.7 [Subsistema de snapshots](#77-subsistema-de-snapshots-snapshotservice--snapshotrepository--mongodb)
+   - 7.8 [Capa de presentación: Frontend ↔ Routes ↔ Services](#78-capa-de-presentación-frontend--routes--services)
 8. [Diseño de Paquetes](#8-diseño-de-paquetes)
-   - 8.1 [Principios aplicados en la organización de paquetes](#81-principios-aplicados-en-la-organización-de-paquetes)
-   - 8.2 [Métricas de calidad](#82-métricas-de-calidad)
-9. [Wireframes de Interfaz](#9-wireframes-de-interfaz)
-   - 9.1 [WF-01 — Resumen de Empleado (CU-03)](#wf-01--resumen-de-empleado-cu-03)
-   - 9.2 [WF-02 — Listado y filtrado de tareas (CU-08)](#wf-02--listado-y-filtrado-de-tareas-cu-08)
-   - 9.3 [WF-03 — Panel de métricas (CU-10 y otras métricas)](#wf-03--panel-de-métricas-cu-10-y-otras-métricas)
-   - 9.4 [WF-04 — Panel Manager (CU-27)](#wf-04--panel-manager-cu-27)
+   - 8.1 [Estructura de paquetes](#81-estructura-de-paquetes)
+   - 8.2 [Principios aplicados en la organización de paquetes](#82-principios-aplicados-en-la-organización-de-paquetes)
+   - 8.3 [Métricas de calidad](#83-métricas-de-calidad)
+9. [Prototipos de Interfaz](#9-prototipos-de-interfaz)
 
 
 ## 5. Diseño de la Arquitectura
-### 5.1 Patrón arquitectónico
 
-El sistema materializa una **arquitectura por capas de cuatro niveles** en el backend, complementada con un frontend SPA desacoplado. Aunque la terminología MVC es utilizada como herramienta de análisis para clasificar las clases, la estructura de implementación va más allá del MVC clásico de tres niveles por razones de complejidad del dominio analítico.
+
+### 5.1 Diagrama de arquitectura del sistema
+
+
+![Diagrama de Componentes](./imagenes/paquetesSistema.png)
+
+Este diagrama muestra la arquitectura física desplegada: el frontend principal y el visor se comunican con el mismo backend a través de HTTP; el backend accede a la base de datos del ERP en modo solo lectura y, adicionalmente, a la base documental para las colecciones de capturas en modo lectura/escritura. El backend se organiza en capas (rutas, servicios, repositorios y modelos) que siguen principios de separación de responsabilidades y una única razón para cambiar.
+
+En desarrollo, cada frontend corre con su propio servidor Vite y un proxy inverso hacia `:8000/api`. En producción ambos se sirven como bundles estáticos detrás del mismo reverse proxy (Nginx / Caddy). El acceso a Odoo permanece en modo solo lectura mediante un usuario de base de datos con privilegios `SELECT` únicamente sobre las tablas relevantes; el acceso a MongoDB es de lectura/escritura restringido a las tres colecciones de snapshots.
+
+
+### 5.2 Patrón arquitectónico
+
+El sistema materializa una **arquitectura por capas** en el backend, complementada con dos aplicaciones independientes (frontend principal y visor de capturas) que consumen el mismo backend. Aunque la terminología MVC es utilizada como herramienta de análisis para clasificar las clases, la estructura de implementación va más allá del MVC clásico de tres niveles por razones de complejidad del dominio analítico.
 
 | Concepto MVC | Materialización en la solución |
 |---|---|
-| **Modelo** | `models/` (ORM) + `repositories/` (acceso a datos) |
-| **Vista** | React SPA + `schemas/` (contratos JSON) |
+| **Modelo** | `models/` (ORM de Odoo) + `schemas/snapshot.py` (Pydantic sobre MongoDB) + `repositories/` (acceso a datos relacional y documental) |
+| **Vista** | React SPA (principal y visor) + `schemas/` (contratos JSON) |
 | **Controlador** | `routes/` (HTTP) + `services/` (lógica de negocio) |
 
 La capa de servicios no existe en el MVC puro de tres capas. Se introduce porque los cálculos de métricas operativas requieren orquestar múltiples consultas y aplicar fórmulas complejas; concentrar esa lógica en los controladores produciría módulos de cientos de líneas con baja cohesión.
 
-### 5.2 Stack tecnológico
+### 5.3 Stack tecnológico
 
 | Capa | Tecnología | Justificación |
 |---|---|---|
-| Frontend | React 18 + Vite 5 | SPA reactiva; Recharts para gráficos, React Router para navegación |
+| Frontend principal | React 18 + Vite 5 (puerto 3000) | SPA reactiva; Recharts para gráficos, React Router para navegación |
+| Visor de snapshots | React 18 + Vite 5 (puerto 3001) | SPA independiente de solo lectura; reutiliza el mismo `AuthContext` que el principal |
 | Backend | FastAPI 0.109 + Python 3.11 | Framework asíncrono con validación automática (Pydantic) y documentación OpenAPI |
 | ORM | SQLAlchemy 2.0 | Mapeo directo de tablas Odoo sin migraciones |
-| Base de datos | PostgreSQL 14+ (Odoo v16) | BD existente del ERP; CTEs recursivas para jerarquía organizativa |
+| Base operativa | PostgreSQL 14+ (Odoo v16) | BD existente del ERP; CTEs recursivas para jerarquía organizativa |
+| Base de snapshots | MongoDB 6+ | Almacén documental para capturas históricas; `pymongo` como cliente. Tres colecciones con índices únicos sobre clave compuesta: `metric_snapshots`, `chart_snapshots`, `entity_snapshots` |
 | Autenticación | JWT HS256 (python-jose) | Token stateless con scope embebido; passlib para hash Odoo |
-| Comunicación | REST + JSON | Proxy Vite en desarrollo; CORS configurado para producción |
+| Comunicación | REST + JSON | Proxy Vite en desarrollo para ambos frontends; CORS configurado para producción |
 
-### 5.3 Seguridad: JWT y RBAC
+### 5.4 Seguridad: JWT y RBAC
 
 El control de acceso se resuelve en dos momentos:
 
-1. **Login:** `scope_service` calcula el rol del usuario (`director` / `responsable` / `empleado`) y su ámbito organizativo (`employee_ids`, `department_ids`, `project_ids`) consultando las jerarquías de Odoo. Este ámbito se embebe en el token JWT.
+1. **Login:** el servicio de autenticación calcula el rol del usuario (`director` / `responsable` / `empleado`) y su ámbito organizativo (`employee_ids`, `department_ids`, `project_ids`) consultando las jerarquías de Odoo. Este ámbito se embebe en el token JWT.
 
-2. **Cada petición:** el middleware de autenticación decodifica el token, reconstruye el objeto `CurrentUser` y los guards (`require_manager_or_above`, `require_director`) bloquean el acceso según el rol. Los servicios aplican filtros de scope sobre las consultas usando los ids embebidos.
+2. **Cada petición:** el middleware de autenticación decodifica el token, reconstruye el objeto `CurrentUser` y los guards (`require_manager_or_above`, `require_director`) bloquean el acceso según el rol. Los servicios aplican filtros de ámbito sobre las consultas usando los identificadores embebidos.
 
 #### Dónde se verifica y aplica el scope
 
@@ -69,39 +90,22 @@ Hay tres capas distintas donde el scope del JWT actúa:
 
 **Capa 3 — Filtrado de listados** (capa de servicio): Cuando el actor lista entidades sin especificar un ID, el servicio extrae `cu.employee_ids`, `cu.department_ids` o `cu.project_ids` del token y los pasa al repositorio como filtro.
 
-| CU | Capa 1 | Capa 2 | Capa 3 — filtrado de scope |
-|---|---|---|---|
-| CU-02 Listar empleados | `require_manager_or_above` | — | `emp_ids = cu.employee_ids if cu.is_responsable` → `get_filtered_employees_query(emp_ids)` |
-| CU-03 Ver resumen empleado | `require_manager_or_above` | `verify_employee_scope(cu, id)` en `EmployeeService` y en `DashboardService` | — |
-| CU-04 Listar departamentos | `require_manager_or_above` | — | `dept_ids = cu.department_ids if cu.is_responsable` → `get_filtered_departments_query(dept_ids)` |
-| CU-05 Ver detalle departamento | `require_manager_or_above` | `verify_department_scope(cu, id)` en `DepartmentService` | — |
-| CU-06 Listar proyectos | `require_manager_or_above` | — | `[p for p in projects if p.id in cu.project_ids]` en `ProjectService.list_projects` |
-| CU-07 Ver detalle proyecto | `require_manager_or_above` | `verify_project_scope(cu, id)` en `ProjectService` | — |
-| CU-08 Listar tareas | `require_manager_or_above` | `verify_employee_scope` si se filtra por empleado | `effective_project_ids = cu.project_ids if cu.is_responsable` en `TaskService.filter_tasks` |
-| CU-28 Panel manager | `require_manager_or_above` | `verify_department_scope` si se filtra por dept | `get_filtered_employees_query(employee_ids=cu.employee_ids)` en `DashboardService` |
+**Este enfoque permite mantener un equilibrio entre seguridad y rendimiento, evitando recalcular el ámbito en cada petición y delegando la coherencia del mismo al momento de autenticación.**
 
+**Justificación de la ausencia de filtrado por scope en los CU de snapshot (CU-18/19/20).** Las snapshots son lecturas inmutables de momentos pasados y no exponen información distinta a la que ya es visible en la capa operativa filtrada por scope. Además, las snapshots de rentabilidad (CU-13, CU-14) solo pueden ser generadas por el Director (Capa 1), por lo que un Responsable nunca podrá consultarlas en detalle salvo que hayan sido previamente creadas por un Director dentro de la misma organización. El sistema acepta esta exposición limitada como compromiso razonable frente a la complejidad de aplicar scope retroactivamente sobre documentos almacenados.
 
-### 5.4 Arquitectura física desplegada
-
-```
-┌──────────────┐   HTTP :3000   ┌──────────────┐   SQL :5432   ┌──────────────┐
-│  Navegador   │◄──────────────►│   Servidor   │◄─────────────►│  PostgreSQL  │
-│  (React)     │   /api proxy   │  (FastAPI    │  pool_size=5  │  (Odoo v16)  │
-│              │                │   uvicorn)   │               │              │
-└──────────────┘                └──────────────┘               └──────────────┘
-```
 
 ---
 
 ## 6. Diseño de Casos de Uso
 
-Esta sección especifica el flujo detallado de los casos de uso más representativos, trazando la interacción a través de todas las capas hasta que se devuelve la respuesta final. En todos los casos se aplica el mismo patrón de control de acceso en tres capas: la ruta aplica el guard de rol (Capa 1), el servicio verifica el acceso a entidades concretas (Capa 2) y filtra los listados al scope del JWT (Capa 3), y el repositorio ejecuta la consulta SQL sin conocer nada de roles ni permisos.
+Esta sección especifica el flujo detallado de los casos de uso más representativos, trazando la interacción a través de todas las capas hasta que se devuelve la respuesta final. En todos los casos se aplica el mismo patrón de control de acceso en tres capas: la ruta aplica el guard de rol (Capa 1), el servicio verifica el acceso a entidades concretas (Capa 2) y filtra los listados al ámbito del JWT (Capa 3), y el repositorio ejecuta la consulta sin conocer nada de roles ni permisos.
 
 ---
 
 ### 6.1 CU-02 — Listar empleados
 
-**Actor:** Director o Responsable  
+**Actor:** Director o Responsable
 **Precondición:** el actor está autenticado.
 
 | Paso | Capa | Clase / Función | Acción |
@@ -122,7 +126,7 @@ Esta sección especifica el flujo detallado de los casos de uso más representat
 
 ### 6.2 CU-03 — Ver resumen de empleado
 
-**Actor:** Director o Responsable  
+**Actor:** Director o Responsable
 **Precondición:** el actor está autenticado; el `employee_id` pertenece al scope del actor.
 
 | Paso | Capa | Clase / Función | Acción |
@@ -151,7 +155,7 @@ Esta sección especifica el flujo detallado de los casos de uso más representat
 
 ### 6.3 CU-04 — Listar departamentos
 
-**Actor:** Director o Responsable  
+**Actor:** Director o Responsable
 **Precondición:** el actor está autenticado.
 
 | Paso | Capa | Clase / Función | Acción |
@@ -172,7 +176,7 @@ Esta sección especifica el flujo detallado de los casos de uso más representat
 
 ### 6.4 CU-08 — Listar tareas
 
-**Actor:** Director o Responsable  
+**Actor:** Director o Responsable
 **Precondición:** el actor está autenticado.
 
 | Paso | Capa | Clase / Función | Acción |
@@ -193,11 +197,12 @@ Esta sección especifica el flujo detallado de los casos de uso más representat
 
 ![Diagrama de secuencia detallado de CU-08](./imagenes/CdU/CU-08.png)
 
+
 ---
 
-### 6.5 CU-23 — Consultar rentabilidad financiera global
+### 6.5 CU-13 — Consultar rentabilidad financiera
 
-**Actor:** Director  
+**Actor:** Director
 **Precondición:** el actor está autenticado con rol `director`.
 
 | Paso | Capa | Clase / Función | Acción |
@@ -214,98 +219,108 @@ Esta sección especifica el flujo detallado de los casos de uso más representat
 
 **Datos de salida:** `{ income, expense, net, total_hours, profitability_pct, status, projects_summary: { ganancia, neutro, perdida, total } }`
 
-![Diagrama de secuencia detallado de CU-23](./imagenes/CdU/CU-23.png)
+Al pulsar "Ver detalles" sobre una fila de la tabla por proyecto o por cliente, el frontend dispara el flujo de `CU-14 Consultar Líneas Analíticas` parametrizado por `scope ∈ {proyecto, cliente}` según la pestaña de origen. CU-14 es un caso de uso único que absorbe el antiguo drill-down dual por proyecto y por cliente.
+
+![Diagrama de secuencia detallado de CU-13](./imagenes/CdU/CU-13.png)
 
 ---
 
-### 6.6 CU-28 — Panel manager
+### 6.6 CU-17 — Guardar snapshot (upsert diario)
 
-**Actor:** Director o Responsable  
-**Precondición:** el actor está autenticado.
+**Actor:** Director o Responsable
+**Precondición:** el actor está en una vista calculada del frontend principal con un resultado ya mostrado en pantalla (métrica, gráfico, rentabilidad o ficha de entidad).
+
+Este caso de uso absorbe también la semántica de actualización: si ya existe una snapshot con la misma clave compuesta `(tipo, params_hash, snapshot_date)`, la operación la sobrescribe en lugar de crear un documento nuevo. No existe un caso de uso separado "Actualizar snapshot".
 
 | Paso | Capa | Clase / Función | Acción |
 |---|---|---|---|
-| 1 | Frontend | `Manager.jsx` → `useApi` | Envía `GET /dashboards/summary/manager` con filtros opcionales: `department_id`, `status`, `page`, `sort_by`, `sort_order` |
-| 2 | Routes | `dashboards.router` → `require_manager_or_above` | Decodifica el JWT y rechaza con 403 si el rol es `empleado`. Inyecta `CurrentUser`. Delega al servicio sin aplicar scope |
-| 3 | Services | `DashboardService.get_manager_overview(cu, ...)` | Si se proporciona `department_id`, llama a `verify_department_scope(cu, department_id)` → 403 si el responsable no gestiona ese departamento (**Capa 2**) |
-| 4 | Services | | Determina la lista de empleados a mostrar: si hay `department_id` validado usa `get_employees_by_department_query()`; si el actor es responsable usa `get_filtered_employees_query(employee_ids=cu.employee_ids)`; si es director usa `get_all_employees_query()` (**Capa 3**) |
-| 5 | Repositories | `metrics/workload.py → get_pending_hours_per_employee()` | Una única query agrupada con JOIN `hr_employee → res_users → project_task_user_rel → project_task → account_analytic_line`. Devuelve `pending_hours` y `pending_tasks` para todos los empleados activos |
-| 6 | Services | | Cruza la lista filtrada de empleados con el `pending_map` del repositorio. Para cada empleado calcula `workload_pct = pending_hours / 40 × 100` y clasifica el estado: `sobrecargado`, `normal`, `subcargado` o `without_tasks` |
-| 7 | Services | | Extrae `top_overloaded` (top 5 por porcentaje). Si se filtra por `status`, restringe el listado al estado solicitado. Aplica `sort_dicts` + `paginate_list` para la tabla paginada |
-| 8 | Routes | `dashboards.router` | Devuelve `200 OK` + `ManagerOverviewResponse` |
-| 9 | Frontend | `Manager.jsx` | Renderiza las tarjetas de estado (total/sobrecargado/normal/subcargado/sin tareas), el panel de top sobrecargados, el gráfico de distribución y la tabla paginada cuando se selecciona un estado |
+| 1 | Frontend | Componente `SaveSnapshotButton` | El actor pulsa "Guardar snapshot" sobre la vista calculada actual |
+| 2 | Frontend | `api/snapshots.js → save(type, payload)` | Construye el payload con `tipo`, `params`, `data` y envía `POST /snapshots/{metrics\|charts\|entities}` con `Authorization: Bearer JWT` |
+| 3 | Routes | `snapshots.router` → `require_manager_or_above` | Decodifica el JWT, rechaza con 401/403 si el rol es `empleado`. Inyecta `CurrentUser` |
+| 4 | Services | `SnapshotService.save_{metric\|chart\|entity}(payload, cu)` | Normaliza `params` mediante ordenación alfabética y serialización canónica |
+| 5 | Services | | Calcula `params_hash = SHA-256(params_normalizados)` (solo aplicable a `MetricSnapshot` y `ChartSnapshot`) |
+| 6 | Services | | Fija `snapshot_date = datetime.utcnow().date()` |
+| 7 | Services | | Construye `SnapshotActor` con `user_id`, `employee_id`, `employee_name` y `role` extraídos de los claims del JWT |
+| 8 | Repositories | `snapshot.py → find_one(tipo, clave compuesta)` | `find_one({metric_name, params_hash, snapshot_date})` o equivalente según el subtipo |
+| 9 | Repositories | `snapshot.py → update_one` o `insert_one` | Si existe → sobrescribe `data`, `updated_at`, `updated_by` (FA-01 Upsert). Si no existe → inserta un documento nuevo con `created_at`, `created_by` |
+| 10 | Services | | Devuelve `{id, created: True\|False}` según el camino seguido |
+| 11 | Routes | `snapshots.router` | Devuelve `200 OK` + JSON con el identificador y el indicador de creación |
+| 12 | Frontend | `SaveSnapshotButton` | Muestra notificación "Snapshot creada" o "Snapshot actualizada" según corresponda |
 
-**Datos de salida:** `{ team_summary, top_overloaded, team_workload (paginado), team_workload_total, team_workload_pages, overloaded_employees, underloaded_employees, employees_without_tasks }`
+**Datos de salida:** `{id, created: boolean}`.
 
-![Diagrama de secuencia detallado de CU-28](./imagenes/CdU/CU-28.png)
+**Decisión de diseño clave:** la política de upsert está anclada a **índices únicos sobre la clave compuesta** en cada colección MongoDB (RNF-16). Cualquier intento de insertar un duplicado fallaría incluso en condiciones de concurrencia. El `find_one` previo evita el error mediante control en capa de servicio; el índice de MongoDB actúa como red de seguridad definitiva.
 
-# 7. Diseño de Clases
-
-Con 13 modelos ORM, 11 repositorios base, 16 repositorios de métricas, 16 servicios de métricas, 9 servicios de dominio, 9 routers y 12 páginas del frontend, intentar representar todas las dependencias en un único diagrama produce un resultado ilegible. La estrategia seguida aquí es **presentar la arquitectura en ocho diagramas pequeños, cada uno respondiendo a una pregunta concreta**.
-
-En aquellos diagramas donde varias clases-fuente emiten flechas que se cruzan, se
-aplica un **código cromático consistente**: cada clase-fuente recibe un color
-único que se hereda por sus flechas de dependencia salientes. El lector puede
-seguir cualquier flecha hasta su origen con un único movimiento visual.
+![Diagrama de secuencia detallado de CU-17](./imagenes/CdU/CU-17.png)
 
 ---
 
-## 7.1 Mapa general de clases por capa
+### 6.7 CU-19 — Consultar detalle de snapshot
 
-El primer diagrama es un **mapa de ubicación**: muestra qué vive en cada capa
-sin trazar flechas entre clases. Las flechas discontinuas verticales solo indican
-la dirección del flujo de dependencias (siempre hacia abajo).
+**Actor:** Director o Responsable
+**Precondición:** el actor está autenticado en el visor (frontend2) y ha seleccionado una snapshot concreta desde CU-18 o desde la home del visor.
+
+| Paso | Capa | Clase / Función | Acción |
+|---|---|---|---|
+| 1 | Frontend (visor) | `SnapshotDetail.jsx` | Recibe `{type, id}` como parámetros de la ruta y lanza la petición al backend |
+| 2 | Frontend (visor) | `api/snapshots.js → get(type, id)` | Envía `GET /snapshots/{type}/{id}` con `Authorization: Bearer JWT` |
+| 3 | Routes | `snapshots.router` → `require_manager_or_above` | Valida el JWT. Delega al servicio sin aplicar scope |
+| 4 | Services | `SnapshotService.get_by_id(type, id)` | Delega directamente en el repositorio; no aplica lógica adicional |
+| 5 | Repositories | `snapshot.py → find_by_id(type, id)` | `findOne({_id: ObjectId(id)})` sobre la colección correspondiente |
+| 6 | Routes | `snapshots.router` | Devuelve `200 OK` con el documento completo o `404 Not Found` si no existe |
+| 7 | Frontend (visor) | `SnapshotDetail.jsx` | Elige el renderer según el subtipo de la snapshot: `MetricView`, `ChartView` o `EntityView` |
+| 8 | Frontend (visor) | Renderer seleccionado | Reconstruye la vista *como si fuera en vivo* a partir del campo `data` del documento: gauge + gráfico + KPIs para métricas, chart interactivo para gráficos, ficha con avatar y barra de progreso para entidades |
+| 9 | Frontend (visor) | `SnapshotDetail.jsx` | Muestra los metadatos (fecha, hash, creado/actualizado por), los parámetros usados, el panel JSON expandible y el botón "Eliminar" que dispara CU-20 |
+
+**Datos de salida:** documento completo de la snapshot (metadatos + `data`) y la vista reconstruida en pantalla.
+
+**Decisión de diseño clave:** el visor reconstruye la visualización exactamente como se guardó el día de la snapshot. No se dispara cálculo alguno sobre PostgreSQL en este flujo. El estado del día de captura queda íntegramente preservado en MongoDB y los renderers operan exclusivamente sobre el JSON persistido. Este desacoplamiento entre cálculo y visualización garantiza que el visor siga funcionando aunque la lógica del frontend principal evolucione en el futuro.
+
+![Diagrama de secuencia detallado de CU-19](./imagenes/CdU/CU-19.png)
+
+---
+
+## 7. Diseño de Clases
+
+Con 13 modelos ORM, 11 repositorios base (incluido `snapshot.py`), 16 repositorios de métricas, 16 servicios de métricas, 10 servicios de dominio (incluido `SnapshotService`), 10 routers (incluido `snapshots.py`), 12 páginas del frontend principal y 6 páginas del visor, intentar representar todas las dependencias en un único diagrama produce un resultado ilegible. La estrategia seguida aquí es **presentar la arquitectura en ocho diagramas pequeños, cada uno respondiendo a una pregunta concreta**.
+
+En aquellos diagramas donde varias clases-fuente emiten flechas que se cruzan, se aplica un **código cromático consistente**: cada clase-fuente recibe un color único que se hereda por sus flechas de dependencia salientes. El lector puede seguir cualquier flecha hasta su origen con un único movimiento visual.
+
+---
+
+### 7.1 Mapa general de clases por capa
+
+El primer diagrama es un **mapa de ubicación**: muestra qué vive en cada capa sin trazar flechas entre clases. Las flechas discontinuas verticales solo indican la dirección del flujo de dependencias (siempre hacia abajo). El subsistema de snapshots se integra en el mismo esquema añadiendo `snapshots.router` en la capa de rutas, `SnapshotService` en la capa de servicios y `snapshot.py` en la capa de repositorios, este último apuntando a MongoDB en lugar de a los modelos SQLAlchemy.
 
 ![Diagrama de clases](./imagenes/diseño/clasesGeneral.png)
 
 ---
 
-## 7.2a Repositorios base (fuera de `/metrics`) ↔ Modelos
+### 7.2a Repositorios base (fuera de `/metrics`) ↔ Modelos
 
-Este diagrama cubre los **11 repositorios base**, es decir, los que viven
-directamente en `app/repositories/` sin entrar en el subpaquete `metrics/`.
-Son los proveedores de datos transversales del sistema: READ sobre las
-entidades de negocio (tareas, empleados, proyectos, departamentos,
-timesheets), autenticación, control de alcance (RBAC), búsqueda global,
-agregación para dashboards, gráficos y trazabilidad de cambios de Odoo.
+Este diagrama cubre los **11 repositorios base**, es decir, los que viven directamente en `app/repositories/` sin entrar en el subpaquete `metrics/`. Son los proveedores de datos transversales del sistema: READ sobre las entidades de negocio (tareas, empleados, proyectos, departamentos, timesheets), autenticación, control de alcance (RBAC), búsqueda global, agregación para dashboards, gráficos y trazabilidad de cambios de Odoo. A ellos se añade `snapshot.py`, que opera en lectura/escritura sobre las tres colecciones MongoDB.
 
-Cada repositorio recibe un color único que se hereda por sus flechas
-salientes: basta seguir el color para reconstruir de qué modelos depende.
+Cada repositorio recibe un color único que se hereda por sus flechas salientes: basta seguir el color para reconstruir de qué modelos o colecciones depende.
 
 ![Diagrama de repositorios base y modelos](./imagenes/diseño/repositorios-modelos.png)
 
 **Observaciones de diseño**
 
-- `auth.py` es un repositorio minúsculo y tiene una única razón para cambiar: la
-  política de autenticación contra Odoo (tabla `res_users`). Su aislamiento respeta
-  el SRP.
-- `task.py` y `timesheet.py` no solo exponen consultas READ; también publican las subqueries
-  reutilizables que comparten con la capa de métricas (§7.3). Esto justifica que
-  sean los únicos repositorios base con doble rol.
-- `scope.py` concentra toda la lógica de resolución RBAC (director / responsable /
-  empleado) y es la única fuente autorizada para traducir un `user_id` a su
-  ámbito (`employee_ids`, `department_ids`, `project_ids`).
-- `tracking.py` es el único repositorio que accede a las tablas `mail_message`,
-  `mail_tracking_value` e `ir_model_fields`. Encapsula por completo la dependencia
-  con el motor de auditoría de Odoo.
+- `auth.py` es un repositorio minúsculo y tiene una única razón para cambiar: la política de autenticación contra Odoo (tabla `res_users`). Su aislamiento respeta el SRP.
+- `task.py` y `timesheet.py` no solo exponen consultas READ; también publican las subqueries reutilizables que comparten con la capa de métricas (§7.3). Esto justifica que sean los únicos repositorios base con doble rol.
+- `scope.py` concentra toda la lógica de resolución RBAC (director / responsable / empleado) y es la única fuente autorizada para traducir un `user_id` a su ámbito (`employee_ids`, `department_ids`, `project_ids`).
+- `tracking.py` es el único repositorio que accede a las tablas `mail_message`, `mail_tracking_value` e `ir_model_fields`. Encapsula por completo la dependencia con el motor de auditoría de Odoo.
+- `snapshot.py` es el único repositorio del sistema que no accede a SQLAlchemy: opera sobre las tres colecciones MongoDB a través del cliente de `core/mongo.py`. Su inclusión aquí, junto al resto de repositorios base, refleja que es un proveedor de datos transversal al mismo nivel que los demás, no un caso especial.
 
 ---
 
-## 7.2b Repositorios de métricas (dentro de `/metrics`) ↔ Modelos
+### 7.2b Repositorios de métricas (dentro de `/metrics`) ↔ Modelos
 
-Este segundo diagrama cubre los **16 repositorios especializados** de
-`app/repositories/metrics/`. Cada uno implementa el acceso a datos necesario
-para calcular una métrica concreta (productividad, cumplimiento, WIP, lead
-time, rentabilidad, etc.).
+Este segundo diagrama cubre los **16 repositorios especializados** de `app/repositories/metrics/`. Cada uno implementa el acceso a datos necesario para calcular una métrica concreta, correspondiente a su caso de uso del paquete P10 (CU-22 a CU-32) más los repositorios de asistencia, rentabilidad, distribución por cliente y eficiencia de proyecto.
 
-La mayoría de estos repositorios tienen una **huella estrecha sobre el modelo
-ORM**: acceden solo a 1–3 tablas directamente. El resto de la información la
-obtienen **reutilizando las subqueries publicadas por `task.py` y `timesheet.py`**
-(§7.3), lo que evita duplicar la lógica de "etapas abiertas/cerradas" y
-"horas imputadas" en cada métrica.
+La mayoría de estos repositorios tienen una **huella estrecha sobre el modelo ORM**: acceden solo a 1–3 tablas directamente. El resto de la información la obtienen **reutilizando las subqueries publicadas por `task.py` y `timesheet.py`** (§7.3), lo que evita duplicar la lógica de "etapas abiertas/cerradas" y "horas imputadas" en cada métrica.
 
-Para evitar saturar el diagrama con 16 colores distintos se aplica un **código
-cromático por familia de métrica**:
+Para evitar saturar el diagrama con 16 colores distintos se aplica un **código cromático por familia de métrica**:
 
 | Color    | Familia                                                    |
 |----------|------------------------------------------------------------|
@@ -320,74 +335,63 @@ cromático por familia de métrica**:
 
 **Observaciones de diseño**
 
-- Los repositorios de métricas tienen una huella intencionadamente estrecha
-  sobre el modelo: el 80 % accede a 1–3 tablas directamente.
-- `workload.py` y `rentability.py` son los más amplios porque su resultado es
-  inherentemente agregado (tareas + horas + proyecto + empleado).
-- `attendance.py` es la única métrica que accede a la tabla `hr_attendance`;
-  está aislado del resto del modelo para reflejar que su origen de datos es el
-  módulo de control de fichajes de Odoo, no el de gestión de proyectos.
-- Ningún repositorio de métricas importa otro repositorio de métricas: la
-  composición se deja a la capa de servicios (§7.5).
+- Los repositorios de métricas tienen una huella intencionadamente estrecha sobre el modelo: el 80 % accede a 1–3 tablas directamente.
+- `workload.py` y `rentability.py` son los más amplios porque su resultado es inherentemente agregado (tareas + horas + proyecto + empleado).
+- `attendance.py` es la única métrica que accede a la tabla `hr_attendance`; está aislado del resto del modelo para reflejar que su origen de datos es el módulo de control de fichajes de Odoo, no el de gestión de proyectos.
+- Ningún repositorio de métricas importa otro repositorio de métricas: la composición se deja a la capa de servicios (§7.5).
 
 ---
 
-## 7.3 Arquitectura de métricas: reutilización de subqueries
+### 7.3 Arquitectura de métricas: reutilización de subqueries
 
-Este diagrama muestra que los repositorios de métricas no vuelven a escribir cada uno su propia consulta de "etapas abiertas" ni "horas imputadas"; consumen tres
-subqueries reutilizables publicadas por `task.py` (violeta), `timesheet.py` (verde) y `scope.py` (azul). El código cromático permite ver a simple vista qué repositorio de métricas depende de cuál proveedor: si un repo tiene una única flecha violeta es que solo consulta estados de tarea; si tiene dos colores es que combina ambas fuentes.
+Este diagrama muestra que los repositorios de métricas no vuelven a escribir cada uno su propia consulta de "etapas abiertas" ni "horas imputadas"; consumen tres subqueries reutilizables publicadas por `task.py` (violeta), `timesheet.py` (verde) y `scope.py` (azul). El código cromático permite ver a simple vista qué repositorio de métricas depende de cuál proveedor: si un repo tiene una única flecha violeta es que solo consulta estados de tarea; si tiene dos colores es que combina ambas fuentes.
 
 ![Diagrama de reutilización de subqueries](./imagenes/diseño/reutilizacionMetricas.png)
 ---
 
-## 7.4 Servicios de métricas ↔ Repositorios de métricas (correspondencia 1:1)
+### 7.4 Servicios de métricas ↔ Repositorios de métricas (correspondencia 1:1)
 
-Una vez establecido el patrón anterior, la capa de servicios de métricas es
-trivialmente regular: **cada servicio consume exactamente un repositorio de
-métricas**. Aquí no se aplican colores: la correspondencia 1:1 hace que las
-flechas vayan en paralelo sin cruzarse, y añadir 14 colores distintos sería
-decorativo más que informativo.
+Una vez establecido el patrón anterior, la capa de servicios de métricas es trivialmente regular: **cada servicio consume exactamente un repositorio de métricas**. Aquí no se aplican colores: la correspondencia 1:1 hace que las flechas vayan en paralelo sin cruzarse, y añadir 16 colores distintos sería decorativo más que informativo.
 
 ![Diagrama de servicios de métricas y repositorios de métricas](./imagenes/diseño/serviciosMetricas-repositorios.png)
 
 ---
 
-## 7.5 DashboardService: orquestación por composición
+### 7.5 DashboardService: orquestación por composición
 
-El `DashboardService` no duplica lógica de métricas; las **compone**. Este
-diagrama hace visible la relación "consumer-of-services" que permite que un
-endpoint de dashboard (CU-03, CU-05, CU-07, CU-28) devuelva en una sola llamada
-lo equivalente a invocar seis endpoints de métricas distintos. Las flechas
-desde `DashboardService` van en cian (es el protagonista) y las de
-`DepartmentService` en naranja para distinguir sus respectivas dependencias
-sobre `WorkloadService`.
+El `DashboardService` no duplica lógica de métricas; las **compone**. Este diagrama hace visible la relación "consumer-of-services" que permite que un endpoint de dashboard (CU-03, CU-05, CU-07, CU-21) devuelva en una sola llamada lo equivalente a invocar seis endpoints de métricas distintos. Las flechas desde `DashboardService` van en cian (es el protagonista) y las de `DepartmentService` en naranja para distinguir sus respectivas dependencias sobre `WorkloadService`.
+
+En particular, `DashboardService.get_manager_overview()` soporta el caso de uso CU-21 (Consultar distribución de carga del equipo), y `WorkloadService` soporta tanto el modo individual — CU-25 Consultar Carga de Trabajo de Empleado (`employee_id` presente) — como el modo equipo — CU-21 (sin `employee_id`) — compartiendo la primitiva `get_pending_hours_per_employee()` del repositorio. Esta reutilización de la lógica de carga entre el modo individual (P10) y el modo agregado (CU-21) justifica la separación en dos casos de uso distintos documentada en el Capítulo 2.
 
 ![Diagrama de DashboardService y su composición de servicios de métricas](./imagenes/diseño/dashboardService.png)
 
 ---
 
-## 7.6 Servicios de dominio ↔ Repositorios base
+### 7.6 Servicios de dominio ↔ Repositorios base
 
-Diagrama "simétrico" al 7.4 pero para la capa de dominio. Aquí la
-correspondencia ya no es 1:1 (un `ProjectService` puede depender de tres
-repositorios distintos para componer la respuesta completa) y **las flechas sí
-se cruzan**, porque varios servicios comparten repositorios como `employee.py`
-o `task.py`. El código cromático asigna un color único a cada servicio de
-dominio: para trazar sus dependencias basta seguir las flechas de ese color.
+Diagrama "simétrico" al 7.4 pero para la capa de dominio. Aquí la correspondencia ya no es 1:1 (un `ProjectService` puede depender de tres repositorios distintos para componer la respuesta completa) y **las flechas sí se cruzan**, porque varios servicios comparten repositorios como `employee.py` o `task.py`. El código cromático asigna un color único a cada servicio de dominio: para trazar sus dependencias basta seguir las flechas de ese color.
 
 ![Diagrama de servicios de dominio y repositorios base](./imagenes/diseño/servicios-Repositorios.png)
 
 ---
 
-## 7.7 Capa de presentación: Frontend ↔ Routes ↔ Services
+### 7.7 Subsistema de snapshots: Frontend ↔ Routes ↔ Services ↔ Repositories ↔ MongoDB
 
-El último diagrama cierra el ciclo: muestra qué páginas del frontend disparan
-qué endpoints, y a qué servicios delegan esos endpoints. En este caso se
-renuncia al código cromático porque hay dieciocho clases-fuente (9 páginas +
-9 routers) y el número de colores excedería la capacidad del lector para
-distinguirlos. En su lugar el diagrama se apoya en la **disposición espacial
-estricta por columnas**: frontend a la izquierda, routers en el centro,
-servicios a la derecha, con correspondencia mayoritariamente horizontal.
+![Diagrama del subsistema de snapshots](./imagenes/diseño/subsistemaSnapshots.png)
+
+Este diagrama aísla el subsistema de snapshots, que por su naturaleza (persistencia documental en lugar de relacional) merece una vista dedicada. `SnapshotService` concentra todas las responsabilidades transversales al subsistema: normalización de parámetros, cálculo de `params_hash` mediante SHA-256, construcción del `SnapshotActor` a partir de los claims del JWT, fijación de `snapshot_date` y la decisión de upsert (insert si la clave compuesta no existe, update si ya existe).
+
+`SnapshotRepository` encapsula la totalidad de las operaciones sobre las tres colecciones MongoDB. Es el único repositorio del sistema que no se asienta sobre SQLAlchemy y ofrece una API homogénea para los tres subtipos (`insert_one`, `find_one`, `update_one`, `find_many` con paginación, `delete_one`). La clave compuesta de cada colección está protegida por un índice único en MongoDB, lo que garantiza a nivel de base de datos la restricción RNF-16 "una snapshot por tipo, parámetros y día".
+
+La decisión deliberada de **no aplicar filtrado por scope** en la lectura de snapshots se documenta en §5.3: las snapshots son lecturas inmutables de momentos pasados y las snapshots de rentabilidad (CU-13, CU-14) solo pueden ser generadas por el Director, lo que limita implícitamente su exposición.
+
+---
+
+### 7.8 Capa de presentación: Frontend ↔ Routes ↔ Services
+
+El último diagrama cierra el ciclo: muestra qué páginas de los dos frontends disparan qué endpoints, y a qué servicios delegan esos endpoints. El frontend principal alimenta todos los CUs operativos y dispara el guardado de snapshots (CU-17) desde cualquier vista calculada. El visor, por el contrario, solo consume los endpoints de lectura y borrado de snapshots (CU-18, CU-19, CU-20) y nunca dispara cálculos sobre Odoo.
+
+El diagrama se apoya en la **disposición espacial estricta por columnas**: páginas a la izquierda, routers en el centro, servicios a la derecha, con correspondencia mayoritariamente horizontal.
 
 ![Diagrama de frontend, routes y servicios](./imagenes/diseño/frontend-Routes-Services.png)
 
@@ -395,41 +399,130 @@ servicios a la derecha, con correspondencia mayoritariamente horizontal.
 
 ## 8. Diseño de Paquetes
 
-### 8.1 Principios aplicados en la organización de paquetes
+### 8.1 Estructura de paquetes
+
+#### Backend
+```
+app/
+├── core/
+│   ├── config.py        → Configuración por entorno
+│   ├── database.py      → Conexión a la base relacional del ERP (solo lectura)
+│   ├── mongo.py         → Cliente de la base documental (lectura/escritura)
+│   └── security.py      → Generación y validación de sesiones + guards de rol
+├── models/              → Clases del dominio operativo (una por entidad del ERP)
+├── schemas/             → Contratos de entrada/salida del backend
+│   └── snapshot.py      → Esquemas de las capturas de métrica, gráfico y entidad
+├── repositories/
+│   ├── employee.py      → Acceso al dominio de empleados
+│   ├── project.py       → Acceso al dominio de proyectos
+│   ├── department.py    → Acceso al dominio de departamentos
+│   ├── task.py          → Acceso al dominio de tareas
+│   ├── tracking.py      → Acceso al dominio de partes de horas
+│   ├── attendance.py    → Acceso al dominio de fichajes
+│   ├── snapshot.py      → Acceso a las tres colecciones documentales
+│   └── metrics/         → Sub-paquete: una función por métrica operativa
+├── services/
+│   ├── metric/          → Implementaciones por métrica (CU-22 a CU-32)
+│   ├── dashboard.py     → Composición para los resúmenes de entidad
+│   ├── chart.py         → Datos para los gráficos analíticos
+│   ├── search.py        → Búsqueda global
+│   ├── auth.py          → Autenticación y construcción del ámbito
+│   └── snapshot.py      → Orquestación del subsistema de capturas
+├── routes/
+│   ├── auth.py
+│   ├── resources/       → Endpoints de las entidades operativas
+│   ├── metrics/         → Endpoints de las métricas operativas (CU-10, CU-22 a CU-32)
+│   ├── charts/          → Endpoints de los gráficos analíticos
+│   ├── dashboards/      → Endpoints de los resúmenes y de rentabilidad
+│   └── snapshots.py     → Endpoints para guardar, listar, consultar y eliminar capturas
+└── utils/               → Paginación, traducción de nombres multilingües y validaciones de ámbito
+```
+
+**`core/`** agrupa todo lo que es infraestructura transversal: configuración, generación y validación de sesiones, pool de conexiones a la base del ERP y cliente a la base documental, y guards de rol. Cambia solo cuando cambia la infraestructura, no el negocio. La adición del módulo de conexión documental respeta este criterio: aísla el cliente en un único punto, independiente del acceso a la base relacional.
+
+**`models/`** contiene exclusivamente el mapeo sobre el dominio operativo del ERP. Ningún modelo ejecuta lógica; solo declara columnas y relaciones. No se añaden modelos para el subsistema de capturas porque la base documental no requiere tal mapeo: la serialización se delega a la capa de esquemas.
+
+**`repositories/`** encapsula cada consulta como una función pura que recibe una sesión y devuelve datos crudos. El sub-paquete `repositories/metrics/` extiende esta idea con un submódulo por métrica (uno por cada CU del paquete P10), evitando que un único fichero acumule consultas heterogéneas. El repositorio de capturas es el único que no opera sobre la base relacional: ejecuta directamente operaciones de inserción, lectura, actualización, listado paginado y borrado sobre las tres colecciones documentales a través del cliente de infraestructura.
+
+**`services/`** aplica las reglas de negocio sobre los datos recuperados por los repositorios. El sub-paquete `services/metrics/` sigue la misma granularidad que `repositories/metrics/`: una clase, una métrica, una razón de cambio. El servicio de capturas añade responsabilidades propias del subsistema: normalizar parámetros, calcular el resumen único que identifica a la captura, construir el autor a partir de la sesión del usuario, fijar la fecha y decidir entre insertar o actualizar (semántica de actualización diaria) según la existencia previa.
+
+**`routes/`** actúa como capa de entrada HTTP. Las rutas no contienen lógica de negocio: validan parámetros, comprueban la autenticación y delegan en el servicio correspondiente. El sub-paquete `routes/metrics/` expone un endpoint por cada métrica operativa (CU-22 a CU-32) más el endpoint del catálogo (CU-10), siguiendo el principio OCP: añadir una nueva métrica implica añadir un único fichero nuevo sin modificar los existentes.
+
+**`utils/`** recoge funciones reutilizables que no pertenecen a ningún dominio: paginación, extracción de nombres multilingües, ordenación de diccionarios y validaciones de rango de fechas.
+
+#### Frontend
+**Frontend principal (actúa sobre la base de datos de Odoo):**
+```
+src/
+├── api/            → Un módulo por dominio (empleados, tareas, métricas, gráficos,
+│                     rentabilidad, capturas, búsqueda, autenticación)
+├── components/     → Componentes reutilizables (Card, Table, KpiCard, Sidebar,
+│                     SaveSnapshotButton…)
+├── context/        → Estado global de autenticación
+├── hooks/          → Lógica reutilizable (useApi, useDebounce)
+├── pages/          → Una página por recurso o funcionalidad
+├── styles/         → Variables CSS globales y tokens de diseño
+└── utils/          → Formateadores y helpers
+```
+Todas las páginas calculadas (detalle de métrica, gráficos, rentabilidad y las fichas de entidad) integran el botón de guardado de captura (`SaveSnapshotButton`), que llama al módulo de API correspondiente para disparar CU-17 desde el contexto actual de la vista.
+
+**Frontend del visor (actúa sobre la base de datos de capturas en MongoDB):**
+```
+src/
+├── api/
+│   ├── auth.js             → Mismo contrato que el frontend principal
+│   └── snapshots.js        → Lectura y borrado de las tres colecciones
+├── components/             → Tabla paginada, filtros, DateBadgePicker, JsonViewer
+├── context/                → Contexto de autenticación reutilizado
+├── pages/
+│   ├── Login.jsx
+│   ├── Home.jsx            → Resumen global más últimas capturas guardadas
+│   ├── MetricSnapshots.jsx → Listado de capturas de métricas (CU-18)
+│   ├── ChartSnapshots.jsx  → Listado de capturas de gráficos (CU-18)
+│   ├── EntitySnapshots.jsx → Listado de capturas de entidades (CU-18)
+│   └── SnapshotDetail.jsx  → Detalle reconstruido y eliminación (CU-19, CU-20)
+│       ├── MetricVisualizer  → Gauge, gráfico e indicadores según la métrica
+│       ├── ChartVisualizer   → Gráfico interactivo según el tipo
+│       └── EntityVisualizer  → Ficha con avatar, campos y barra de progreso
+└── vite.config.js          → Puerto 3001, proxy al backend
+```
+El visor no duplica los componentes de cálculo del frontend principal: sus renderizadores operan exclusivamente sobre los datos guardados en la base documental, sin llamar a ningún endpoint de cálculo sobre el ERP. Este desacoplamiento entre cálculo y visualización garantiza que una captura mantenga su representación original aunque los cálculos del frontend principal evolucionen en el futuro.
+
+### 8.2 Principios aplicados en la organización de paquetes
 
 **Jerarquización por capas (Principio de jerarquización)**
 
-Las dependencias entre paquetes son exclusivamente descendentes. Ningún import apunta hacia arriba. Las rutas no importan modelos ORM ni repositorios directamente.
+Las dependencias entre paquetes son exclusivamente descendentes. Ningún import apunta hacia arriba. Las rutas no importan modelos ORM ni repositorios directamente. El subsistema de snapshots respeta el mismo criterio: `snapshots.router` importa `SnapshotService`, que a su vez importa `SnapshotRepository`, que a su vez importa el cliente de `core/mongo.py`.
 
 **SRP — Una responsabilidad por módulo**
 
-Cada fichero de `repositories/metrics/` tiene una única razón para cambiar: la estructura de la tabla Odoo relevante para esa métrica. Cada fichero de `services/metrics/` tiene también una única razón: la fórmula de cálculo de esa métrica. El añadir una nueva métrica implica crear exactamente dos ficheros nuevos y un endpoint, sin tocar ningún módulo existente.
+Cada fichero de `repositories/metrics/` tiene una única razón para cambiar: la estructura de la tabla Odoo relevante para esa métrica. Cada fichero de `services/metrics/` tiene también una única razón: la fórmula de cálculo de esa métrica, correspondiente al caso de uso del paquete P10 que implementa. `SnapshotService` tiene una única razón para cambiar: las reglas de persistencia (normalización, hash, upsert). El añadir una nueva métrica implica crear exactamente dos ficheros nuevos y un endpoint, sin tocar ningún módulo existente; añadir un nuevo subtipo de snapshot implica una nueva colección, un nuevo schema Pydantic y un nuevo renderer en el visor.
 
 **OCP — Abierto para extensión**
 
-El registro `_ITEM_BUILDERS` de `TaskService` permite añadir un nuevo tipo de ítem (por ejemplo, `"subtask"`) sin modificar el método `_build_items`: basta con añadir una entrada al diccionario y un método `_to_subtask()`. El bucle de construcción no contiene ningún `if/elif`.
+El registro `_ITEM_BUILDERS` de `TaskService` permite añadir un nuevo tipo de ítem (por ejemplo, `"subtask"`) sin modificar el método `_build_items`: basta con añadir una entrada al diccionario y un método `_to_subtask()`. El bucle de construcción no contiene ningún `if/elif`. De forma análoga, el visor selecciona el renderer de CU-19 por clave de subtipo, sin ramificar en `if/elif`: añadir un nuevo renderer no requiere modificar el código existente.
 
 **ISP — Interfaces pequeñas y específicas**
 
-Cada servicio de métricas importa únicamente las funciones del submódulo concreto que necesita (`from app.repositories.metrics.wip import count_open_assigned_tasks`), no el paquete completo. En el frontend, cada página importa solo su módulo de API (`employees.js`, `metrics.js`, etc.).
+Cada servicio de métricas importa únicamente las funciones del submódulo concreto que necesita (`from app.repositories.metrics.wip import count_open_assigned_tasks`), no el paquete completo. En los frontends, cada página importa solo su módulo de API (`employees.js`, `metrics.js`, `snapshots.js`, etc.).
 
 **DIP — Inversión de dependencias**
 
-Los servicios (módulos de alto nivel) no dependen de los modelos ORM (módulos de bajo nivel). Acceden a los datos exclusivamente a través de las funciones de repositorio, que actúan como abstracción. Cero imports `from app.models` en `routes/` o `services/`.
+Los servicios (módulos de alto nivel) no dependen de los modelos ORM ni del cliente MongoDB directamente (módulos de bajo nivel). Acceden a los datos exclusivamente a través de las funciones de repositorio, que actúan como abstracción. Cero imports `from app.models` en `routes/` o `services/`; cero imports de `pymongo` fuera de `core/mongo.py` y `repositories/snapshot.py`.
 
 **DRY — No te repitas**
 
-Las subqueries `open_stage_ids_subq()`, `closed_stage_ids_subq()` y `worked_hours_subq()` están definidas una sola vez en `task.py` y `timesheet.py` respectivamente. Todos los repositorios de métricas las importan y reutilizan. Las constantes de dominio (umbrales, etiquetas, ventanas temporales) están centralizadas en `core/constants.py`.
+Las subqueries `open_stage_ids_subq()`, `closed_stage_ids_subq()` y `worked_hours_subq()` están definidas una sola vez en `task.py` y `timesheet.py` respectivamente. Todos los repositorios de métricas las importan y reutilizan. Las constantes de dominio (umbrales, etiquetas, ventanas temporales) están centralizadas en `core/constants.py`. La normalización de parámetros y el cálculo de `params_hash` están definidos una única vez en `SnapshotService`, y son reutilizados por los tres métodos `save_metric`, `save_chart` y `save_entity`.
 
 **Cohesión funcional**
 
-Cada repositorio agrupa únicamente consultas de un mismo dominio de datos. No existe ningún módulo con funciones heterogéneas: `task.py` solo consulta tareas, `employee.py` solo consulta empleados, `rentability.py` solo consulta datos financieros.
+Cada repositorio agrupa únicamente consultas de un mismo dominio de datos. No existe ningún módulo con funciones heterogéneas: `task.py` solo consulta tareas, `employee.py` solo consulta empleados, `rentability.py` solo consulta datos financieros, `snapshot.py` solo opera sobre MongoDB.
 
 **Bajo acoplamiento**
 
-Los dos únicos casos de dependencia cruzada entre repositorios del mismo nivel (`repositories/metrics/` → `repositories/task.py` y `repositories/timesheet.py`) son de **acoplamiento por datos**: se comparten subqueries puras sin estado ni efectos secundarios. Este es el nivel más bajo de la escala de acoplamiento.
+Los dos únicos casos de dependencia cruzada entre repositorios del mismo nivel (`repositories/metrics/` → `repositories/task.py` y `repositories/timesheet.py`) son de **acoplamiento por datos**: se comparten subqueries puras sin estado ni efectos secundarios. Este es el nivel más bajo de la escala de acoplamiento. `snapshot.py` no tiene ninguna dependencia cruzada con otros repositorios: su aislamiento es total.
 
-### 8.2 Métricas de calidad
+### 8.3 Métricas de calidad
 
 | Principio | Indicador | Valor | Estado |
 |---|---|---|---|
@@ -437,81 +530,178 @@ Los dos únicos casos de dependencia cruzada entre repositorios del mismo nivel 
 | SRP | Módulos de repositorio con más de un dominio | 0 | ✅ |
 | OCP | Bifurcaciones if/elif en `_build_items` | 0 | ✅ |
 | DIP | Imports directos de Models en Routes | 0 | ✅ |
+| DIP | Imports de `pymongo` fuera de `core/mongo.py` y `repositories/snapshot.py` | 0 | ✅ |
 | ISP | Servicios que importan el módulo de repo completo | 0 | ✅ |
 | DRY | Subqueries duplicadas entre repositorios | 0 | ✅ |
 | Cohesión funcional | Repos con funciones de múltiples dominios | 0 | ✅ |
 | Bajo acoplamiento | Dependencias cruzadas entre repos (acoplamiento por datos) | 2 justificadas | ✅ |
 
 ---
-
 ## 9. Prototipos de Interfaz
-
+ 
 Los prototipos presentados en esta sección fueron elaborados en la **Disciplina de Requisitos (Capítulo 2)** como parte del modelado de casos de uso. Se incluyen aquí como referencia visual para el diseño de la interfaz, dado que la implementación real del frontend se ajusta fielmente a ellos.
-
+ 
 ---
-
-### P-01 — Vista de inicio (Overview)
-
-Panel de bienvenida con alertas activas, indicadores globales (proyectos, empleados, tareas) y accesos rápidos. Sirve de punto de entrada tras la autenticación (CU-01).
-
-![Vista de inicio — Overview](../Capítulo-2/imagenes/prototipado/Vista-Overview.png)
-
+ 
+### Pantalla de inicio — `/`
+ 
+Panel de bienvenida que actúa como punto de entrada al sistema tras completar CU-01. Muestra un resumen ejecutivo con alertas activas, indicadores globales y accesos rápidos a las secciones principales.
+ 
+![Pantalla de inicio](../Capítulo-2/imagenes/prototipado/Vista-Overview.png)
+ 
 ---
-
-### P-02 — Resumen de Empleado (CU-03)
-
+ 
+### Pantalla de manager — `/manager`
+ 
+Panel de supervisión global para responsables que presenta cinco tarjetas numéricas clicables (total, sobrecargado, normal, subcargado, sin tareas), gráfico de barras de distribución por estado, panel de empleados más cargados y — al hacer clic en una tarjeta — listado paginado de empleados filtrados con su porcentaje de carga y horas pendientes.
+ 
+![Prototipo de métrica de equipo (variante agregada)](../Capítulo-2/imagenes/prototipado/CU-28.png)
+ 
+---
+ 
+### Prototipo CU-01 – Autenticarse
+ 
+Formulario de inicio de sesión con campos de usuario y contraseña, indicación de acceso restringido y mensajes de error contextuales.
+ 
+![Prototipo de autenticación](../Capítulo-2/imagenes/prototipado/CU-01.png)
+ 
+---
+ 
+### Prototipo CU-02 – Listar Empleados
+ 
+Tabla paginada con barra de búsqueda por nombre, selector de departamento y opción de mostrar solo activos. Cada fila es navegable al resumen del empleado.
+ 
+![Prototipo de listar empleados](../Capítulo-2/imagenes/prototipado/CU-04.png)
+ 
+**Decisiones de diseño implementadas:**
+- El selector de departamento activa la verificación de scope en `EmployeeService` (Capa 2).
+- Las cabeceras de columna son clicables para cambiar el criterio de ordenación server-side.
+---
+ 
+### Prototipo CU-03 – Resumen de Empleado
+ 
 Panel individual con cabecera de perfil, cuatro KPI cards (carga, vencidas, WIP, productividad), tarjetas de tareas asignadas hoy y vencidas sin cerrar, y tabla de tareas paginada con pestañas.
-
-![Prototipo CU-03 — Resumen de Empleado](../Capítulo-2/imagenes/prototipado/CU-05.png)
-
+ 
+![Prototipo de resumen de empleado](../Capítulo-2/imagenes/prototipado/CU-05.png)
+ 
 **Decisiones de diseño implementadas:**
 - Las pestañas de tareas cargan bajo demanda invocando `GET /tasks/filter`.
 - Las tarjetas de alerta son clicables y navegan a la vista de tareas con filtros preseleccionados.
-
 ---
-
-### P-03 — Listado y filtrado de tareas (CU-08)
-
-Tabla paginada con barra de filtros combinables: estado, etapa exacta (mutuamente excluyente con estado), proyecto, rango de fechas de deadline y opción de solo tareas padre.
-
-![Prototipo CU-08 — Listado de Tareas](../Capítulo-2/imagenes/prototipado/CU-10.png)
-
+ 
+### Prototipo CU-04 – Listar Departamentos
+ 
+Cuadrícula de tarjetas con el nombre del departamento y el responsable asignado. Cada tarjeta navega al resumen del departamento.
+ 
+![Prototipo de listar departamentos](../Capítulo-2/imagenes/prototipado/CU-06.png)
+ 
+---
+ 
+### Prototipo CU-05 – Resumen de Departamento
+ 
+Panel de departamento con indicadores de distribución de carga, alerta para empleados sobrecargados y dos pestañas de visualización (carga de trabajo y empleados).
+ 
+![Prototipo de resumen de departamento](../Capítulo-2/imagenes/prototipado/CU-07.png)
+ 
+---
+ 
+### Prototipo CU-06 – Listar Proyectos
+ 
+Cuadrícula de tarjetas con nombre del proyecto, cliente asociado y código. Cada tarjeta navega al resumen del proyecto.
+ 
+---
+ 
+### Prototipo CU-07 – Resumen de Proyecto
+ 
+Panel de proyecto con indicadores de eficiencia, riesgo y rentabilidad, gráfico comparativo de horas estimadas vs. reales y pestañas de tareas y equipo.
+ 
+![Prototipo de resumen de proyecto](../Capítulo-2/imagenes/prototipado/CU-09.png)
+ 
+---
+ 
+### Prototipo CU-08 – Listar Tareas
+ 
+Tabla paginada con barra de filtros combinables: estado, etapa exacta (mutuamente excluyente con estado), proyecto, rango de fechas de deadline y opción de mostrar solo tareas padre.
+ 
+![Prototipo de listar tareas](../Capítulo-2/imagenes/prototipado/CU-10.png)
+ 
 **Decisiones de diseño implementadas:**
 - El selector de etapa tiene prioridad sobre el de estado cuando ambos están activos.
 - Las cabeceras de columna son clicables para cambiar el criterio de ordenación server-side.
-
 ---
-
-### P-04 — Panel de métricas (CU-10 a CU-20)
-
-Cuadrícula de tarjetas métricas a la izquierda con gauge de preview. Al seleccionar una tarjeta, el panel derecho muestra el detalle completo con gráficos y KPIs. Panel de parámetros expandible en la parte superior.
-
-![Prototipo Métricas — CU-10 a CU-20](../Capítulo-2/imagenes/prototipado/CU-P7.png)
-
+ 
+### Prototipo CU-09 – Detalle de Tarea
+ 
+Ficha de tarea con secciones de información general, personas asignadas, horas con barra de progreso y lista de subtareas.
+ 
+![Prototipo de detalle de tarea](../Capítulo-2/imagenes/prototipado/CU-11.png)
+ 
+---
+ 
+### Prototipo CU-10 – Mostrar Catálogo de Métricas
+ 
+Página de métricas con cuadrícula de tarjetas agrupadas por categoría. Al seleccionar una tarjeta, el sistema invoca el caso de uso correspondiente del paquete P10 (CU-22 a CU-32) y muestra el panel de detalle con parámetros, gráficos y KPIs específicos de esa métrica. Panel de filtros expandible en la parte superior del detalle.
+ 
+![Prototipo de métricas](../Capítulo-2/imagenes/prototipado/CU-P7.png)
+ 
 **Decisiones de diseño implementadas:**
 - Las métricas que requieren parámetros (empleado, proyecto) muestran un estado vacío hasta que se rellenan.
 - El panel de detalle es sticky para no perder de vista los KPIs al hacer scroll en la cuadrícula.
-
+- Todas las vistas de detalle de métrica incluyen el botón "Guardar snapshot" que dispara CU-17.
 ---
-
-### P-05 — Panel Manager / Supervisión de carga del equipo (CU-28)
-
-Cinco tarjetas numéricas clicables (total, sobrecargado, normal, subcargado, sin tareas), panel de empleados más cargados con barra de progreso, gráfico de distribución por estado y tabla paginada que aparece al seleccionar un estado.
-
-![Prototipo CU-28 — Panel Manager](../Capítulo-2/imagenes/prototipado/CU-28.png)
-
-**Decisiones de diseño implementadas:**
-- Las tarjetas de estado y las barras del gráfico desencadenan el mismo efecto: filtran la tabla inferior y hacen scroll automático hasta ella.
-- El nombre del empleado en la tabla enlaza directamente a su resumen (CU-03).
-
+ 
+### Prototipo CU-11 – Gráficos Analíticos
+ 
+Página de gráficos con barra de filtros y cuadrícula de visualizaciones: evolución temporal de tareas, distribución por estado y horas por cliente.
+ 
+![Prototipo de gráficos analíticos](../Capítulo-2/imagenes/prototipado/CU-22.png)
+ 
 ---
-
-### P-06 — Rentabilidad Financiera (CU-23)
-
-Panel exclusivo del Director con filtros de fecha y modo de análisis (global / por proyecto / por responsable), KPIs financieros, gráfico comparativo de ingresos vs. gastos y pestañas de desglose por proyecto y por cliente con opción de drill-down a líneas analíticas.
-
-![Prototipo CU-23 — Rentabilidad](../Capítulo-2/imagenes/prototipado/CU-24.png)
-
+ 
+### Prototipo CU-12 – Asistencia vs Imputaciones
+ 
+Página de asistencia con selector de modo de vista (equipo global / por responsable), filtros de fecha y departamento, indicadores globales de cobertura, gráfico comparativo y tabla de empleados con semáforo de cobertura.
+ 
+![Prototipo de asistencia](../Capítulo-2/imagenes/prototipado/CU-23.png)
+ 
+---
+ 
+### Prototipo CU-13 – Rentabilidad Financiera
+ 
+Página exclusiva del Director con filtros de fecha y modo de análisis (global / por proyecto / por responsable), KPIs financieros, gráfico comparativo de ingresos vs. gastos y pestañas de desglose por proyecto y por cliente.
+ 
+![Prototipo de rentabilidad](../Capítulo-2/imagenes/prototipado/CU-24.png)
+ 
 **Decisiones de diseño implementadas:**
-- El acceso al módulo devuelve una pantalla de acceso restringido para cualquier rol distinto de Director (HTTP 403 en backend + redirección en frontend).
+- El acceso devuelve una pantalla de acceso restringido para cualquier rol distinto de Director (HTTP 403 en backend + redirección en frontend).
 - El drill-down de líneas analíticas se activa bajo demanda, sin cargar los datos hasta que el usuario lo solicita explícitamente.
+---
+ 
+### Prototipo CU-14 – Líneas Analíticas
+ 
+Panel de desglose accesible desde CU-13 con dos tablas paralelas de ingresos y gastos individuales, parametrizado por ámbito (proyecto o cliente). La misma vista sirve para ambos casos de drill-down.
+ 
+![Prototipo de líneas analíticas](../Capítulo-2/imagenes/prototipado/CU-26-27.png)
+ 
+---
+ 
+### Prototipo CU-15 – Búsqueda Global
+ 
+Página de búsqueda con campo prominente, botones de filtro por tipo de entidad (tareas, proyectos, empleados) y resultados en forma de tarjetas navegables.
+ 
+![Prototipo de búsqueda global](../Capítulo-2/imagenes/prototipado/CU-25.png)
+ 
+---
+ 
+### Prototipo CU-17/18/19/20 – Visor de snapshots
+ 
+Aplicación independiente en el puerto 3001 compuesta por cuatro vistas principales:
+ 
+- **Home del visor:** resumen global con contadores por colección (métricas, gráficos, entidades) y acceso rápido a las últimas snapshots guardadas.
+- **Listado por colección:** tabla paginada con filtros por tipo y rango de fechas (CU-18).
+- **Detalle de snapshot:** ficha con metadatos, vista reconstruida por el renderer específico y panel JSON expandible (CU-19).
+- **Diálogo de eliminación:** confirmación previa a un hard delete sobre MongoDB (CU-20, exclusivo del Director).
+
+**Decisiones de diseño implementadas:**
+- El visor reutiliza el mismo `AuthContext` y esquema de login que el frontend principal; el token JWT es intercambiable entre ambas aplicaciones.
+- Los renderers del visor (`MetricView`, `ChartView`, `EntityView`) operan exclusivamente sobre el JSON persistido en MongoDB y nunca llaman al backend para recalcular.

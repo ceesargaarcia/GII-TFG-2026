@@ -1,0 +1,37 @@
+@startuml CU19-consultarDetalleSnapshot-analisis
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":SNAPSHOTS_LISTADAS" as Entrada
+
+package "consultarDetalleSnapshot()" {
+    rectangle #629EF9 "SnapshotDetail.jsx\n(frontend2)" as View
+    rectangle #629EF9 "MetricVisualizer" as MetricViz
+    rectangle #629EF9 "ChartVisualizer" as ChartViz
+    rectangle #629EF9 "EntityVisualizer" as EntityViz
+
+    rectangle #b5bd68 "SnapshotService" as Service
+
+    rectangle #F2AC4E "SnapshotRepository" as Repo
+    rectangle #F2AC4E "CapturaDeMetrica" as MetricaColl
+    rectangle #F2AC4E "CapturaDeGrafico" as GraficoColl
+    rectangle #F2AC4E "CapturaDeEntidad" as EntidadColl
+}
+
+rectangle #CDEBA5 ":SNAPSHOT_ELIMINADO" as SalidaEliminado
+
+Entrada -r-> View : consultarDetalleSnapshot()
+
+View -d-> Service : obtenerCaptura(tipo, id) : DocumentoCaptura
+Service --> Repo : buscarMetrica(id) : CapturaDeMetrica
+Service --> Repo : buscarGrafico(id) : CapturaDeGrafico
+Service --> Repo : buscarEntidad(id) : CapturaDeEntidad
+Repo -- MetricaColl
+Repo -- GraficoColl
+Repo -- EntidadColl
+
+View -d-> MetricViz : presentar(datos, nombreMetrica)
+View -d-> ChartViz : presentar(datos, nombreGrafico)
+View -d-> EntityViz : presentar(datos, tipoEntidad)
+
+View ..> SalidaEliminado : eliminarSnapshot()
+@enduml

@@ -24,7 +24,7 @@
     - [Estructurar el Modelo de Casos de Uso](DisciplinaDeRequisitos.md#5-estructurar-el-modelo-de-casos-de-uso)
         - [Diagrama de Contexto (Director)](DisciplinaDeRequisitos.md#51-diagrama-de-contexto--director)
         - [Diagrama de Contexto (Responsable)](DisciplinaDeRequisitos.md#52-diagrama-de-contexto--responsable)
-        - [Relaciones entre Casos de Uso](DisciplinaDeRequisitos.md#53-relaciones-include--extend-del-modelo)
+        - [Relaciones entre Casos de Uso](DisciplinaDeRequisitos.md#53-relaciones-include--extend)
             - [Relaciones Include](DisciplinaDeRequisitos.md#1-relaciones-de-inclusión-include)
             - [Relaciones Extend](DisciplinaDeRequisitos.md#2-relaciones-de-extensión-extend)
 

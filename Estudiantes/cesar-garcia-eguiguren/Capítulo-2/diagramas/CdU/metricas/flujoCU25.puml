@@ -1,0 +1,47 @@
+@startuml CU25_Workload
+!theme plain
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam ActivityBorderColor #1E2840
+skinparam ActivityBackgroundColor #141824
+skinparam ActivityDiamondBackgroundColor #0D1018
+skinparam ActivityDiamondBorderColor #38BDF8
+skinparam NoteBackgroundColor #141824
+skinparam NoteBorderColor #38BDF8
+title CU-25 · Consultar Carga de Trabajo de Empleado
+
+start
+:El actor selecciona un empleado;
+:El actor selecciona la métrica
+Carga de Trabajo;
+:El sistema verifica que el empleado
+pertenece al ámbito del actor;
+
+if (¿Empleado en el ámbito?) then (NO)
+  :El sistema deniega el acceso;
+  stop
+else (SÍ)
+  :El sistema calcula las horas de trabajo
+  pendientes del empleado en tareas abiertas
+  respecto a una jornada de referencia;
+
+  :El sistema clasifica al empleado:
+  · Sobrecargado: supera la jornada de referencia
+  · Normal: dentro del rango esperado
+  · Subcargado: por debajo del mínimo esperado;
+
+  :El sistema muestra:
+  · Porcentaje de carga de trabajo
+  · Horas pendientes y tareas abiertas
+  · Estado con indicador visual
+  · Tareas completadas recientemente;
+  stop
+endif
+
+note right
+  FA-01: Empleado fuera del ámbito → acceso denegado
+  FA-02: Empleado sin usuario vinculado → carga = 0
+end note
+
+@enduml

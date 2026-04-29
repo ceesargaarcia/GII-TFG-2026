@@ -1,4 +1,4 @@
-@startuml CU16_ExactitudEstimacion
+@startuml flujoCU16
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,46 +9,24 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-16 · Consultar Exactitud de Estimación
+
+title CU-16 · Cerrar Sesión
 
 start
-:El actor accede a la página de métricas;
-:El actor selecciona un empleado
-como responsable de las tareas;
-:El actor selecciona la métrica
-Exactitud de Estimación;
-:El sistema verifica que el empleado
-pertenece al ámbito del actor;
-
-if (¿Empleado en el ámbito?) then (NO)
-  :El sistema deniega el acceso;
-  stop
-else (SÍ)
-  :El sistema analiza las tareas cerradas
-  de las que el empleado era responsable,
-  comparando horas estimadas y reales;
-
-  if (¿Existen tareas con datos suficientes?) then (NO)
-    :El sistema indica que no hay datos;
-    stop
-  else (SÍ)
-    :El sistema determina el sesgo de estimación:
-    · Subestima: el trabajo real supera la estimación
-    · Sobreestima: la estimación supera el trabajo real
-    · Preciso: estimaciones ajustadas a la realidad;
-
-    :El sistema muestra:
-    · Porcentaje de exactitud
-    · Sesgo de estimación detectado
-    · Total de tareas analizadas
-    · Mensaje explicativo del sesgo;
-    stop
-  endif
-endif
+:El actor solicita cerrar la sesión;
+:El sistema invalida la sesión activa
+y elimina las credenciales almacenadas
+en el navegador;
+:Redirige al actor a la pantalla
+de inicio de sesión;
+stop
 
 note right
-  FA-01: Empleado fuera del ámbito → acceso denegado
-  FA-02: Sin tareas con ambos valores → sin datos
+  Sesión también cerrada automáticamente
+  si el token JWT expira (FA-04 de CU-01).
+  Invocable tanto desde el frontend principal
+  como desde el visor (frontend2): ambos
+  reutilizan el mismo contexto de autenticación.
 end note
 
 @enduml

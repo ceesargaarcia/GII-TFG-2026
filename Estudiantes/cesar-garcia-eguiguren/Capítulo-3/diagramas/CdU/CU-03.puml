@@ -1,14 +1,16 @@
 @startuml secuencia_cu03
 !theme plain
 skinparam backgroundColor #07090F
-skinparam sequenceArrowColor #38BDF8
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
 skinparam sequenceParticipantBackgroundColor #141824
 skinparam sequenceParticipantBorderColor #2A3850
-skinparam sequenceLifeLineBorderColor #1E2840
-skinparam noteBorderColor #2A3850
+skinparam sequenceParticipantFontColor #E2E8F5
+skinparam sequenceActorBackgroundColor #1E2840
+skinparam sequenceActorBorderColor #38BDF8
+skinparam sequenceLifeLineBorderColor #2A3850
 skinparam noteBackgroundColor #141824
-skinparam noteFontColor #E2E8F5
-skinparam defaultFontColor #E2E8F5
+skinparam noteBorderColor #38BDF8
 skinparam sequenceGroupBackgroundColor #0D1018
 skinparam sequenceGroupBorderColor #2A3850
 skinparam sequenceGroupFontColor #38BDF8
@@ -17,9 +19,8 @@ skinparam sequenceGroupBodyBackgroundColor #0D1018
 skinparam sequenceDividerBackgroundColor #141824
 skinparam sequenceDividerBorderColor #2A3850
 skinparam sequenceDividerFontColor #38BDF8
-skinparam sequenceBoxBackgroundColor #141824
-skinparam sequenceBoxBorderColor #2A3850
 
+actor "Usuario\n(Responsable / Director)" as U
 
 participant "React SPA" as FE
 participant "Route\n(Controlador)" as ROUTE
@@ -30,6 +31,7 @@ participant "PostgreSQL\n(Odoo)" as DB
 
 == Paso 1: Ficha del empleado == 
 
+U -> FE : navega a /empleados/{id}\n
 FE -> ROUTE : GET /employees/{id}
 ROUTE -> AUTH : require_manager_or_above()
 AUTH -> AUTH : decode_token(token)\nextraer role, employee_ids,\ndepartment_ids, project_ids
@@ -69,7 +71,6 @@ note right of SVC
   **CAPA 2 — segunda verificación**
   Misma comprobación: id in cu.employee_ids
   Evita acceso por ruta directa al dashboard
-  sin pasar por /employees/{id}
 end note
 
 SVC -> SVC : WorkloadService.calculate(employee_id, detailed=True)
@@ -77,8 +78,8 @@ note right of SVC
   El employee_id ya fue validado por scope.
   Las queries siguientes no necesitan
   re-filtrar por scope: van por user_id
-  del empleado concreto.
 end note
+
 SVC -> REPO : get_assigned_open_tasks(db, user_id)
 REPO -> DB : SELECT tareas abiertas asignadas al user_id
 DB --> REPO : rows
@@ -91,13 +92,13 @@ REPO --> SVC : completed_rows
 
 SVC -> SVC : WIPService.calculate(employee_id)
 SVC -> REPO : count_open_assigned_tasks(db, user_id)
-REPO -> DB : SELECT COUNT tareas abiertas del user_id
+REPO -> DB : SELECT COUNT tareas abiertas
 DB --> REPO : count
 REPO --> SVC : wip_count
 
 SVC -> SVC : ProductivityService.calculate(employee_id, date_from, date_to)
 SVC -> REPO : get_completed_tasks_with_hours(db, employee_id, ...)
-REPO -> DB : SELECT tareas cerradas + horas del employee_id
+REPO -> DB : SELECT tareas cerradas + horas
 DB --> REPO : rows
 REPO --> SVC : task rows
 
@@ -119,17 +120,21 @@ opt Selección de pestaña Pendientes / Completadas / Asignadas / Responsable
     Responsable: employee_id debe estar
     en cu.employee_ids del JWT
   end note
-  SVC -> SVC : effective_project_ids = None\n(employee_id fija el scope; no\nse restringe por proyecto aquí)
+
+  SVC -> SVC : effective_project_ids = None
   SVC -> REPO : build_filtered_query(db, employee_id, status, ...)
-  REPO -> DB : SELECT project_task JOIN assignments\nWHERE employee = :id AND stage IN (...)
+  REPO -> DB : SELECT project_task JOIN assignments
   DB --> REPO : rows
   REPO --> SVC : Query result
+
   SVC -> REPO : get_worked_hours_batch(db, task_ids)
   REPO -> DB : SELECT SUM horas por tarea
   DB --> REPO : hours_map
   REPO --> SVC : hours_map
+
   SVC -> SVC : _build_items(tasks, status, employee_id, hours_map)
   SVC --> ROUTE : PaginatedResponse[TaskItem]
   ROUTE --> FE : 200 OK + JSON
 end
+FE --> U : renderiza los items de la pestaña
 @enduml

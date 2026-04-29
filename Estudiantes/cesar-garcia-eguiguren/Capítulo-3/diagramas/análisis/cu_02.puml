@@ -1,0 +1,24 @@
+@startuml CU02-listarEmpleados-analisis
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":PAGINA_INICIAL_ABIERTA" as Overview
+
+package "listarEmpleados()" {
+    rectangle #629EF9 "Employees.jsx" as View
+    rectangle #b5bd68 "EmployeeService" as Service
+    rectangle #F2AC4E "EmployeeRepository" as Repo
+    rectangle #F2AC4E "Employee" as EmpModel
+    rectangle #F2AC4E "Department" as DeptModel
+}
+
+rectangle #CDEBA5 ":EMPLEADO_DETALLE" as CU03
+
+Overview -r-> View : listarEmpleados()
+View -d-> Service : listarEmpleados(actor, filtros) : List<Employee>
+Service --> Repo : buscarEmpleados(filtros) : List<Employee+Department>
+Repo -- EmpModel
+Repo -- DeptModel
+View --> Service : filtrarEmpleados(criterio) : List<Employee>
+Service --> Repo : buscarPorCriterio(criterio) : List<Employee+Department>
+View ..> CU03 : verResumenEmpleado()
+@enduml

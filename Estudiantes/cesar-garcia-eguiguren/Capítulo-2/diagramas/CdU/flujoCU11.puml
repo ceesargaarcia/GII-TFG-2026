@@ -1,4 +1,4 @@
-@startuml CU11_Cumplimiento
+@startuml flujoCU11
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,38 +9,49 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-11 · Consultar Cumplimiento de Plazos
+
+title CU-11 · Visualizar Gráficos Analíticos
 
 start
-:El actor accede a la página de métricas;
-:El actor selecciona la métrica
-Cumplimiento de Plazos;
-:El actor puede aplicar filtros opcionales:
-· Empleado concreto
-· Proyecto concreto;
+:El actor solicita acceder a la página de gráficos;
+:El sistema carga los selectores de filtro
+(empleados, departamentos, proyectos)
+según el ámbito del actor;
 
-:El sistema calcula el porcentaje de tareas
-cerradas que se completaron antes o en
-la fecha límite establecida;
+:El actor configura:
+· Rango de fechas
+· Agrupación temporal (semana/mes)
+· Entidad de análisis
+  (empresa · empleado · departamento · proyecto);
 
-if (¿Existen tareas con fecha límite y cierre?) then (NO)
-  :El sistema muestra que no hay datos
-  disponibles para los filtros aplicados;
-  stop
-else (SÍ)
-  :El sistema muestra:
-  · Tasa de cumplimiento (%)
-  · Número de tareas a tiempo
-  · Número de tareas con retraso
-  · Indicador visual de semáforo;
-  stop
+:El sistema genera los gráficos disponibles:
+· Evolución temporal de tareas
+  (completadas, abiertas, vencidas)
+· Distribución por estado actual;
+
+if (¿Director?) then (SÍ)
+  :Añade distribución de horas por cliente;
 endif
 
+if (¿Cambio de filtros?) then (SÍ)
+  :Recalcula y refresca todos los gráficos;
+endif
+
+if (¿Sin datos en el período?) then (SÍ)
+  :Muestra mensaje "sin datos" por gráfico;
+endif
+
+if (¿Pulsar "Guardar snapshot" sobre un gráfico?) then (SÍ)
+  :<<extend>> CU-17 Guardar Snapshot
+  con chart_name + params actuales;
+endif
+
+stop
+
 note right
-  Semáforo de referencia:
-  ≥ 80% → verde (cumplimiento bueno)
-  ≥ 60% → naranja (cumplimiento aceptable)
-  < 60% → rojo (cumplimiento deficiente)
+  FA-01: sin datos → mensaje por gráfico
+  FA-02: el Responsable no ve la distribución
+         por cliente ni datos fuera de su ámbito
 end note
 
 @enduml

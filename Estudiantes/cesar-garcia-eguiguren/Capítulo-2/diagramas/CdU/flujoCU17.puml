@@ -1,4 +1,4 @@
-@startuml CU17_LeadTime
+@startuml flujoCU17
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,36 +9,56 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-17 · Consultar Lead Time
+
+title CU-17 · Guardar Snapshot (upsert diario)
 
 start
-:El actor accede a la página de métricas;
-:El actor selecciona la métrica Lead Time;
-:El actor puede aplicar filtros opcionales:
-· Empleado concreto
-· Proyecto concreto;
+:El actor se encuentra en una vista calculada
+del frontend principal con un resultado
+ya mostrado en pantalla:
+· Página de métricas (CU-10)
+· Página de gráficos (CU-11)
+· Resumen de entidad (CU-03, CU-05, CU-07, CU-09)
+· Página de rentabilidad (CU-13);
 
-:El sistema calcula el tiempo medio transcurrido
-desde la asignación hasta el cierre de las
-tareas completadas en el ámbito seleccionado;
+:El actor solicita guardar una snapshot de la vista actual;
 
-if (¿Existen tareas con fecha de asignación y cierre?) then (NO)
-  :El sistema muestra que no hay datos
-  disponibles para los filtros aplicados;
-  stop
-else (SÍ)
-  :El sistema muestra:
-  · Tiempo medio de ciclo en días
-  · Total de tareas analizadas
-  · Indicador visual de referencia;
-  stop
+:El sistema determina el tipo de snapshot a guardar según el contexto;
+:El sistema construye payload:
+· tipo   (métrica, gráfico o entidad)
+· params (filtros actuales de la vista)
+· data   (respuesta ya calculada);
+
+:El backend calcula:
+· hash de los parámetros para comparación futura
+· fecha actual para control de unicidad diaria;
+
+if (¿Existe snapshot con la misma clave?\n(tipo, params_hash, snapshot_date)) then (SÍ)
+  :**FA-01 Upsert:** sobrescribe
+  data + updated_at + updated_by;
+  :Devuelve {id, created: false};
+else (NO)
+  :Crea snapshot nueva con
+  created_at y created_by;
+  :Devuelve {id, created: true};
 endif
 
+:El frontend muestra notificación
+"Snapshot creada" o "Snapshot actualizada";
+
+stop
+
 note right
-  Semáforo de referencia:
-  < 5 días  → verde (ciclo ágil)
-  5-10 días → naranja (ciclo moderado)
-  > 10 días → rojo (ciclo lento)
+  **Política de unicidad:** como máximo UNA
+  snapshot por (tipo, parámetros, día).
+  No existe CU separado de "Actualizar":
+  la semántica de actualización queda
+  embebida como FA-01 de este mismo CU.
+
+  Endpoint protegido por require_manager_or_above.
+  El actor queda registrado en created_by /
+  updated_by (SnapshotActor con user_id,
+  employee_id, employee_name, role).
 end note
 
 @enduml

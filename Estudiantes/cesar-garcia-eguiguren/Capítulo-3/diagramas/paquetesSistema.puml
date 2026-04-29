@@ -1,71 +1,73 @@
-@startuml
-' ===== THEME GENERAL =====
+@startuml paquetesSistema
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
 skinparam shadowing false
-
-' ===== PACKAGES =====
 skinparam packageBackgroundColor #141824
 skinparam packageBorderColor #2A3850
 skinparam packageFontColor #38BDF8
-
-' ===== COMPONENTES =====
 skinparam componentBackgroundColor #0F172A
 skinparam componentBorderColor #38BDF8
 skinparam componentFontColor #E2E8F5
-
-' ===== DATABASE =====
 skinparam databaseBackgroundColor #1E293B
-skinparam databaseBorderColor #c3d4f1
+skinparam databaseBorderColor #C3D4F1
 skinparam databaseFontColor #E2E8F5
-
-' ===== FLECHAS =====
 skinparam arrowColor #38BDF8
-
-' ===== NOTAS (FIX IMPORTANTE) =====
 skinparam noteBackgroundColor #1E293B
 skinparam noteBorderColor #38BDF8
 skinparam noteFontColor #E2E8F5
+
 package "NAVEGADOR WEB" {
 
-  package "FRONTEND · React 18 + Vite" {
+  package "FRONTEND PRINCIPAL · React 18 + Vite (puerto 3000)" as FE1 {
+    component "Páginas con datos en tiempo real\nOverview · Employees · Projects\nDepartments · Tasks · Metrics\nCharts · Attendance · Rentability\nSearch" as Pages1
+    component "Botón 'Guardar snapshot'\nen cada vista calculada" as Save
+    component "API Client (axios)\nBearer JWT" as API1
+    Pages1 --> Save
+    Save --> API1
+    Pages1 --> API1
+  }
 
-    component "Páginas" as Pages
-    component "Componentes UI\n(Card, Table, Badge, Sidebar, Header, ...)" as UI
-    component "Contexto / Hooks\n(AuthContext, useApi, useDebounce, ...)" as Hooks
-    component "API Client (axios)\nInterceptor Bearer token" as API
-
-    Pages --> UI
-    Pages --> Hooks
-    Hooks --> API
-    UI --> API
+  package "VISOR DE SNAPSHOTS · React 18 + Vite (puerto 3001)" as FE2 {
+    component "Páginas con datos en persistencia\nHome · MetricSnapshots\nChartSnapshots · EntitySnapshots\nSnapshotDetail" as Pages2
+    component "Renderers por subtipo\n(gauge, charts, fichas)\nreconstruyen la vista\na partir del JSON guardado" as Renderers
+    component "API Client (axios)\nBearer JWT" as API2
+    Pages2 --> Renderers
+    Pages2 --> API2
   }
 }
 
-package "BACKEND · FastAPI + Python 3.11" {
-
+package "BACKEND · FastAPI + Python 3.11 (puerto 8000)" {
   component "Routes" as Routes
   component "Services" as Services
   component "Repositories" as Repos
   component "Models / ORM" as Models
-
+  component "Core/ database.py y mongo.py \nconexión a PostgreSQL y MongoDB" as DB
   Routes --> Services
   Services --> Repos
   Repos --> Models
-
-  note bottom of Routes
-    autenticación JWT HS256
-    rol:
-    - director
-    - responsable
-    - empleado
-  end note
-
+  Models --> DB
 }
+  note bottom of Routes
+    JWT HS256 · guards:
+    · require_manager_or_above
+    · require_director
+    · verify_*_scope()
+  end note
+database "PostgreSQL 14+\n(Odoo v16 · solo lectura)" as PG
+database "MongoDB 6+\n(snapshots · lectura/escritura)\n\nmetric_snapshots\nchart_snapshots\nentity_snapshots" as Mongo
 
-database "PostgreSQL 14+ (Odoo v16)\nSolo lectura" as DB
+API1 --> Routes : HTTP · :3000 → /api\n(Vite proxy en dev)
+API2 --> Routes : HTTP · :3001 → /api\n(Vite proxy en dev)
+DB --> PG : SQL · :5432
+DB --> Mongo : BSON · :27017
 
-API --> Routes : HTTP / JSON\n:3000 → /api\n(Vite proxy dev)
-Models --> DB : SQL\n:5432
+note bottom of FE2
+  **Nuevo frontend de solo consumo.**
+  Lee, visualiza y elimina snapshots
+  persistidas en MongoDB. No dispara
+  cálculos sobre PostgreSQL. Reutiliza
+  el mismo contexto JWT que el
+  frontend principal.
+end note
 
 @enduml

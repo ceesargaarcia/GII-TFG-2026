@@ -1,4 +1,4 @@
-@startuml CU20_TiempoPorPrioridad
+@startuml flujoCU20
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,36 +9,46 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-20 · Consultar Tiempo Invertido por Prioridad
+
+title CU-20 · Eliminar Snapshot (Director exclusivo)
 
 start
-:El actor accede a la página de métricas;
-:El actor selecciona la métrica
-Tiempo por Prioridad;
-:El actor puede aplicar filtros opcionales:
-· Empleado concreto
-· Proyecto concreto;
+:El actor solicita eliminar una snapshot desde el
+listado (CU-18) o desde el detalle (CU-19);
 
-:El sistema agrupa las tareas cerradas
-por nivel de prioridad y calcula
-las horas medias invertidas en cada grupo;
+:El sistema muestra un diálogo
+de confirmación indicando que
+la operación es permanente
+e irreversible;
 
-if (¿Existen tareas cerradas con horas registradas?) then (NO)
-  :El sistema muestra que no hay datos
-  disponibles para los filtros aplicados;
+if (¿Confirma?) then (NO)
+  :Cancela · mantiene la vista anterior;
   stop
 else (SÍ)
-  :El sistema muestra las horas medias
-  invertidas por nivel de prioridad:
-  · Prioridad Normal
-  · Prioridad Urgente;
-  stop
+  :Envía la petición al backend;
+
+  if (¿Eliminación correcta?) then (NO)
+    :Mensaje de error
+    sin modificar la vista;
+    stop
+  else (SÍ)
+    :MongoDB elimina el documento
+    (hard delete);
+    if (Origen) then (Desde CU-18)
+      :Recarga la tabla paginada;
+    else (Desde CU-19)
+      :Navega de vuelta al listado;
+    endif
+    stop
+  endif
 endif
 
 note right
-  Permite identificar si las tareas urgentes
-  consumen desproporcionadamente más tiempo
-  que las de prioridad normal.
+  **Hard delete** sobre MongoDB. No existe
+  papelera ni versiones previas. Tras el borrado,
+  volver a guardar el mismo día con los mismos
+  parámetros creará una snapshot nueva vía CU-17
+  con created_at actual.
 end note
 
 @enduml

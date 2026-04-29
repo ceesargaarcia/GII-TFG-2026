@@ -13,9 +13,8 @@ skinparam NoteBorderColor #38BDF8
 title CU-02 · Listar Empleados
 
 start
-:El actor accede al listado de empleados;
-:El sistema muestra la lista de empleados
-disponibles según el rol del actor;
+:El actor solicita acceder al listado de empleados;
+:El sistema muestra la lista de empleados disponibles según el rol del actor;
 
 note right
   El Responsable solo ve los empleados

@@ -25,6 +25,9 @@
 | **JWT** | JSON Web Token. Token firmado con algoritmo HS256 que incluye el rol y el scope del usuario autenticado para controlar el acceso a los endpoints del sistema. |
 | **Scope** | Conjunto de identificadores de empleados (`employee_ids`), departamentos (`department_ids`) y proyectos (`project_ids`) sobre los que el Responsable tiene acceso, calculado en el momento de la autenticación y embebido en el JWT. |
 | **CTE recursivo** | Common Table Expression recursiva de PostgreSQL utilizada para calcular la jerarquía completa de empleados subordinados a partir del campo `hr_employee.parent_id`. |
+| **MongoDB** | Base de datos NoSQL utilizada para almacenar snapshots históricos de métricas y configuraciones de gráficos, permitiendo análisis temporales y comparativos. |
+| **Snapshot** | Copia inmutable del resultado calculado de una vista (métrica, gráfico o ficha de entidad) en una fecha concreta. Se almacena en MongoDB y puede reconstruirse tal cual se generó, sin necesidad de recalcular contra Odoo. |
+| **Upsert** | Operación de base de datos que inserta un nuevo documento si no existe o actualiza el existente si ya hay uno con la misma clave, utilizada para garantizar que solo haya un snapshot por tipo, parámetros y día. |
 
 ---
 

@@ -12,7 +12,7 @@ skinparam NoteBorderColor #38BDF8
 title CU-08 · Listar Tareas
 
 start
-:El actor accede al listado de tareas;
+:El actor solicita acceder al listado de tareas;
 
 note right
   El caso de uso se puede invocar desde:

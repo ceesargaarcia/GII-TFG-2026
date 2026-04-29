@@ -1,0 +1,132 @@
+@startuml subsistemaSnapshots
+!theme plain
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam classBackgroundColor #141824
+skinparam classBorderColor #2A3850
+skinparam classFontColor #E2E8F5
+skinparam packageBackgroundColor #0D1018
+skinparam packageBorderColor #2A3850
+skinparam packageFontColor #38BDF8
+skinparam databaseBackgroundColor #1E293B
+skinparam databaseBorderColor #38BDF8
+skinparam databaseFontColor #E2E8F5
+skinparam noteBackgroundColor #141824
+skinparam noteBorderColor #38BDF8
+
+title Subsistema de Snapshots · SnapshotService ↔ SnapshotRepository ↔ MongoDB
+
+package "VISOR DE SNAPSHOTS · React 18 + Vite (puerto 3001)" as FE2 {
+  class "Páginas con datos en persistencia\nHome · MetricSnapshots\nChartSnapshots · EntitySnapshots\nSnapshotDetail" as Pages2
+  class "Renderizadores por subtipo\n(gauge, charts, fichas)\nreconstruyen la vista\na partir del JSON guardado" as Renderers
+  class "API Client (axios)\nBearer JWT" as API2
+  Pages2 --> Renderers
+  Pages2 --> API2
+}
+API2 --> "app/routes/" : HTTP · :3001 → /api\n(Vite proxy en dev)
+package "app/routes/" {
+  class "snapshots.py\n(snapshots.router)" as RT #0F1E2A {
+    +POST /snapshots/metrics
+    +POST /snapshots/charts
+    +POST /snapshots/entities
+    +GET  /snapshots/{type}
+    +GET  /snapshots/{type}/{id}
+    +DELETE /snapshots/{type}/{id}
+  }
+}
+
+package "app/services/" {
+  class SnapshotService #0F1E2A {
+    +save_metric(payload, cu)
+    +save_chart(payload, cu)
+    +save_entity(payload, cu)
+    +list(type, filters, page)
+    +get_by_id(type, id)
+    +delete(type, id)
+    --
+    -_normalize_params(params)
+    -_compute_params_hash(params)
+    -_build_actor(cu)
+    -_today_utc()
+  }
+}
+
+package "app/schemas/" {
+  class "snapshot.py" as SCH #0F1E2A {
+    MetricSnapshot
+    ChartSnapshot
+    EntitySnapshot
+    SnapshotActor
+  }
+}
+
+package "app/repositories/" {
+  class "snapshot.py\n(SnapshotRepository)" as REPO #0F1E2A {
+    +insert_one(type, doc)
+    +find_one(type, key)
+    +update_one(type, id, patch)
+    +find_many(type, filters,\n  page, page_size)
+    +find_by_id(type, id)
+    +delete_one(type, id)
+  }
+}
+
+package "app/core/" {
+  class "mongo.py" as MG #0F1E2A {
+    +get_client()
+    +get_db()
+    +ensure_indexes()
+  }
+}
+
+database "MongoDB" as DB #0F1E2A {
+  class "metric_snapshots" as C1 {
+    unique: (metric_name,
+    params_hash,
+    snapshot_date)
+  }
+  class "chart_snapshots" as C2 {
+    unique: (chart_name,
+    params_hash,
+    snapshot_date)
+  }
+  class "entity_snapshots" as C3 {
+    unique: (entity_type,
+    entity_id,
+    snapshot_date)
+  }
+}
+
+RT --> SnapshotService
+SnapshotService ..> SCH : serializa /\ndeserializa
+SnapshotService --> REPO
+REPO --> MG
+MG --> DB
+C1 -[hidden]down- C2
+C2 -[hidden]down- C3
+
+note right of SnapshotService
+  **Lógica principal:**
+  1. Normalizar los parámetros.
+  2. Crear un hash de los parámetros normalizados.
+  3. Registrar la fecha y el usuario que lo solicita.
+  4. Si ya existe una captura hoy con esos parámetros, 
+     se actualiza. Si no existe, se crea una nueva.
+end note
+
+note bottom of REPO
+  **Único repositorio sin SQLAlchemy.**
+  API homogénea sobre las 3 colecciones.
+  No tiene dependencias cruzadas con
+  ningún otro repositorio del sistema.
+end note
+
+note bottom of DB
+  **RNF-16 · Clave compuesta única.**
+  El índice único garantiza a nivel de BD
+  la restricción de una snapshot por tipo,
+  parámetros y día.
+end note
+
+@enduml

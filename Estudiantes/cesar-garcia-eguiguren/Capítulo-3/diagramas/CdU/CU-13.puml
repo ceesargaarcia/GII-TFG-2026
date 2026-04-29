@@ -1,0 +1,77 @@
+@startuml CU-13_Rentabilidad
+!theme plain
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam sequenceParticipantBackgroundColor #141824
+skinparam sequenceParticipantBorderColor #2A3850
+skinparam sequenceParticipantFontColor #E2E8F5
+skinparam sequenceActorBackgroundColor #1E2840
+skinparam sequenceActorBorderColor #38BDF8
+skinparam sequenceLifeLineBorderColor #2A3850
+skinparam noteBackgroundColor #141824
+skinparam noteBorderColor #38BDF8
+skinparam sequenceGroupBackgroundColor #0D1018
+skinparam sequenceGroupBorderColor #2A3850
+skinparam sequenceGroupFontColor #38BDF8
+skinparam sequenceGroupHeaderFontColor #38BDF8
+skinparam sequenceGroupBodyBackgroundColor #0D1018
+skinparam sequenceLifeLineBackgroundColor #0D1018
+skinparam sequenceLifeLineBorderColor #2A3850
+skinparam sequenceDividerBackgroundColor #141824
+skinparam sequenceDividerBorderColor #2A3850
+skinparam sequenceBoxBackgroundColor #141824
+
+
+title CU-13 · Consultar Rentabilidad Financiera
+
+actor "Director" as D
+participant "Rentabilidad.jsx" as UI
+participant "rentabilidadService.js" as FS
+participant "dashboards/\nrentability.py" as RR
+participant "RentabilityService" as RS
+participant "AnalyticLineRepo" as ALR
+participant "ProjectRepo" as PR
+database "PostgreSQL\n(Odoo RO)" as PG
+
+D -> UI : navega a /rentabilidad\n+ ajusta filtros
+UI -> FS : getRentability(filtros)
+FS -> RR : GET /dashboards/rentability\nAuthorization: Bearer JWT
+activate RR
+
+RR -> RR : require_director(token)
+alt rol != director
+  RR --> FS : 403 Forbidden
+  FS --> UI : redirige a pantalla restringida
+else rol == director
+  RR -> RS : compute(filtros)
+  activate RS
+  RS -> ALR : aggregate_by_project(rango, filtros)
+  activate ALR
+  ALR -> PG : SELECT SUM(...) FROM\naccount_analytic_line\nWHERE date BETWEEN ...
+  PG --> ALR : filas agregadas
+  ALR --> RS : agregados por proyecto
+  deactivate ALR
+  RS -> PR : fetch_projects(ids)
+  PR -> PG : SELECT * FROM project_project
+  PG --> PR : proyectos
+  PR --> RS : proyectos
+  RS -> RS : calcular margen / %\n+ distribución ganancia/neutro/pérdida
+  RS --> RR : {resumen, tabla, dist}
+  deactivate RS
+  RR --> FS : 200 JSON
+  FS --> UI : render panel completo
+end
+deactivate RR
+
+opt Drill-down de línea
+  D -> UI : pulsa "Ver detalles" (proyecto X\no cliente Y)
+  UI -> UI : <<extend>> CU-14\nLíneas Analíticas\n(scope = proyecto | cliente)
+end
+
+opt Guardar snapshot
+  D -> UI : pulsa "Guardar snapshot"
+  UI -> UI : <<extend>> CU-17\nGuardar Snapshot
+end
+
+@enduml

@@ -1,0 +1,84 @@
+@startuml CU-17_GuardarSnapshot
+!theme plain
+skinparam backgroundColor #07090F
+skinparam defaultFontColor #E2E8F5
+skinparam ArrowColor #38BDF8
+skinparam sequenceParticipantBackgroundColor #141824
+skinparam sequenceParticipantBorderColor #2A3850
+skinparam sequenceParticipantFontColor #E2E8F5
+skinparam sequenceActorBackgroundColor #1E2840
+skinparam sequenceActorBorderColor #38BDF8
+skinparam sequenceLifeLineBorderColor #2A3850
+skinparam noteBackgroundColor #141824
+skinparam noteBorderColor #38BDF8
+skinparam sequenceGroupBackgroundColor #0D1018
+skinparam sequenceGroupBorderColor #2A3850
+skinparam sequenceGroupFontColor #38BDF8
+skinparam sequenceGroupHeaderFontColor #38BDF8
+skinparam sequenceGroupBodyBackgroundColor #0D1018
+skinparam sequenceLifeLineBackgroundColor #0D1018
+skinparam sequenceLifeLineBorderColor #2A3850
+
+title CU-17 · Guardar Snapshot (upsert diario)
+
+actor "Usuario\n(Director/Responsable)" as U
+participant "Vista calculada\n(MetricDetail / Chart / Rentab.)" as UI
+participant "snapshotService.js" as FS
+participant "routes/snapshots.py" as RT
+participant "SnapshotService" as SS
+participant "snapshot.py\n(repo)" as REPO
+database "MongoDB\n(metric/chart/entity_snapshots)" as MG
+
+U -> UI : pulsa "Guardar snapshot"\nsobre la vista ya calculada
+UI -> FS : save(type, payload)\npayload = { tipo, params, data }
+FS -> RT : POST /snapshots/{metrics|charts|entities}\nAuthorization: Bearer JWT
+activate RT
+
+RT -> RT : require_manager_or_above(token)
+alt token inválido o expirado
+  RT --> FS : 401 Unauthorized
+  FS --> UI : redirige a /login
+else autorizado
+  RT -> SS : save(payload, actor)
+  activate SS
+  SS -> SS : 1. normalize(params)\n2. params_hash = SHA-256
+  SS -> SS : 3. snapshot_date = hoy (UTC)
+  SS -> SS : 4. build SnapshotActor\nfrom JWT claims
+  SS -> REPO : find_one(clave compuesta)\nclave = (tipo, params_hash, date)
+  activate REPO
+  REPO -> MG : findOne({ ... })
+  MG --> REPO : documento | null
+  deactivate REPO
+
+  alt ya existe
+    SS -> REPO : update_one(\n  data, updated_at, updated_by)
+    activate REPO
+    REPO -> MG : updateOne({...})
+    MG --> REPO : ack
+    REPO --> SS : {id, created: false}
+    deactivate REPO
+    note right of SS
+      **FA-01 Upsert:**
+      sobrescribe data + updated_at
+      + updated_by. No se crea
+      documento nuevo. No existe
+      CU separado de "Actualizar".
+    end note
+  else no existe
+    SS -> REPO : insert_one(\n  doc completo con\n  created_at/by)
+    activate REPO
+    REPO -> MG : insertOne({...})
+    MG --> REPO : insertedId
+    REPO --> SS : {id, created: true}
+    deactivate REPO
+  end
+
+  SS --> RT : {id, created}
+  deactivate SS
+  RT --> FS : 200/201 JSON
+end
+deactivate RT
+
+FS --> UI : notificación\n"Snapshot creada" | "actualizada"
+UI --> U : muestra notificación
+@enduml

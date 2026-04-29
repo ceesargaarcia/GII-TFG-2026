@@ -1,4 +1,4 @@
-@startuml CU15_Retrabajo
+@startuml flujoCU15
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,38 +9,45 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-15 · Consultar Tasa de Retrabajo
+
+title CU-15 · Realizar Búsqueda Global
 
 start
-:El actor accede a la página de métricas;
-:El actor selecciona la métrica
-Tasa de Retrabajo;
-:El actor puede aplicar filtros opcionales:
-· Proyecto concreto
-· Empleado concreto;
+:El actor accede a la búsqueda global;
+:Introduce el texto a buscar;
 
-:El sistema analiza el historial de cambios
-de estado de las tareas y detecta las que
-fueron cerradas y posteriormente reabiertas;
-
-if (¿Existen tareas cerradas en el ámbito?) then (NO)
-  :El sistema muestra que no hay datos
-  disponibles para los filtros aplicados;
+if (¿Mínimo 2 caracteres?) then (NO)
+  :Solicita más caracteres;
   stop
 else (SÍ)
-  :El sistema muestra:
-  · Tasa de retrabajo (%)
-  · Número de tareas reabiertos
-  · Total de tareas cerradas analizadas
-  · Indicador visual de semáforo;
-  stop
-endif
+  :El sistema busca coincidencias en:
+  · Tareas (nombre o código)
+  · Proyectos (nombre o código)
+  · Empleados (nombre);
 
-note right
-  Semáforo de referencia:
-  < 8%  → verde (nivel aceptable)
-  8-15% → naranja (nivel a vigilar)
-  > 15% → rojo (nivel problemático)
-end note
+  note right
+    Responsable → resultados solo dentro
+    de su ámbito; Director → globales.
+  end note
+
+  if (¿Resultados?) then (NO)
+    :Estado vacío, sin coincidencias;
+    stop
+  else (SÍ)
+    :Muestra resultados agrupados por tipo;
+    :El actor puede filtrar por tipo
+    (Todos / Tareas / Proyectos / Empleados);
+    if (¿Selecciona un resultado?) then (SÍ)
+      if (Tipo) then (Tarea)
+        :Navega a CU-09 Detalle de Tarea;
+      else if (Tipo) then (Proyecto)
+        :Navega a CU-07 Resumen de Proyecto;
+      else (Empleado)
+        :Navega a CU-03 Resumen de Empleado;
+      endif
+    endif
+    stop
+  endif
+endif
 
 @enduml

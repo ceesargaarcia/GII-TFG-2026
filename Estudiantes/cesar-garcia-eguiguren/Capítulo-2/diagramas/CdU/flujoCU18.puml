@@ -1,4 +1,4 @@
-@startuml CU18_TiempoPorEstado
+@startuml flujoCU18
 !theme plain
 skinparam backgroundColor #07090F
 skinparam defaultFontColor #E2E8F5
@@ -9,38 +9,56 @@ skinparam ActivityDiamondBackgroundColor #0D1018
 skinparam ActivityDiamondBorderColor #38BDF8
 skinparam NoteBackgroundColor #141824
 skinparam NoteBorderColor #38BDF8
-title CU-18 · Consultar Tiempo por Estado
+
+title CU-18 · Listar Snapshots
 
 start
-:El actor accede a la página de métricas;
-:El actor selecciona la métrica
-Tiempo por Estado;
-:El actor puede aplicar filtros opcionales:
-· Proyecto concreto
-· Empleado concreto;
+:El actor accede al visor de snapshots y se autentica (CU-01);
 
-:El sistema analiza el historial de cambios
-de etapa de las tareas y calcula cuánto
-tiempo permanecieron en cada etapa;
+:El visor carga la pagina inicial con el resumen:
+· total de snapshots por colección
+· snapshots guardadas hoy;
 
-if (¿Existen datos de historial de cambios?) then (NO)
-  :El sistema muestra que no hay datos
-  de seguimiento disponibles;
+:El actor elige una colección:
+· Snapshots de métricas
+· Snapshots de gráficos
+· Snapshots de entidades;
+
+:El sistema muestra la tabla paginada:
+· tipo (metric_name / chart_name / entity_type)
+· snapshot_date
+· parámetros resumidos
+· última actualización
+· actor que la guardó;
+
+:El actor aplica filtros opcionales:
+· Tipo específico (p. ej. "productivity")
+· Rango de fechas (date_from / date_to)
+· Tamaño de página;
+
+if (¿Resultados?) then (NO)
+  :Estado vacío con mensaje informativo;
   stop
 else (SÍ)
-  :El sistema muestra una tabla con:
-  · Nombre de cada etapa Kanban
-  · Tiempo medio de permanencia en horas
-  · Número de tareas analizadas por etapa
-  · Ordenada de mayor a menor tiempo;
+  :Muestra tabla paginada (server-side);
+  if (¿Selecciona una fila?) then (SÍ)
+    :<<extend>> CU-19 Detalle de Snapshot;
+  endif
   stop
 endif
 
 note right
-  Los datos de historial provienen del
-  registro de cambios del sistema ERP.
-  Sin ese registro no es posible calcular
-  esta métrica.
+  **Solo consumo:** el visor no dispara cálculos
+  sobre PostgreSQL; únicamente lee MongoDB.
+  Endpoint protegido por require_manager_or_above.
+
+  **Limitación consciente:** el listado **no**
+  aplica filtrado por scope. Un Responsable
+  puede ver snapshots generadas por otros
+  usuarios. Se asume aceptable porque los
+  snapshots son lecturas inmutables y no
+  exponen información distinta a la visible
+  en la capa operativa.
 end note
 
 @enduml

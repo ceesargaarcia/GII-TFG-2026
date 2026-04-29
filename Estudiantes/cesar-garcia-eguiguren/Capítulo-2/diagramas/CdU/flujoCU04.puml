@@ -13,7 +13,7 @@ skinparam NoteBorderColor #38BDF8
 title CU-04 · Listar Departamentos
 
 start
-:El actor accede al listado de departamentos;
+:El actor solicita acceder al listado de departamentos;
 :El sistema muestra los departamentos
 disponibles según el rol del actor;
 

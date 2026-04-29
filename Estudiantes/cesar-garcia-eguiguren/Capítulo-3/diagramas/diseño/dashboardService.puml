@@ -47,6 +47,6 @@ note right of DashboardService
   · CU-03 (empleado) → Workload + WIP + Productivity
   · CU-05 (departamento) → WorkloadService (por empleado)
   · CU-07 (proyecto) → ProjectEfficiency + RiskIndex + Profitability
-  · CU-28 (manager) → WorkloadService agregado por equipo
+  · CU-21 (manager) → WorkloadService agregado por equipo
 end note
 @enduml
