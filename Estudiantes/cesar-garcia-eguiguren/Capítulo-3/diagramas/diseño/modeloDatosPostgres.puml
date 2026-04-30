@@ -1,0 +1,130 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' =========================
+' TASK
+' =========================
+class Task <<project_task>> {
+  +id: Integer <<PK>>
+  +name: String
+  +stage_id: Integer <<FK>>
+  +project_id: Integer <<FK>>
+  +partner_id: Integer <<FK>>
+  +user_id: Integer <<FK>>
+  +parent_id: Integer <<FK>>
+  +planned_hours: Float
+}
+
+class TaskStage <<project_task_type>> {
+  +id: Integer <<PK>>
+  +name: String
+  +closed: Boolean
+}
+
+class TaskAssignment <<project_task_user_rel>> {
+  +task_id: Integer <<PK, FK>>
+  +user_id: Integer <<PK, FK>>
+}
+
+class Project <<project_project>> {
+  +id: Integer <<PK>>
+  +name: String
+  +partner_id: Integer <<FK>>
+  +user_id: Integer <<FK>>
+}
+
+class Employee <<hr_employee>> {
+  +id: Integer <<PK>>
+  +name: String
+  +user_id: Integer <<FK>>
+  +department_id: Integer <<FK>>
+  +hourly_cost: Float
+  +parent_id: Integer <<FK>>
+}
+
+class Department <<hr_department>> {
+  +id: Integer <<PK>>
+  +name: String
+  +parent_id: Integer <<FK>>
+}
+
+class ResUsers <<res_users>> {
+  +id: Integer <<PK>>
+  +login: String
+  +employee_id: Integer <<FK>>
+}
+
+class Partner <<res_partner>> {
+  +id: Integer <<PK>>
+  +name: String
+}
+
+class Timesheet <<account_analytic_line>> {
+  +id: Integer <<PK>>
+  +employee_id: Integer <<FK>>
+  +project_id: Integer <<FK>>
+  +task_id: Integer <<FK>>
+  +unit_amount: Float
+  +amount: Float
+}
+
+class Attendance <<hr_attendance>> {
+  +id: Integer <<PK>>
+  +employee_id: Integer <<FK>>
+  +check_in: DateTime
+  +check_out: DateTime
+}
+
+class MailMessage <<mail_message>> {
+  +id: Integer <<PK>>
+  +res_id: Integer
+  +model: String
+}
+
+class MailTrackingValue <<mail_tracking_value>> {
+  +id: Integer <<PK>>
+  +mail_message_id: Integer <<FK>>
+  +field_id: Integer <<FK>>
+  +old_value: String
+  +new_value: String
+}
+
+class IrModelFields <<ir_model_fields>> {
+  +id: Integer <<PK>>
+  +name: String
+  +model: String
+}
+
+' =========================
+' RELACIONES
+' =========================
+
+Employee --> ResUsers : user_id
+Employee --> Department : department_id
+Employee --> Employee : parent_id
+
+Attendance --> Employee : employee_id
+
+Project --> Partner : partner_id
+Project --> ResUsers : user_id
+
+Task --> TaskStage : stage_id
+Task --> Project : project_id
+Task --> Partner : partner_id
+Task --> ResUsers : user_id
+Task --> Task : parent_id
+
+TaskAssignment --> Task : task_id
+TaskAssignment --> ResUsers : user_id
+
+Timesheet --> Employee : employee_id
+Timesheet --> Project : project_id
+Timesheet --> Task : task_id
+
+MailMessage --> Task : res_id
+MailTrackingValue --> MailMessage : mail_message_id
+MailTrackingValue --> IrModelFields : field_id
+
+ResUsers --> Employee : employee_id
+
+@enduml

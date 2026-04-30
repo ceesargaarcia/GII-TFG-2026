@@ -258,7 +258,7 @@ Este caso de uso absorbe también la semántica de actualización: si ya existe 
 ### 6.7 CU-19 — Consultar detalle de snapshot
 
 **Actor:** Director o Responsable
-**Precondición:** el actor está autenticado en el visor (frontend2) y ha seleccionado una snapshot concreta desde CU-18 o desde la home del visor.
+**Precondición:** el actor está autenticado en el frontend (visor) y ha seleccionado una snapshot concreta desde CU-18 o desde la home del visor.
 
 | Paso | Capa | Clase / Función | Acción |
 |---|---|---|---|
@@ -394,6 +394,256 @@ El último diagrama cierra el ciclo: muestra qué páginas de los dos frontends 
 El diagrama se apoya en la **disposición espacial estricta por columnas**: páginas a la izquierda, routers en el centro, servicios a la derecha, con correspondencia mayoritariamente horizontal.
 
 ![Diagrama de frontend, routes y servicios](./imagenes/diseño/frontend-Routes-Services.png)
+
+### 7.9 Modelo de datos
+
+Esta sección describe las decisiones de diseño sobre los datos que el sistema controla o accede. Se distinguen dos ámbitos bien diferenciados: el **modelo relacional heredado** de Odoo, sobre el que el sistema opera en modo solo lectura, y el **modelo documental propio**, diseñado específicamente para el subsistema de snapshots y almacenado en MongoDB.
+
+#### Modelo de datos del dominio operativo
+
+![Diagrama de clases del modelo de dominio operativo](./imagenes/diseño/modeloDatosPostgres.png)
+
+El sistema no gestiona migraciones ni ejerce control de escritura sobre la base de datos de Odoo. El acceso se realiza con un usuario de base de datos con privilegios `SELECT` exclusivamente sobre las tablas relevantes. Las decisiones de diseño en este ámbito se limitan a **seleccionar qué entidades mapear** y **qué campos exponer** al dominio analítico.
+
+De las más de 1150 tablas que componen el sistema ERP empresarial, el sistema mapea **13 entidades ORM** mediante SQLAlchemy 2.0. La selección responde al criterio de mínima superficie de acceso: solo se declaran las tablas estrictamente necesarias para calcular las métricas del dominio (productividad, carga de trabajo, rentabilidad, riesgo, etc.) y para resolver las jerarquías organizativas requeridas por el sistema RBAC.
+
+#### Modelo de datos del subsistema de snapshots
+
+El subsistema de snapshots se implementa sobre MongoDB mediante tres colecciones independientes, diseñadas bajo un enfoque **documental, inmutable y orientado a lectura histórica**. A diferencia del modelo relacional de Odoo, aquí no existe normalización ni relaciones entre entidades: cada documento es una unidad autocontenida que representa el estado exacto de una vista en un momento concreto.
+
+##### Esquema del actor de cada snapshot (SnapshotActor)
+
+El subsistema de snapshots incorpora información de trazabilidad mediante los campos `created_by` y `updated_by`, que almacenan un objeto estructurado denominado **SnapshotActor**. Este objeto permite registrar qué usuario del sistema ha generado o modificado cada snapshot, preservando la capacidad de auditoría sin depender del modelo relacional de Odoo.
+
+Este objeto no se almacena como entidad independiente en MongoDB, sino como un **subdocumento embebido** dentro de cada snapshot.
+
+Su estructura es la siguiente:
+
+```json
+{
+  "user_id": 1,
+  "employee_id": 42,
+  "role": "director"
+}
+```
+
+###### Significado de los campos
+
+* **user_id**: identificador del usuario autenticado en el sistema.
+* **employee_id**: identificador del empleado asociado al usuario en el ERP (puede ser nulo en usuarios técnicos o sin asignación).
+* **role**: rol efectivo en el momento de la operación (`director`, `responsable`, `empleado`).
+
+###### Uso en el modelo de datos
+
+Este objeto se utiliza en los siguientes campos de las colecciones:
+
+* `created_by`: usuario que creó la snapshot inicialmente.
+* `updated_by`: usuario que realizó la última modificación (en operaciones de upsert).
+
+Su inclusión permite mantener un registro completo de trazabilidad sin necesidad de joins ni consultas adicionales al sistema relacional, respetando el principio de independencia del subsistema de snapshots respecto al ERP.
+
+##### Estructura de las colecciones
+
+**1. metric_snapshots**
+
+Representa capturas de métricas operativas (KPIs calculados desde el ERP).
+
+```json
+{
+  "_id": ObjectId,
+  "metric_name": "productivity",
+  "params": { ... },
+  "params_hash": "sha256(...)",
+  "snapshot_date": "2026-04-30",
+  "data": { ... },
+  "created_at": datetime,
+  "updated_at": datetime,
+  "created_by": { "user_id": 1, "employee_id": 42, "role": "director" },
+  "updated_by": { "user_id": 1, "employee_id": 42, "role": "director" }
+}
+```
+
+**2. chart_snapshots**
+
+Almacena configuraciones y resultados de visualizaciones gráficas.
+
+```json
+{
+  "_id": ObjectId,
+  "chart_name": "task-distribution",
+  "params": { ... },
+  "params_hash": "sha256(...)",
+  "snapshot_date": "2026-04-30",
+  "data": { ... }, 
+  "created_at": datetime,
+  "updated_at": datetime,
+  "created_by": { ... },
+  "updated_by": { ... }
+}
+```
+
+**3. entity_snapshots**
+
+Capturas del estado de entidades del sistema (empleados, proyectos, departamentos o tareas).
+
+```json
+{
+  "_id": ObjectId,
+  "entity_type": "employee",
+  "entity_id": 42,
+  "snapshot_date": "2026-04-30",
+  "data": { ... },
+  "created_at": datetime,
+  "updated_at": datetime,
+  "created_by": { ... },
+  "updated_by": { ... }
+}
+```
+
+---
+
+##### Clave compuesta e índices
+
+Cada colección define una restricción lógica de unicidad basada en una **clave compuesta**, materializada mediante índices únicos en MongoDB:
+
+* `metric_snapshots`: `(metric_name, params_hash, snapshot_date)`
+* `chart_snapshots`: `(chart_name, params_hash, snapshot_date)`
+* `entity_snapshots`: `(entity_type, entity_id, snapshot_date)`
+
+Esto garantiza la propiedad **RNF-16 (una snapshot por tipo y día)** incluso en condiciones de concurrencia. El repositorio implementa un patrón *upsert controlado*, pero el índice actúa como última línea de consistencia.
+
+##### Contrato con la capa de visualización
+
+El campo `data` constituye un **contrato estable entre backend y visor**. El frontend del visor (puerto 3001) no ejecuta lógica de cálculo ni consultas al ERP: únicamente interpreta este JSON mediante renderers especializados:
+
+* `MetricVisualizer` → KPIs, gauges, series temporales
+* `ChartVisualizer` → gráficos interactivos
+* `EntityVisualizer` → fichas de entidad con atributos estructurados
+
+
+### 7.10 Esquemas de validación
+
+Los esquemas de validación se implementan mediante **Pydantic v2** y se encuentran centralizados en el módulo `app/schemas/`. Su función es doble:
+
+1. **Validación de entrada (request models)** en los endpoints.
+2. **Estandarización de salida (response models)** en la capa de servicio.
+
+Esta separación permite desacoplar la capa HTTP de la lógica de negocio, asegurando que los controladores (`routers`) no contengan reglas de validación ni transformación de datos.
+
+---
+
+#### Tipos de esquemas utilizados
+
+El sistema define tres categorías principales de esquemas:
+
+**1. Esquemas de entidad (domain schemas)**
+Representan entidades del sistema y se utilizan tanto en respuestas como en composición interna de datos.
+
+Ejemplo:
+
+```python
+class EmployeeBase(BaseModel):
+    id: int
+    name: str
+    department_name: Optional[str] = None
+
+    model_config = {"from_attributes": True}
+```
+
+Este esquema permite la conversión automática desde ORM (SQLAlchemy) mediante `from_attributes=True`, evitando transformaciones manuales.
+
+---
+
+**2. Esquemas extendidos (detail schemas)**
+Extienden entidades base para incluir información adicional según el contexto del endpoint.
+
+```python
+class EmployeeDetail(EmployeeBase):
+    department_id: Optional[int] = None
+    job_title: Optional[str] = None
+    work_email: Optional[str] = None
+    work_phone: Optional[str] = None
+    hourly_cost: Optional[float] = Field(None, description="Coste por hora")
+    active: bool = True
+```
+
+Este enfoque permite reutilización del modelo base evitando duplicación de atributos.
+
+---
+
+**3. Esquemas de respuesta agregada (metrics & analytics)**
+Se utilizan en endpoints de métricas y agregaciones, donde los datos no corresponden directamente a una entidad ORM.
+
+Ejemplo conceptual:
+
+```python
+class ProductivityTaskItem(BaseModel):
+    task_id: int
+    task_name: str
+    planned_hours: float
+    actual_hours: float
+    parent_id: Optional[int] = None
+    productivity_pct: float
+
+class ProductivityResponse(BaseModel):
+    average_productivity: float
+    total_tasks: int
+    tasks: List[ProductivityTaskItem] = Field(default_factory=list)
+```
+
+Estos esquemas garantizan consistencia en todas las respuestas analíticas del sistema.
+
+---
+
+#### Validación en endpoints
+
+Los endpoints utilizan los esquemas de forma explícita mediante `response_model`, lo que activa:
+
+* Validación automática de la respuesta
+* Serialización controlada de datos
+* Eliminación de campos no declarados
+
+Ejemplo:
+
+```python
+@router.get("/employees", response_model=PaginatedResponse[EmployeeDetail])
+```
+
+En este caso, la respuesta se valida contra una estructura paginada tipada, asegurando consistencia en listados.
+
+---
+
+#### Validación de entrada (Query parameters)
+
+Además de los schemas de Pydantic, el sistema complementa la validación mediante:
+
+* `Query(...)` con restricciones (`ge`, `le`, `pattern`)
+* Validadores de dominio (`verify_employee_exists`, `validate_date_range`, etc.)
+
+Esto permite dividir la validación en dos niveles:
+
+* **Validación estructural** → Pydantic
+* **Validación de dominio** → capa `utils.validation`
+
+---
+
+#### Separación de responsabilidades
+
+La arquitectura garantiza que:
+
+* Los **schemas** definen estructura y tipos.
+* Los **routers** solo coordinan las dependencias y validación superficial.
+* Los **services** implementan la lógica de negocio.
+
+---
+
+#### Principios de diseño aplicados
+
+* **Inmutabilidad lógica:** una snapshot no se modifica funcionalmente; si existe, se reemplaza completamente el documento (`update_one`), preservando la coherencia del estado diario.
+* **Desnormalización intencional:** el campo `data` contiene la vista completa ya calculada, evitando joins o recomputaciones posteriores.
+* **Separación por tipo de snapshot:** cada colección tiene un único propósito, evitando mezclar semánticas (métrica vs gráfico vs entidad).
+* **Trazabilidad completa:** `created_by` y `updated_by` permiten auditoría sin depender del sistema relacional.
+
 
 ---
 
@@ -576,9 +826,11 @@ Tabla paginada con barra de búsqueda por nombre, selector de departamento y opc
 **Decisiones de diseño implementadas:**
 - El selector de departamento activa la verificación de scope en `EmployeeService` (Capa 2).
 - Las cabeceras de columna son clicables para cambiar el criterio de ordenación server-side.
+
 ---
  
 ### Prototipo CU-03 – Resumen de Empleado
+
  
 Panel individual con cabecera de perfil, cuatro KPI cards (carga, vencidas, WIP, productividad), tarjetas de tareas asignadas hoy y vencidas sin cerrar, y tabla de tareas paginada con pestañas.
  
@@ -587,6 +839,7 @@ Panel individual con cabecera de perfil, cuatro KPI cards (carga, vencidas, WIP,
 **Decisiones de diseño implementadas:**
 - Las pestañas de tareas cargan bajo demanda invocando `GET /tasks/filter`.
 - Las tarjetas de alerta son clicables y navegan a la vista de tareas con filtros preseleccionados.
+
 ---
  
 ### Prototipo CU-04 – Listar Departamentos
@@ -648,6 +901,7 @@ Página de métricas con cuadrícula de tarjetas agrupadas por categoría. Al se
 - Las métricas que requieren parámetros (empleado, proyecto) muestran un estado vacío hasta que se rellenan.
 - El panel de detalle es sticky para no perder de vista los KPIs al hacer scroll en la cuadrícula.
 - Todas las vistas de detalle de métrica incluyen el botón "Guardar snapshot" que dispara CU-17.
+
 ---
  
 ### Prototipo CU-11 – Gráficos Analíticos
@@ -675,6 +929,7 @@ Página exclusiva del Director con filtros de fecha y modo de análisis (global 
 **Decisiones de diseño implementadas:**
 - El acceso devuelve una pantalla de acceso restringido para cualquier rol distinto de Director (HTTP 403 en backend + redirección en frontend).
 - El drill-down de líneas analíticas se activa bajo demanda, sin cargar los datos hasta que el usuario lo solicita explícitamente.
+
 ---
  
 ### Prototipo CU-14 – Líneas Analíticas
@@ -690,18 +945,57 @@ Panel de desglose accesible desde CU-13 con dos tablas paralelas de ingresos y g
 Página de búsqueda con campo prominente, botones de filtro por tipo de entidad (tareas, proyectos, empleados) y resultados en forma de tarjetas navegables.
  
 ![Prototipo de búsqueda global](../Capítulo-2/imagenes/prototipado/CU-25.png)
- 
+
 ---
- 
-### Prototipo CU-17/18/19/20 – Visor de snapshots
- 
-Aplicación independiente en el puerto 3001 compuesta por cuatro vistas principales:
- 
-- **Home del visor:** resumen global con contadores por colección (métricas, gráficos, entidades) y acceso rápido a las últimas snapshots guardadas.
-- **Listado por colección:** tabla paginada con filtros por tipo y rango de fechas (CU-18).
-- **Detalle de snapshot:** ficha con metadatos, vista reconstruida por el renderer específico y panel JSON expandible (CU-19).
-- **Diálogo de eliminación:** confirmación previa a un hard delete sobre MongoDB (CU-20, exclusivo del Director).
+
+### Prototipo CU-18 – Listado de Snapshots por Colección
+
+Vista en forma de tabla paginada que permite explorar todos los snapshots almacenados filtrados por tipo de colección (métricas, gráficos o entidades).
+
+Incluye filtros combinables por:
+
+- Tipo de snapshot
+- Rango de fechas
+- Usuario que lo generó
+
+Cada fila permite acceder al detalle del snapshot o eliminarlo (según permisos).
 
 **Decisiones de diseño implementadas:**
-- El visor reutiliza el mismo `AuthContext` y esquema de login que el frontend principal; el token JWT es intercambiable entre ambas aplicaciones.
-- Los renderers del visor (`MetricView`, `ChartView`, `EntityView`) operan exclusivamente sobre el JSON persistido en MongoDB y nunca llaman al backend para recalcular.
+- Paginación server-side para evitar sobrecarga de datos.
+- Filtros persistentes en la URL para navegación compartida.
+- Ordenación por fecha de creación descendente por defecto.
+
+#### Vista – Entidades
+
+![Prototipo de listado de snapshots (entidades)](../Capítulo-2/imagenes/prototipado/CU-18-Entidad.png)
+
+
+#### Vista – Métricas
+
+![Prototipo de listado de snapshots (métricas)](../Capítulo-2/imagenes/prototipado/CU-18-Metrica.png)
+
+
+#### Vista – Gráficos
+
+![Prototipo de listado de snapshots (gráficos)](../Capítulo-2/imagenes/prototipado/CU-18-Grafico.png)
+
+
+### Prototipo CU-19 – Detalle de Snapshot
+
+Vista de detalle que reconstruye la visualización original de un snapshot específico a partir de los datos almacenados en MongoDB. Permite consultar la información exacta guardada en el momento de la captura, independientemente de cambios posteriores en los cálculos o visualizaciones del frontend principal.
+
+El detalle se renderiza mediante componentes especializados según el tipo de snapshot:
+- `MetricVisualizer` → KPIs, gauges, series temporales
+- `ChartVisualizer` → gráficos interactivos
+- `EntityVisualizer` → fichas de entidad con atributos estructurados
+
+Ejemplo de detalle de snapshot de tarea:
+![Prototipo de detalle de snapshot](../Capítulo-2/imagenes/prototipado/CU-19.png)
+
+### Prototipos CU-16, 17 y 20 – Cerrar Sesión, Guardar, Eliminar Snapshot
+
+**CU-16 – Cerrar sesión:** botón de logout accesible desde cualquier vista, que invalida la sesión en el backend y redirige a la pantalla de inicio de sesión.
+
+**CU-17 – Guardar snapshot:** botón presente en todas las vistas calculadas del frontend principal, que dispara la creación o actualización de una snapshot en MongoDB con el estado actual de la vista.
+
+**CU-20 – Eliminar snapshot:** botón de eliminación presente en el detalle de cada snapshot (CU-19), que permite eliminar la snapshot actual si el usuario tiene permisos (solo el autor o el Director pueden eliminar).

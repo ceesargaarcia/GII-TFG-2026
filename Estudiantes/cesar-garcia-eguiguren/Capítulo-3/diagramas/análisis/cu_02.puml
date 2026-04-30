@@ -4,7 +4,7 @@ skinparam linetype polyline
 rectangle #CDEBA5 ":PAGINA_INICIAL_ABIERTA" as Overview
 
 package "listarEmpleados()" {
-    rectangle #629EF9 "Employees.jsx" as View
+    rectangle #629EF9 "EmployeesView" as View
     rectangle #b5bd68 "EmployeeService" as Service
     rectangle #F2AC4E "EmployeeRepository" as Repo
     rectangle #F2AC4E "Employee" as EmpModel

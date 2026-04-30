@@ -1,0 +1,19 @@
+@startuml
+title Clases Control (Análisis - desacoplado)
+
+skinparam linetype polyline
+
+class ControlAutenticacion <<control>>
+class ControlEmpleados <<control>>
+class ControlDepartamentos <<control>>
+class ControlProyectos <<control>>
+class ControlTareas <<control>>
+class ControlMetricas <<control>>
+class ControlAsistencia <<control>>
+class ControlRentabilidad <<control>>
+class ControlGraficos <<control>>
+class ControlBusqueda <<control>>
+class ControlResumenes <<control>>
+class ControlCapturas <<control>>
+
+@enduml

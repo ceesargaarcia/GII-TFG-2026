@@ -6,7 +6,7 @@ rectangle #CDEBA5 ":PROYECTO_DETALLE" as EntradaProj
 rectangle #CDEBA5 ":PAGINA_INICIAL_ABIERTA" as Overview
 
 package "listarTareas()" {
-    rectangle #629EF9 "Tasks.jsx" as View
+    rectangle #629EF9 "TasksView" as View
     rectangle #b5bd68 "TaskService" as Service
     rectangle #F2AC4E "TaskRepository" as TaskRepo
     rectangle #F2AC4E "TimesheetRepository" as TSRepo

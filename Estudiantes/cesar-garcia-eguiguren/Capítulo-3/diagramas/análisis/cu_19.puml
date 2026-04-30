@@ -4,7 +4,7 @@ skinparam linetype polyline
 rectangle #CDEBA5 ":SNAPSHOTS_LISTADAS" as Entrada
 
 package "consultarDetalleSnapshot()" {
-    rectangle #629EF9 "SnapshotDetail.jsx\n(frontend2)" as View
+    rectangle #629EF9 "SnapshotDetailView" as View
     rectangle #629EF9 "MetricVisualizer" as MetricViz
     rectangle #629EF9 "ChartVisualizer" as ChartViz
     rectangle #629EF9 "EntityVisualizer" as EntityViz

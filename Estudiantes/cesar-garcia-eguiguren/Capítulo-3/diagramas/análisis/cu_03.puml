@@ -8,7 +8,7 @@ rectangle #CDEBA5 ":TAREA_DETALLE" as EntradaTarea
 rectangle #CDEBA5 ":MANAGER_ABIERTO" as EntradaManager
 
 package "verResumenEmpleado()" {
-    rectangle #629EF9 "EmployeeDetail.jsx" as View
+    rectangle #629EF9 "EmployeeDetailView" as View
 
     rectangle #b5bd68 "EmployeeService" as EmpService
     rectangle #b5bd68 "DashboardService" as DashService

@@ -4,7 +4,7 @@ skinparam linetype polyline
 rectangle #CDEBA5 ":PAGINA_INICIAL_ABIERTA" as Overview
 
 package "consultarRentabilidadFinanciera()" {
-    rectangle #629EF9 "Rentability.jsx" as View
+    rectangle #629EF9 "RentabilityView" as View
     rectangle #b5bd68 "RentabilityService" as Service
     rectangle #F2AC4E "RentabilityRepository" as Repo
     rectangle #F2AC4E "Timesheet\n[amount €]" as TSModel

@@ -1,0 +1,75 @@
+@startuml
+title Clases Vista (Boundary)
+
+package "Frontend Principal" {
+
+  class Login
+  class Overview
+
+  class Employees
+  class EmployeeDetail
+  class Departments
+  class DepartmentDetail
+
+  class Projects
+  class ProjectDetail
+  class Tasks
+  class TaskDetail
+
+  class Metrics
+  class Charts
+  class Attendance
+  class Manager
+  class Rentability
+
+  class Search
+  class SaveSnapshotButton <<component>>
+  Login --> Overview
+  Overview --> Employees
+  Overview --> Projects
+  Overview --> Tasks
+  Overview --> Departments
+  Overview --> Metrics
+  Overview --> Charts
+  Overview --> Attendance
+  Overview --> Manager
+  Overview --> Rentability
+  Overview --> Search
+  Search --> EmployeeDetail
+  Search --> DepartmentDetail
+  Search --> ProjectDetail
+  EmployeeDetail --> SaveSnapshotButton
+  DepartmentDetail --> SaveSnapshotButton
+  ProjectDetail --> SaveSnapshotButton
+  TaskDetail --> SaveSnapshotButton
+  Metrics --> SaveSnapshotButton
+  Charts --> SaveSnapshotButton
+  Attendance --> SaveSnapshotButton
+  Rentability --> SaveSnapshotButton
+  
+
+  Employees --> EmployeeDetail
+  Departments --> DepartmentDetail
+
+  Projects --> ProjectDetail
+  Tasks --> TaskDetail
+}
+
+package "Visor de Capturas" {
+
+  class Home
+  class MetricSnapshots
+  class ChartSnapshots
+  class EntitySnapshots
+  class SnapshotDetail
+  Login --> Home
+  Home --> MetricSnapshots
+  Home --> ChartSnapshots
+  Home --> EntitySnapshots
+
+  MetricSnapshots --> SnapshotDetail
+  ChartSnapshots --> SnapshotDetail
+  EntitySnapshots --> SnapshotDetail
+}
+
+@enduml

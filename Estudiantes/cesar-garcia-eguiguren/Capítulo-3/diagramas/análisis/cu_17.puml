@@ -11,7 +11,7 @@ rectangle #CDEBA5 ":RENTABILIDAD_CONSULTADA" as EntradaRent
 rectangle #CDEBA5 ":ASISTENCIA_ABIERTO" as EntradaAsistencia
 
 package "guardarSnapshot()" {
-    rectangle #629EF9 "SaveSnapshotButton.jsx" as View
+    rectangle #629EF9 "SaveSnapshotButton" as View
     rectangle #b5bd68 "SnapshotService" as Service
     rectangle #F2AC4E "SnapshotRepository" as Repo
     rectangle #F2AC4E "CapturaDeMetrica\n[unicidad: nombre+params+fecha]" as MetricaColl

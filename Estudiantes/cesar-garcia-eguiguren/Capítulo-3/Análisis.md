@@ -108,108 +108,25 @@ El análisis de este caso de uso se documenta en el archivo [Análisis de CU-19]
 
 Siguiendo la metodología RUP, las clases se clasifican en tres estereotipos: Entidad, Vista y Control. Las clases de análisis son abstracciones conceptuales que representan responsabilidades del dominio; su correspondencia con componentes concretos de implementación se establece en la disciplina de diseño.
 
-#### Clases Entidad — dominio operativo del ERP
+#### Clases Entidad del dominio operativo y documental
 
-Las clases Entidad del dominio operativo representan los conceptos persistidos en la base
-relacional de Odoo. En el análisis se nombran por su rol en el dominio, no por su tabla.
+![Diagrama de clases Entidad del dominio operativo](./imagenes/analisis/clasesEntidad.png)
 
-| Clase de análisis | Datos principales que encapsula |
-|---|---|
-| Tarea | Horas planificadas, estado de apertura o cierre, etapa, proyecto, responsable, fecha límite |
-| Etapa | Nombre y condición de cierre |
-| Empleado | Nombre, coste por hora, departamento, usuario vinculado |
-| Departamento | Nombre, responsable, jerarquía organizativa |
-| Proyecto | Nombre, cliente, fecha de inicio |
-| Parte de horas | Horas imputadas, importe, tarea y empleado asociados, fecha |
-| Asistencia | Empleado, hora de entrada, hora de salida, horas trabajadas |
-| Asignación de tarea | Vínculo entre tarea y usuario |
-| Usuario | Credenciales de acceso |
-| Cliente | Nombre |
-| Mensaje de registro | Modelo, registro y fecha del evento auditado |
-| Cambio registrado | Valor anterior y valor nuevo del campo auditado |
+Las clases Entidad del dominio operativo representan los conceptos persistidos en la base relacional de Odoo. En el análisis se nombran por su rol en el dominio, no por su tabla.
 
-#### Clases Entidad — dominio documental de capturas
-
-Las clases Entidad del dominio documental representan los conceptos persistidos en la base
-documental. Son independientes de las entidades del ERP y no mantienen integridad referencial
-con ellas.
-
-| Clase de análisis | Datos principales que encapsula |
-|---|---|
-| Captura de Métrica | Nombre de métrica, parámetros, fecha, datos calculados, autor |
-| Captura de Gráfico | Nombre de gráfico, parámetros, fecha, datos calculados, autor |
-| Captura de Entidad | Tipo e identificador de entidad, fecha, datos de la entidad, autor |
-| Autor de Captura | Identificador de usuario, identificador de empleado, nombre, rol |
+Las clases Entidad del dominio documental representan los conceptos persistidos en la base documental. Son independientes de las entidades del ERP y no mantienen integridad referencial con ellas.
 
 #### Clases Vista (Boundary) — páginas de las aplicaciones
 
-Las clases Vista representan los puntos de entrada del actor al sistema. Cada clase Vista
-gestiona la interacción con el actor para uno o varios casos de uso relacionados.
+Las clases vista representan los puntos de entrada del actor al sistema. Cada clase vista gestiona la interacción con el actor para uno o varios casos de uso relacionados.
 
-| Aplicación | Clase Vista | Actor | Casos de uso |
-|---|---|---|---|
-| Principal | `Login` | Ambos | CU-01 |
-| Principal | `Overview` | Ambos | Panel de inicio |
-| Principal | `Employees` | Ambos | CU-02 |
-| Principal | `EmployeeDetail` | Ambos | CU-03 |
-| Principal | `Departments` | Ambos | CU-04 |
-| Principal | `DepartmentDetail` | Ambos | CU-05 |
-| Principal | `Projects` | Ambos | CU-06 |
-| Principal | `ProjectDetail` | Ambos | CU-07 |
-| Principal | `Tasks` | Ambos | CU-08 |
-| Principal | `TaskDetail` | Ambos | CU-09 |
-| Principal | `Metrics` | Ambos | CU-10, CU-22 a CU-32 |
-| Principal | `Manager` | Ambos | CU-21 |
-| Principal | `Attendance` | Ambos | CU-12 |
-| Principal | `Rentability` | Director | CU-13, CU-14 |
-| Principal | `Charts` | Ambos | CU-11 |
-| Principal | `Search` | Ambos | CU-15 |
-| Principal | `SaveSnapshotButton` | Ambos | CU-17 (integrado en todas las vistas calculadas) |
-| Visor | `Login` | Ambos | CU-01 (reutiliza el mismo esquema de autenticación) |
-| Visor | `Home` | Ambos | Resumen global y acceso a las últimas capturas |
-| Visor | `MetricSnapshots` | Ambos | CU-18 (colección de métricas) |
-| Visor | `ChartSnapshots` | Ambos | CU-18 (colección de gráficos) |
-| Visor | `EntitySnapshots` | Ambos | CU-18 (colección de entidades) |
-| Visor | `SnapshotDetail` | Ambos | CU-19, CU-20 |
+![Diagrama de clases Vista](./imagenes/analisis/clasesVista.png)
 
 #### Clases Control
 
-Las clases Control orquestan la ejecución de los casos de uso. En el análisis cada clase Control se nombra por su responsabilidad funcional; la decisión de materializarla como un servicio de backend, un componente de frontend o una combinación de ambos corresponde a la fase de diseño.
+Las clases Control orquestan la ejecución de los casos de uso. Cada clase Control coordina la colaboración entre las clases Vista y las clases Entidad para cumplir con los requisitos funcionales de uno o varios casos de uso relacionados.
 
-| Clase Control | Responsabilidad principal | Casos de uso |
-|---|---|---|
-| Control de autenticación | Verificar credenciales, calcular rol y ámbito del actor, emitir sesión | CU-01, CU-16 |
-| Control de empleados | Verificar ámbito, obtener y listar empleados | CU-02, CU-03 |
-| Control de departamentos | Verificar ámbito, obtener y listar departamentos y su equipo | CU-04, CU-05 |
-| Control de proyectos | Verificar ámbito, obtener y listar proyectos, equipo y tareas | CU-06, CU-07 |
-| Control de tareas | Verificar ámbito, filtrar y obtener tareas con sus horas | CU-08, CU-09 |
-| Control de métricas | Calcular cada indicador operativo según parámetros del actor | CU-10, CU-22 a CU-32 |
-| Control de asistencia | Comparar horas fichadas e imputadas por empleado y período | CU-12 |
-| Control de rentabilidad | Agregar ingresos, gastos y neto por proyecto, cliente y responsable | CU-13, CU-14 |
-| Control de gráficos | Componer series temporales y distribuciones para visualización | CU-11 |
-| Control de búsqueda | Buscar tareas, proyectos y empleados dentro del ámbito del actor | CU-15 |
-| Control de resúmenes | Componer el panel de indicadores de un empleado, departamento o proyecto | CU-03, CU-05, CU-07, CU-21 |
-| Control de capturas | Normalizar, identificar y persistir o recuperar capturas | CU-17, CU-18, CU-19, CU-20 |
-
-### 3.2 Relaciones entre clases del dominio
-
-| Relación | Tipo | Cardinalidad |
-|---|---|---|
-| Proyecto → Tarea | Composición | 1 a 0..* |
-| Tarea → Etapa | Asociación | * a 1 |
-| Tarea → Tarea | Auto-referencia (subtareas) | * a 0..1 |
-| Empleado → Departamento | Agregación | * a 0..1 |
-| Tarea → Empleado (responsable) | Asociación | * a 0..1 |
-| Tarea ↔ Usuario | Asociación M:N a través de Asignación de tarea | * a * |
-| Parte de horas → Tarea | Asociación | * a 0..1 |
-| Parte de horas → Empleado | Asociación | * a 1 |
-| Proyecto → Cliente | Asociación | * a 0..1 |
-| Cambio registrado → Mensaje de registro | Asociación | * a 1 |
-| Captura → Autor de Captura | Agregación (referencia embebida) | 1 a 0..1 |
-| Captura de Entidad → Empleado / Departamento / Proyecto / Tarea | Referencia blanda por tipo e identificador | * a 1 |
-
-La referencia blanda entre la captura de entidad y las entidades operativas del ERP es intencional: la base documental y la base relacional son independientes, por lo que no existe una clave foránea real entre ellas.
-
+![Diagrama de clases Control](./imagenes/analisis/clasesControl.png)
 
 ---
 
@@ -244,9 +161,7 @@ Dentro del subsistema backend las clases se agrupan en los siguientes paquetes f
 
 ### 4.3 Paquetes de análisis de los frontends
 
-Los dos frontends se organizan según el mismo criterio de cohesión funcional. La separación
-entre aplicación principal y visor es una decisión de análisis: responden a casos de uso con
-naturaleza distinta y no comparten clases Vista.
+Los dos frontends se organizan según el mismo criterio de cohesión funcional. La separación entre aplicación principal y visor es una decisión de análisis: responden a casos de uso con naturaleza distinta y no comparten clases Vista menos el login.
 
 **Aplicación principal**
 

@@ -1,0 +1,55 @@
+@startuml
+title Clases Entidad (Modelo)
+
+package "Dominio ERP" {
+
+  class Tarea
+  class Etapa
+  class Empleado
+  class Departamento
+  class Proyecto
+  class ParteHoras
+  class Asistencia
+  class AsignacionTarea
+  class Usuario
+  class Cliente
+
+  Proyecto "1" *-- "0..*" Tarea
+  Tarea "*" --> "1" Etapa
+  Tarea "*" --> "0..1" Tarea : subtarea
+
+  Empleado "*" o-- "0..1" Departamento
+
+  Tarea "*" --> "0..1" Empleado : responsable
+
+  Tarea "*" -- "*" Usuario
+  Tarea "*" -- AsignacionTarea
+  Usuario "*" -- AsignacionTarea
+  Empleado "1" -- "1" Usuario
+
+  ParteHoras "*" --> "0..1" Tarea
+  ParteHoras "*" --> "1" Empleado
+
+  Proyecto "*" --> "0..1" Cliente
+
+  Asistencia "*" --> "1" Empleado
+}
+
+package "Dominio Capturas" {
+
+  class CapturaMetrica
+  class CapturaGrafico
+  class CapturaEntidad
+  class AutorCaptura
+
+  CapturaMetrica "1" o-- "0..1" AutorCaptura
+  CapturaGrafico "1" o-- "0..1" AutorCaptura
+  CapturaEntidad "1" o-- "0..1" AutorCaptura
+
+  CapturaEntidad "*" ..> "1" Empleado
+  CapturaEntidad "*" ..> "1" Departamento
+  CapturaEntidad "*" ..> "1" Proyecto
+  CapturaEntidad "*" ..> "1" Tarea
+}
+
+@enduml
