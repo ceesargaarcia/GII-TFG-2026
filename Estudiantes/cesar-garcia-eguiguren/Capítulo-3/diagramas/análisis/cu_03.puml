@@ -28,7 +28,7 @@ package "verResumenEmpleado()" {
     rectangle #F2AC4E "Timesheet" as TSModel
     rectangle #F2AC4E "TaskAssignment" as AssignModel
 }
-
+rectangle #CDEBA5 ":TAREA_DETALLE" as SalidaTarea
 rectangle #CDEBA5 ":TAREAS_LISTADAS" as SalidaTareas
 rectangle #CDEBA5 ":SNAPSHOT_GUARDADO" as SalidaSnapshot
 
@@ -70,6 +70,7 @@ TaskRepo -- StageModel
 TaskRepo -- TSModel
 TaskRepo -- AssignModel
 
+View ..> SalidaTarea   : verDetalleTarea()
 View ..> SalidaTareas   : listarTareas()
 View ..> SalidaSnapshot : guardarSnapshot()
 @enduml

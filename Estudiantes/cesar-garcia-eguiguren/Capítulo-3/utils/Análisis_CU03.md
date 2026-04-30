@@ -20,7 +20,7 @@ Colaboraciones:
 
 - **Entrada:** recibe la solicitud del actor tras navegar desde el listado de empleados, desde el detalle de un proyecto o departamento, desde una tarea asignada al empleado o desde el panel de manager.
 - **Control:** solicita `obtenerEmpleado(actor, empleado)` a `EmployeeService`, `obtenerResumenEmpleado(actor, empleado)` a `DashboardService` y, bajo demanda al seleccionar cada pestaña, `listarTareasEmpleado(actor, empleado, filtros)` a `TaskService`.
-- **Salida:** presenta el panel compuesto del empleado al actor y puede navegar a `:TAREAS_LISTADAS` mediante `listarTareas()`, o `guardarSnapshot()`.
+- **Salida:** presenta el panel compuesto del empleado al actor y puede navegar a `:TAREAS_LISTADAS` o `:TAREA_DETALLE` mediante `listarTareas()` o `verDetalleTarea()`, o `guardarSnapshot()`.
 
 ---
 
@@ -224,4 +224,5 @@ Colaboraciones:
 | Componer resumen unificado | `DashboardService` | Orquesta los tres subservicios y agrega resultados |
 | Mostrar tareas por pestaña bajo demanda | `TaskService` | Filtra tareas por estado, responsable y fechas según la pestaña activa |
 | Navegar al listado completo de tareas | `EmployeeDetail.jsx` | Gestiona la navegación hacia `listarTareas()` con filtros preseleccionados |
+| Navegar al detalle de una tarea | `EmployeeDetail.jsx` | Gestiona la navegación hacia `verDetalleTarea()` al seleccionar una tarea del listado |
 | Guardar captura del panel | `EmployeeDetail.jsx` | Gestiona la navegación hacia `guardarSnapshot()` |
