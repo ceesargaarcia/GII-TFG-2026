@@ -75,7 +75,7 @@ Los responsables no podían responder a preguntas operativas urgentes como: ¿qu
 
 ### Después de Netkia Analytics
 
-Tras la puesta en producción, los responsables disponen de acceso inmediato a toda la información necesaria para supervisar equipos, proyectos y tareas desde una única interfaz integrada. El sistema presenta alertas automáticas de empleados sobrecargados, proyectos en riesgo y tareas vencidas. Navegar a cualquier panel operativo requiere un clic, y los datos se actualizan automáticamente con los cambios en Odoo. Los responsables ahora pueden responder preguntas operativas en segundos, con datos objetivos y precisos.
+Tras la puesta en producción, los responsables disponen de acceso inmediato a toda la información necesaria para supervisar equipos, proyectos y tareas desde una única interfaz integrada. Navegar a cualquier panel operativo requiere un clic, y los datos se actualizan automáticamente con los cambios en Odoo. Los responsables ahora pueden responder preguntas operativas en segundos, con datos objetivos y precisos.
 
 El módulo proporciona métricas que antes eran imposibles de obtener: exactitud de estimaciones, eficiencia por proyecto, cumplimiento de plazos, distribución de carga por empleado y rentabilidad financiera. El historial de snapshots permite consultar el estado exacto de cualquier indicador en fechas pasadas sin necesidad de recalcular.
 
