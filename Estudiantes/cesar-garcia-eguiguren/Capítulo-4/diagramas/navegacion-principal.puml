@@ -1,0 +1,87 @@
+@startuml diagrama-navegacion-principal
+
+skinparam linetype polyline
+skinparam backgroundColor white
+skinparam dpi 400
+skinparam ArrowFontSize 50
+skinparam StateFontSize 50
+state "<img:../imagenes/IniciarSesion.png>" as NoAuth
+state "<img:../imagenes/Overview.png{scale=0.8}>" as Overview
+state "<img:../imagenes/ListarEmpleados.png{scale=0.9}>" as ListEmp
+state "<img:../imagenes/DetalleEmpleado.png{scale=0.9}>" as DetEmp
+state "<img:../imagenes/ListarDptos.png{scale=0.7}>" as ListDept
+state "<img:../imagenes/DetalleDpto.png{scale=0.9}>" as DetDept
+state "<img:../imagenes/ListarProyectos.png{scale=0.7}>" as ListProy
+state "<img:../imagenes/DetalleProyecto.png{scale=0.9}>" as DetProy
+state "<img:../imagenes/ListarTareas.png{scale=0.9}>" as ListTarea
+state "<img:../imagenes/DetalleTarea.png{scale=0.9}>" as DetTarea
+state "<img:../imagenes/Manager.png{scale=0.7}>" as Manager
+state "<img:../imagenes/Busqueda.png{scale=0.7}>" as Busqueda
+
+' ── Estados de referencia (sin foto) ──────────────────────────
+state "Catálogo de Métricas\n(ver diagrama: catalogo-metricas)" as Metricas
+state "Visor de Snapshots\n(ver diagrama: visor-snapshots)" as VisorPantalla
+
+[*] --> NoAuth
+
+' ── Autenticación ─────────────────────────────────────────────
+NoAuth      --> Overview    : iniciarSesion()
+Overview    --> NoAuth      : cerrarSesion()
+NoAuth      --> VisorPantalla : iniciarSesion()
+
+' ── Navegación principal desde Overview ───────────────────────
+Overview --> ListEmp        : listarEmpleados()
+Overview --> ListDept       : listarDepartamentos()
+Overview -> ListProy       : listarProyectos()
+Overview --> ListTarea      : listarTareas()
+Overview --> Metricas       : mostrarCatalogoMetricas()
+Overview --> Manager        : consultarCargaEquipo()
+Overview --> Busqueda       : buscarGlobal()
+
+' ── Navegación del Visor ──────────────────────────────────────
+VisorPantalla --> NoAuth : cerrarSesion()
+
+ListDept     --> Overview : volver()
+ListEmp      --> Overview : volver()
+ListProy     --> Overview : volver()
+ListTarea    --> Overview : volver()
+Metricas     --> Overview : volver()
+Busqueda     --> Overview : volver()
+Manager      --> Overview : volver()
+
+' ── P2 · Empleados ────────────────────────────────────────────
+ListEmp  --> DetEmp         : visualizarResumenEmpleado()
+DetEmp   --> ListTarea      : listarTareas()
+DetEmp   --> DetEmp         : guardarSnapshot()
+DetEmp   --> ListEmp        : volver()
+
+' ── P3 · Departamentos ────────────────────────────────────────
+ListDept -> DetDept         : visualizarResumenDepartamento()
+DetDept  --> DetEmp          : visualizarResumenEmpleado()
+DetDept  --> DetDept         : guardarSnapshot()
+DetDept  --> ListDept        : volver()
+
+' ── P4 · Proyectos ────────────────────────────────────────────
+ListProy -> DetProy          : visualizarResumenProyecto()
+DetProy  --> ListTarea        : listarTareas()
+DetProy  --> DetEmp           : visualizarResumenEmpleado()
+DetProy  --> DetProy          : guardarSnapshot()
+DetProy  --> ListProy         : volver()
+
+' ── P5 · Tareas ───────────────────────────────────────────────
+ListTarea -> DetTarea        : consultarDetalleTarea()
+DetTarea  --> DetProy         : visualizarResumenProyecto()
+DetTarea  --> DetEmp          : visualizarResumenEmpleado()
+DetTarea  --> DetTarea        : consultarDetalleTarea()
+DetTarea  --> DetTarea        : guardarSnapshot()
+DetTarea  --> ListTarea       : volver()
+
+' ── P6 · Otros análisis ───────────────────────────────────────
+Manager    --> DetEmp         : visualizarResumenEmpleado()
+
+' ── P8 · Utilidades ───────────────────────────────────────────
+Busqueda --> DetEmp           : visualizarResumenEmpleado()
+Busqueda --> DetProy          : visualizarResumenProyecto()
+Busqueda --> DetTarea         : consultarDetalleTarea()
+
+@enduml

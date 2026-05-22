@@ -1,0 +1,33 @@
+@startuml diagrama-navegacion-principal-2
+left to right direction
+skinparam linetype polyline
+skinparam backgroundColor white
+skinparam dpi 400
+skinparam ArrowFontSize 35
+
+state "<img:../imagenes/Overview.png{scale=0.6}>" as Overview
+
+state "<img:../imagenes/GraficosAnaliticos.png{scale=0.6}>" as Graficos
+state "<img:../imagenes/Asistencia.png{scale=0.6}>" as Asistencia
+state "<img:../imagenes/Rentabilidad.png{scale=0.6}>" as Rentabilidad
+state "<img:../imagenes/LineasAnaliticas.png{scale=0.6}>" as Lineas
+
+[*] --> Overview
+
+Overview --> Graficos     : visualizarGraficosAnaliticos()
+Overview --> Asistencia   : consultarAsistenciaVsImputaciones()
+Overview --> Rentabilidad : analizarRentabilidadFinanciera()
+
+Graficos   --> Graficos   : guardarSnapshot()
+Asistencia --> Asistencia : guardarSnapshot()
+Rentabilidad --> Rentabilidad : guardarSnapshot()
+
+Rentabilidad --> Lineas : consultarLineasAnaliticas()
+Lineas --> Rentabilidad : volver()
+
+Graficos --> Overview : volver()
+Asistencia --> Overview : volver()
+Rentabilidad --> Overview : volver()
+
+
+@enduml

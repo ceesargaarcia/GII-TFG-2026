@@ -1,0 +1,83 @@
+@startuml diagrama-catalogo-metricas
+
+skinparam linetype polyline
+skinparam backgroundColor white
+skinparam dpi 400
+skinparam ArrowFontSize 35
+' ── Estado del Catálogo ───────────────────────────────────────
+state "<img:../imagenes/MostrarMetricas.png{scale=0.4}>" as Metricas
+
+' ── Estados individuales de métricas (P10) ────────────────────
+state "<img:../imagenes/Productividad.png>" as MetProd
+state "<img:../imagenes/Cumplimiento.png>" as MetCumpl
+state "<img:../imagenes/WIP.png>" as MetWIP
+state "<img:../imagenes/CargaTrabajo.png>" as MetWorkload
+state "<img:../imagenes/IndiceRiesgo.png>" as MetRiesgo
+state "<img:../imagenes/TasaRetrabajo.png>" as MetRetrabajo
+state "<img:../imagenes/ExactitudEstimacion.png>" as MetEstimacion
+state "<img:../imagenes/LeadTime.png>" as MetLeadTime
+state "<img:../imagenes/DistribuciónClietes.png>" as MetDistCliente
+state "<img:../imagenes/EficienciaProyecto.png>" as MetEficiencia
+state "<img:../imagenes/Rentabilidad por horas.png>" as MetRentHoras
+
+[*] --> Metricas
+
+' ── P10 · Catálogo de métricas → P10 Métricas individuales ─────
+Metricas --> MetProd            : CU-22: consultarProductividad()
+Metricas --> MetCumpl           : CU-23: consultarCumplimiento()
+Metricas --> MetWIP             : CU-24: consultarWIP()
+Metricas --> MetWorkload        : CU-25: consultarCargaTrabajo()
+Metricas --> MetRiesgo          : CU-26: consultarRiesgoProyecto()
+Metricas --> MetRetrabajo       : CU-27: consultarRetrabajo()
+Metricas --> MetEstimacion      : CU-28: consultarExactitudEstimacion()
+Metricas --> MetLeadTime        : CU-29: consultarLeadTime()
+Metricas --> MetDistCliente     : CU-30: consultarDistribucionCliente()
+Metricas --> MetEficiencia      : CU-31: consultarEficienciaProyecto()
+Metricas --> MetRentHoras       : CU-32: consultarRentabilidadHoras()
+
+' ── P10 · Métricas individuales (patrón común) ────────────────
+' CU-22: Productividad
+MetProd          --> MetProd          : guardarSnapshot()
+MetProd          --> Metricas         : volver()
+
+' CU-23: Cumplimiento
+MetCumpl         --> MetCumpl         : guardarSnapshot()
+MetCumpl         --> Metricas         : volver()
+
+' CU-24: WIP
+MetWIP           --> MetWIP           : guardarSnapshot()
+MetWIP           --> Metricas         : volver()
+
+' CU-25: Carga de Trabajo
+MetWorkload      --> MetWorkload      : guardarSnapshot()
+MetWorkload      --> Metricas         : volver()
+
+' CU-26: Índice de Riesgo
+MetRiesgo        --> MetRiesgo        : guardarSnapshot()
+MetRiesgo        --> Metricas         : volver()
+
+' CU-27: Tasa de Retrabajo
+MetRetrabajo     --> MetRetrabajo     : guardarSnapshot()
+MetRetrabajo     --> Metricas         : volver()
+
+' CU-28: Exactitud de Estimación
+MetEstimacion    --> MetEstimacion    : guardarSnapshot()
+MetEstimacion    --> Metricas         : volver()
+
+' CU-29: Lead Time
+MetLeadTime      --> MetLeadTime      : guardarSnapshot()
+MetLeadTime      --> Metricas         : volver()
+
+' CU-30: Distribución por Cliente (Director exclusivo)
+MetDistCliente   --> MetDistCliente   : guardarSnapshot()
+MetDistCliente   --> Metricas         : volver()
+
+' CU-31: Eficiencia de Proyecto
+MetEficiencia    --> MetEficiencia    : guardarSnapshot()
+MetEficiencia    --> Metricas         : volver()
+
+' CU-32: Rentabilidad por Horas
+MetRentHoras     --> MetRentHoras     : guardarSnapshot()
+MetRentHoras     --> Metricas         : volver()
+
+@enduml

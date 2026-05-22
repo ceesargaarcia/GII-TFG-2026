@@ -1,0 +1,23 @@
+@startuml diagrama-visor-snapshots
+left to right direction
+skinparam linetype polyline
+skinparam backgroundColor white
+skinparam dpi 400
+skinparam ArrowFontSize 25
+
+state "<img:../imagenes/PanelVisor.png{scale=0.6}>" as VisorInicial
+state "<img:../imagenes/ListarSnapshot.png{scale=0.6}>" as Visor
+state "<img:../imagenes/DetalleSnapshot.png{scale=0.6}>" as DetSnap
+
+[*] --> VisorInicial
+
+' ── P9 · Snapshots ────────────────────────────────────────────
+VisorInicial    --> Visor          : listarSnapshots()
+
+Visor    --> DetSnap          : consultarDetalleSnapshot()
+Visor    --> Visor            : eliminarSnapshot()
+DetSnap  --> Visor            : eliminarSnapshot()
+DetSnap  --> Visor            : volver()
+Visor    --> VisorInicial     : volver()
+
+@enduml

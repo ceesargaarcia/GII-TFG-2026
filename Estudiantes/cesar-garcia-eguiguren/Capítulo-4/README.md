@@ -4,15 +4,53 @@ Este capítulo documenta la implementación real del **Módulo de Análisis ERP*
 
 ---
 
-## Diagrama general de navegación
+## Diagramas de navegación
 
-El diagrama de estados del Capítulo 4 muestra el flujo real de la aplicación con capturas de pantalla reales de la interfaz embebidas en cada estado. Cada nodo representa una pantalla del sistema y cada flecha una acción del usuario que provoca la transición.
+Los diagramas de estados del Capítulo 4 muestran el flujo real de la aplicación. Cada nodo representa una pantalla del sistema y cada flecha una acción del usuario que provoca la transición.
 
-![Diagrama de navegación con capturas](./diagramas/diagrama-navegacion-director.svg)
+---
 
-> El fuente PlantUML del diagrama está en [`diagramas/navegacion.puml`](./diagramas/navegacion.puml).
+### Frontend 1 — Aplicación principal (puerto 3000)
 
-### Estructura del diagrama
+El diagrama de navegación del frontend principal se ha dividido en tres partes por cuestiones de espacio y legibilidad: la primera cubre los módulos de gestión (empleados, departamentos, proyectos y tareas), la segunda algunos módulos de análisis (gráficos, asistencia y rentabilidad) y la tercera el catálogo de métricas. 
+
+#### Parte 1 — Módulos de gestión
+
+![Diagrama de navegación principal — parte 1](./diagramas/diagrama-navegacion-principal.svg)
+
+> El fuente PlantUML está en [`diagramas/navegacion-principal.puml`](./diagramas/navegacion-principal.puml).
+
+Cubre el flujo de autenticación, el dashboard de inicio (Overview) y la navegación por los módulos de gestión: empleados, departamentos, proyectos y tareas.
+
+#### Parte 2 — Módulos de análisis
+
+![Diagrama de navegación principal — parte 2](./diagramas/diagrama-navegacion-principal-2.svg)
+
+> El fuente PlantUML está en [`diagramas/navegacion-principal2.puml`](./diagramas/navegacion-principal2.puml).
+
+Cubre algunos módulos de análisis: gráficos analíticos, asistencia vs imputaciones y rentabilidad financiera (exclusivo Director). Se separó del diagrama anterior únicamente por espacio para mantener la legibilidad.
+
+#### Detalle — Catálogo de métricas
+
+![Diagrama del catálogo de métricas](./diagramas/diagrama-catalogo-metricas.svg)
+
+> El fuente PlantUML está en [`diagramas/catalogo-metricas.puml`](./diagramas/catalogo-metricas.puml).
+
+Diagrama de detalle del módulo P6. Muestra la selección de métricas en el catálogo y la transición al panel de detalle individual con gráficos, selector de empleado/proyecto y botón de snapshot.
+
+---
+
+### Frontend 2 — Visor de snapshots (puerto 3001)
+
+![Diagrama del visor de snapshots](./diagramas/diagrama-visor-snapshots.svg)
+
+> El fuente PlantUML está en [`diagramas/visor-snapshots.puml`](./diagramas/visor-snapshots.puml).
+
+Diagrama de navegación de la aplicación independiente de snapshots. Muestra el flujo desde la pantalla de inicio con estadísticas hasta los listados por tipo (métricas, gráficos, entidades), el detalle de cada snapshot y la confirmación de eliminación.
+
+---
+
+### Estructura del diagrama principal
 
 El diagrama refleja la navegación completa del sistema dividida en paquetes funcionales:
 
