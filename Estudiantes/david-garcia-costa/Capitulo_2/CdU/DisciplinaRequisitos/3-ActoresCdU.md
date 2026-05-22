@@ -8,8 +8,8 @@ En el sistema se identifican dos actores principales:
 
 ![Actores](/Estudiantes/david-garcia-costa/Capitulo_2/CdU/ActoresIndividuales/Actores.svg)
 
-- **Ingeniero de QA (Quality Assurance)**: actor principal del sistema, responsable de iniciar y controlar el flujo de trabajo. A partir de la documentacion del proyecto, utiliza el sistema para introducir documentacion funcional, asociarla a proyectos, consultar y mantener la documentacion registrada, seleccionar, crear y eliminar sesiones de trabajo, crear casos de uso y requisitos funcionales, gestionar escenarios Gherkin, crear y revisar borradores, aceptar y publicar casos de prueba en Kiwi TCMS, y guardar los resultados obtenidos.
-- **Kiwi TCMS**: sistema externo con el que se integra la solucion, encargado de recibir y registrar los casos de prueba publicados. Tambien proporciona funcionalidades de consulta para buscar y visualizar casos de prueba existentes.
+- **Ingeniero de QA (Quality Assurance)**: actor principal del sistema. Registra o inicia sesion, crea sesiones de trabajo, introduce documentacion funcional, mantiene artefactos funcionales, revisa borradores, publica resultados en Kiwi TCMS y consulta casos de prueba existentes.
+- **Kiwi TCMS**: sistema externo con el que se integra la solucion. Recibe casos de prueba publicados y permite consultar casos de prueba existentes dentro del alcance funcional definido.
 
 ---
 
@@ -35,9 +35,18 @@ En el sistema se identifican dos actores principales:
 
 El flujo principal del sistema se articula a traves del actor Ingeniero de QA, que interactua con la solucion para gestionar sesiones de trabajo y transformar documentacion funcional en artefactos de prueba.
 
-El sistema, a su vez, se integra con **Kiwi TCMS** para publicar, registrar y consultar los casos de prueba finales.
+El sistema contempla dos modos funcionales:
+
+- **Modo manual**: el Ingeniero de QA crea o mantiene documentacion, casos de uso, requisitos funcionales, escenarios Gherkin y borradores desde la interfaz.
+- **Modo automatico**: el Ingeniero de QA solicita un traspaso a partir de una sesion con documentacion, y el sistema prepara casos de uso, requisitos funcionales, escenarios Gherkin y borradores para su posterior revision.
+
+La integracion con **Kiwi TCMS** se utiliza para publicar casos de prueba y para las operaciones de consulta definidas en el alcance funcional.
 
 De esta forma:
 
 - **Ingeniero de QA** actua como actor primario e iniciador del flujo.
 - **Kiwi TCMS** actua como sistema externo de integracion, persistencia y consulta.
+
+---
+
+[<- Volver al Indice](../../../README.md)

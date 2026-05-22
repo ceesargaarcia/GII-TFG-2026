@@ -3,7 +3,7 @@ skinparam packageStyle rectangle
 skinparam shadowing false
 skinparam classAttributeIconSize 0
 
-title CU-03 - Crear requisito funcional
+title CU-17 - Crear requisito funcional
 
 package "Vista" {
   class UseCasesRequirementsView

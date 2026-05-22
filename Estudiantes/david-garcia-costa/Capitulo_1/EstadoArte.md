@@ -13,7 +13,7 @@ Este flujo de trabajo se apoya en herramientas ya existentes detalladas en la fo
  
 Por lo que para el ingeniero de QA supone un gran esfuerzo interpretar correctamente la documentación de entrada y traducirla a elementos útiles para validar el producto.
 
-**En consecuencia**, el trabajo se centra en estudiar cómo una arquitectura basada en agentes de Inteligencia Artificial puede analizar documentos DRF y DDS, extraer información funcional relevante (requisitos funcionales y casos de uso), transformarlo a escenarios Gherkin y registrar los scenarios (given, and, when, then) en planes de prueba en Kiwi TCMS a través de su API. 
+**En consecuencia**, el trabajo se centra en estudiar cómo una arquitectura basada en agentes de Inteligencia Artificial puede analizar documentos DRF y DDS, extraer información funcional relevante (requisitos funcionales y casos de uso), transformarlo a escenarios Gherkin y registrar los escenarios (Given, When, Then) como casos de prueba en Kiwi TCMS a través de su API. 
 Soluciones existentes relacionadas: Quorvex AI
 
 
@@ -32,3 +32,7 @@ Quorvex AI se apoya principalmente en Playwright como framework de automatizaci�
 No obstante, esta solución presenta limitaciones. En primer lugar, el enfoque está claramente orientado a la generación de tests ejecutables directamente en Playwright, lo que implica una dependencia fuerte de este framework. Además, aunque automatiza la construcción y repara pruebas, no está tan centrada en la gestión documental previa ni en la integración con herramientas de gestión de pruebas como Kiwi TCMS, que sí constituyen una parte importante de la propuesta desarrollada en este trabajo.
 
 Por tanto, Quorvex AI puede considerarse una solución existente y relevante, especialmente por su capacidad para transformar especificaciones naturales en artefactos de testing automatizado. Pero su objetivo se sitúa en una fase distinta del proceso. Mientras Quorvex AI se orienta a la generación directa de tests end-to-end ejecutables, la propuesta de este TFG se centra en una etapa previa, aunque de cierta manera y en líneas futuras se asemeja.
+
+---
+
+[← Volver al Índice](../README.md)

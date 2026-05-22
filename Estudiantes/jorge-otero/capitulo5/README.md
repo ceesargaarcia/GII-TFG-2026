@@ -57,11 +57,20 @@ El coste total aproximado del sistema en operación asciende a:
 |---|---:|
 | Consumo IA GPT-4.1 mini | 330 € |
 | Power Automate Premium | 13 € |
-| Power BI Pro | 9,40 € |
+| Power BI Pro x 5 personas | 47 € |
 | Entorno | 0 € |
-| **Total mensual** | **352,40 €** |
+| **Total mensual** | **390 €** |
 
 A pesar de estos costes operativos, el ahorro generado en tiempo de procesamiento y recursos humanos compensa ampliamente la inversión realizada, permitiendo mantener el servicio con una menor carga de trabajo manual y mejorando significativamente los tiempos de respuesta.
+
+| Indicador                  |                           Antes |                   Después |
+| -------------------------- | ------------------------------: | ------------------------: |
+| Personal dedicado          | 15 personas contestando correos | 6 personas en supervisión |
+| Tiempo medio por solicitud |                     ~15 minutos |                < 1 minuto |
+| Coste mensual estimado     |                      ~17.010 €* |                 ~390 € |
+| Coste anual estimado       |                      ~204.120 € |               ~4.228,80 € |
+
+Los resultados muestran una reducción significativa tanto del tiempo de procesamiento como de los costes operativos, permitiendo transformar un proceso manual intensivo en recursos en un sistema principalmente automatizado y supervisado.
 
 # Líneas futuras
 

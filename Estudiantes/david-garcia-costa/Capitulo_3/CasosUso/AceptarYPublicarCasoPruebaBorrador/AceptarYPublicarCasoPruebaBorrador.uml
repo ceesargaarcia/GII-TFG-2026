@@ -3,7 +3,7 @@ skinparam packageStyle rectangle
 skinparam shadowing false
 skinparam classAttributeIconSize 0
 
-title CU-06 - Aceptar y publicar caso de prueba
+title CU-30 - Aceptar y publicar caso de prueba
 
 package "Vista" {
   class DraftsView

@@ -23,41 +23,61 @@ De esta forma, el sistema cubre el flujo completo del servicio: mesa, comanda, c
 ## Vistas principales
 ### Login
 
+La pantalla de login autentica al usuario y permite restaurar la sesion mediante token JWT almacenado en el navegador.
+
 ![Login](/Estudiantes/daniel-puente/Capitulo-4/imagenes/login.png)
 
 ### Sala
+
+La vista de sala permite consultar mesas por zona y estado, abrir mesa, tomar comanda y ver una comanda activa. Se ha reducido el tamano de cada mesa para que la vista sea util en servicios con muchas mesas. Tambien se muestra estado operativo: mesa sentada, cocina trabajando, ticket en caja o mesa pendiente de cierre.
 
 ![Sala](/Estudiantes/daniel-puente/Capitulo-4/imagenes/Sala.png)
 
 ### Comanda
 
+La vista de comanda esta pensada para camareros en servicio. Permite seleccionar mesa, alternar entre carta y menu, filtrar platos, revisar alergenos, anadir lineas, editar o anular lineas pendientes y enviar ticket a caja. En menus, los primeros, segundos y postres funcionan como pases: los segundos o postres no aparecen en cocina hasta que el camarero los solicita.
+
 ![Comanda](/Estudiantes/daniel-puente/Capitulo-4/imagenes/Comanda.png)
 
 ### KDS
 
+La pantalla KDS muestra a cocina un tablero por estados: pendiente, en preparacion y listo. El filtrado por pase evita que cocina vea al mismo tiempo todos los platos de 30 o 50 mesas. Asi se prioriza lo que se debe cocinar en ese momento.
+
 ![KDS](/Estudiantes/daniel-puente/Capitulo-4/imagenes/KDS.png)
 
+### Caja
+
+La vista de caja lista tickets por fecha, permite cobrar y deja visible la accion de cerrar mesa una vez cobrado el ticket. Esta separacion evita liberar mesas accidentalmente antes de finalizar el cobro.
+
+![Caja](/Estudiantes/daniel-puente/Capitulo-4/imagenes/Caja.png)
+
 ### Carta
+
+La gestion de carta permite mantener platos, alergenos, disponibilidad y tarifas de menu. Esta informacion alimenta la toma de comandas y el calculo de tickets.
 
 ![Carta](/Estudiantes/daniel-puente/Capitulo-4/imagenes/Carta.png)
 
 ### Usuarios
 
+La vista de usuarios permite al administrador gestionar personal y roles. Esto soporta la separacion de permisos entre administrador, camarero y cocina.
+
 ![Usuarios](/Estudiantes/daniel-puente/Capitulo-4/imagenes/Usuarios.png)
 
 ### Reservas
 
+La vista de reservas lista las reservas del dia, permite crear, editar, cancelar y asignar mesa. La validacion de horario bloquea reservas fuera de comidas y cenas.
+
 ![Reservas](/Estudiantes/daniel-puente/Capitulo-4/imagenes/Reservas.png)
 
-### Caja
-
-![Caja](/Estudiantes/daniel-puente/Capitulo-4/imagenes/Caja.png)
-
 ### Auditoria
+
+La auditoria registra acciones relevantes sobre entidades del sistema. Sirve como trazabilidad para incidencias operativas, cambios de carta, caja, reservas y usuarios.
 
 ![Auditoria](/Estudiantes/daniel-puente/Capitulo-4/imagenes/Auditoria.png)
 
 ### Offline
+
+La vista offline muestra operaciones pendientes de sincronizacion. El objetivo es que el restaurante pueda seguir trabajando ante cortes temporales de red.
 
 ![Offline](/Estudiantes/daniel-puente/Capitulo-4/imagenes/Offline.png)
 
@@ -130,6 +150,7 @@ Restaurante_La_Union/
 | `/api/auditoria` | Trazabilidad de acciones |
 | `/api/sync` | Registro y ejecucion de operaciones offline |
 
-## Logica de negocio 
-
 ## Casos de Uso
+
+
+    PENDIENTE

@@ -3,7 +3,7 @@ skinparam packageStyle rectangle
 skinparam shadowing false
 skinparam classAttributeIconSize 0
 
-title CU-04 - Crear escenario Gherkin
+title CU-21 - Crear escenario Gherkin
 
 package "Vista" {
   class GherkinScenariosView

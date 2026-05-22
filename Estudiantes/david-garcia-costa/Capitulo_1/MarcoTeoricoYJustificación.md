@@ -47,7 +47,7 @@ Estas capacidades son especialmente valiosas cuando se desea automatizar proceso
 ## Diferencia entre IA generativa e IA agentica
 
 La IA generativa tradicional responde a una entrada mediante la producción de una salida, normalmente textual.  
-La IA agentica dgamos que incorpora objetivos, uso de herramientas, pasos intermedios y la capacidad de verificación o control del flujo. Por ello, esta última resulta más adecuada para procesos donde se necesita algo más que una respuesta aislada.  
+La IA agentica incorpora objetivos, uso de herramientas, pasos intermedios y la capacidad de verificación o control del flujo. Por ello, esta última resulta más adecuada para procesos donde se necesita algo más que una respuesta aislada.  
 
 Esta distinción es relevante porque la propuesta del TFG no se limita a pedir al modelo que por ejemplo “redacte” escenarios, sino que requiere una arquitectura capaz de procesar los documentos, estructurar esa información, transformarla y registrarla en una herramienta externa.  
 Una característica clave de los agentes es su capacidad para utilizar herramientas externas, como APIs, sistemas de almacenamiento, navegadores o conectores. 
@@ -103,14 +103,14 @@ Aun así, como ocurre con otras herramientas de automatización, su foco princip
 
 ### 5. Kiwi TCMS
 
-Kiwi TCMS es una herramienta de gestión de pruebas de código abierto que permite definir casos de prueba, organizarlos en planes de prueba, registrar sus ejecuciones y mantener la trazabilidad de todo el proceso de validación. Dentro de este contexto, un scenario es una manera de describir un caso de prueba como una situación concreta que se quiere comprobar en el sistema. 
+Kiwi TCMS es una herramienta de gestión de pruebas de código abierto que permite definir casos de prueba, organizarlos en planes de prueba, registrar sus ejecuciones y mantener la trazabilidad de todo el proceso de validación. Dentro de este contexto, un escenario es una manera de describir un caso de prueba como una situación concreta que se quiere comprobar en el sistema. 
 
 Para que esa descripción sea más clara, natural y fácil de seguir, suele utilizarse la estructura Given / When / Then / And, propia del enfoque BDD (Behavior Driven Development). Given define el contexto inicial o las condiciones previas, When indica la acción que realiza el usuario o el sistema, y Then expresa el resultado esperado. La palabra And permite añadir información o pasos adicionales sin romper la estructura. Esta forma de redactar los casos de prueba hace que sean mucho más comprensibles, tanto para perfiles de testing como para desarrollo, y facilita una comunicación más clara entre todos los implicados.
 
 
-Su interés en este trabajo es especialmente alto porque puede actuar como punto de destino de los scenarios generados por el sistema multiagente. Además, el hecho de contar con API facilita su integración con arquitecturas basadas en herramientas y automatización, lo que la convierte en un elemento especialmente adecuado para la propuesta concreta de este TFG.  
+Su interés en este trabajo es especialmente alto porque puede actuar como punto de destino de los escenarios generados por el sistema multiagente. Además, el hecho de contar con API facilita su integración con arquitecturas basadas en herramientas y automatización, lo que la convierte en un elemento especialmente adecuado para la propuesta concreta de este TFG.  
 
-Digamos para detallar mas, uno de los agentes se encarga de conectarse con la API de Kiwi TCMS para insertar automáticamente la información generada en la herramienta (A partir de los escenarios, este agente crea los casos de prueba dentro de la plataforma)
+Para detallar más este punto, uno de los agentes se encarga de conectarse con la API de Kiwi TCMS para insertar los casos de prueba con la información generada en la herramienta mediante un enfoque Human-In-The-Loop, es decir, con revisión humana (A partir de los borradores con todo el contenido previo, este agente crea los casos de prueba dentro de la plataforma)
 
 Así la solución no se limita a generar texto de forma aislada, sino que transforma ese output en elementos útiles dentro del proceso de QA. Esto permite mantener la información organizada para que el equipo de QA lo utilice.
 
@@ -193,3 +193,7 @@ Por su parte, plataformas de testing basadas en IA, como Testim, Applitools, Mab
 Finalmente, la elección de Google ADK se debe a que en un principio dentro de la empresa se realizaron pruebas con este framework y dio buenos resultados, y puedo destacar que Google no llega a ser partnership de CIC pero le ofrece soporte de primer nivel en caso de necesitar ayuda, por tanto, el uso de esta herramienta encaja perfectamente. 
 
 Si que es cierto que se podría usar otros frameworks como LangGraph pero debido a estas causas se utiliza Google ADK. A partir de esta decisión, se puede decir que Google ADK ofrece unas capacidades muy apropiadas que permiten construir la arquitectura multiagente y también flujos estructurados, por lo que toda esta suma de ventajas lo hace el framework mas óptimo para usar en este trabajo.
+
+---
+
+[← Volver al Índice](../README.md)

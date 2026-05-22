@@ -1,266 +1,109 @@
 @startuml
 actor "QA" as QA
-participant "Sistema" as SISTEMA
-participant "Sistema externo:\nKiwi TCMS" as KIWI
+participant "kiwi-mvc\nSistema principal" as MVC
+participant "Agent_ApiKiwi\nHandoff API" as HANDOFF
+participant "Orquestador\nkiwi_orchestrator" as ORQ
+participant "Tool\nget_kiwimvc_session_docs" as DBTOOL
+database "MongoDB kiwi-mvc\nDocumentations" as MONGO
+participant "Agente A\nextract_uc_rf_agent" as A
+participant "Agente B\nkiwi_gherkin_agent" as B
+database "kiwi_drafts.json\nDraft store" as STORE
+participant "Agente C\nreview_publish_agent" as C
+participant "Kiwi TCMS" as KIWI
 
-note over QA, KIWI
-QA interactua con el Sistema principal y tambien
-directamente con Kiwi TCMS, que es un sistema externo
+title Flujo real de agentes - Input/Output
+
+== Entrada desde kiwi-mvc ==
+
+QA -> MVC : Selecciona sesion y documentacion\nelige flujo automatico
+MVC -> HANDOFF : POST /api/kiwi-mvc/handoff\nsource_session_id,\nproject_name,\nsession_name,\nrun_immediately=true
+
+HANDOFF -> HANDOFF : Crear sesion ADK\ncon project_name,\nsource_session_id,\nsession_name
+
+HANDOFF --> MVC : ok,\nagent_session_id,\nagent_user_id,\nagent_app_name,\nhandoff_url
+
+HANDOFF -> ORQ : Prompt automatico:\nrecuperar documentacion y ejecutar flujo completo
+
+== Recuperacion de documentacion ==
+
+ORQ -> DBTOOL : get_kiwimvc_session_docs(source_session_id)
+DBTOOL -> MONGO : Buscar documentacion de la sesion
+MONGO --> DBTOOL : Documentos funcionales\nDRF/DDS + metadatos
+DBTOOL --> ORQ : merged_content,\nproject_name,\nsource_session_id,\nsource_documents
+
+== Agente A - Extraccion UC/RF ==
+
+ORQ -> A : Input:\nmerged_content,\nproject_name,\nsource_session_id,\nsource_documents
+
+A --> ORQ : Output JSON:\nproject_name,\nsource_session_id,\nsource_documents,\ndrf,\nuse_cases[],\nfunctional_requirements[],\nnotes[]
+
+note right of A
+El Agente A NO guarda datos.
+Solo extrae UC y RF y devuelve JSON.
 end note
 
-== Operaciones sobre documentacion ==
+== Agente B - Generacion y persistencia ==
 
-QA -> SISTEMA : Listar documentacion
-SISTEMA --> QA : Lista de documentacion
-note right of SISTEMA
-CU05 - Listar documentacion
-end note
+ORQ -> B : Input:\nJSON del Agente A
 
-QA -> SISTEMA : Consultar documentacion
-SISTEMA --> QA : Detalle de documentacion
-note right of SISTEMA
-CU06 - Consultar documentacion
-end note
+B -> STORE : register_documentation_reference(...)
+B -> STORE : save_use_case(...)
+B -> STORE : save_functional_requirement(...)
 
-alt Documentacion requiere ajuste
-  QA -> SISTEMA : Actualizar documentacion
-  SISTEMA --> QA : Documentacion actualizada
-  note right of SISTEMA
-  CU07 - Actualizar documentacion
-  end note
-else Documentacion descartada
-  QA -> SISTEMA : Eliminar documentacion
-  SISTEMA --> QA : Documentacion eliminada
-  note right of SISTEMA
-  CU08 - Eliminar documentacion
-  end note
-else Documentacion sin proyecto asociado
-  SISTEMA --> QA : Solicitar proyecto asociado
-  QA -> SISTEMA : Asociar documentacion a proyecto
-  note right of SISTEMA
-  CU03 - Asociar documentacion a proyecto
-  end note
+loop Por cada caso de uso
+  B -> B : Generar escenarios Gherkin\n@direct y @derived
+  B -> STORE : save_draft(summary,\ncategory_name,\ngherkin_text,\nmeta,\nproject_name,\nsource_session_id)
 end
 
-SISTEMA -> SISTEMA : Registrar y asociar documentacion
-SISTEMA -> SISTEMA : Extraer casos de uso
-note right of SISTEMA
-CU09 - Extraer casos de uso
+B --> ORQ : Markdown:\nAgente 1 - UC y RF\nAgente 2 - Gherkin por UC\nRevision - Pendiente de aprobacion
+
+ORQ --> QA : Muestra borradores generados\npendientes de revision
+
+note right of B
+El Agente B NO publica en Kiwi.
+Solo genera Gherkin y guarda borradores pendientes.
 end note
 
-SISTEMA -> SISTEMA : Extraer requisitos funcionales
-note right of SISTEMA
-CU15 - Extraer requisitos funcionales
-end note
+== Revision de borradores ==
 
-SISTEMA -> SISTEMA : Crear borrador de caso de prueba
-note right of SISTEMA
-CU26 - Crear borrador de caso de prueba
-end note
+QA -> C : listar borradores
+C -> STORE : list_drafts(status="pending", project_name)
+STORE --> C : drafts[]
+C --> QA : Lista de borradores
 
-SISTEMA -> SISTEMA : Guardar casos de uso
-SISTEMA -> SISTEMA : Guardar requisitos funcionales
-SISTEMA -> SISTEMA : Guardar borrador
-note right of SISTEMA
-CU37 - Guardar resultados
-(casos de uso, requisitos funcionales,
-y borradores)
-end note
+QA -> C : ver <summary>
+C -> STORE : get_draft(summary, project_name)
+STORE --> C : draft
+C --> QA : Gherkin del borrador
 
-SISTEMA --> QA : Mostrar resultados generados ( UC+RF+Escenarios Gherkin)
+alt QA anade feedback
+  QA -> C : feedback <summary>: <texto>
+  C -> STORE : add_feedback(summary, feedback)
+  C -> STORE : get_draft(summary)
+  STORE --> C : draft actual
+  C -> C : Regenerar Gherkin aplicando feedback
+  C -> STORE : save_draft(... nueva version ...)
+  C --> QA : Borrador actualizado\npendiente de aprobacion
 
-QA -> SISTEMA : Consultar referencias de documentacion de un proyecto
-SISTEMA --> QA : Mostrar referencias de documentacion
-note right of SISTEMA
-CU04 - Consultar referencias de documentacion de un proyecto
-end note
+else QA rechaza borrador
+  QA -> C : rechazar <summary>
+  C -> STORE : delete_draft(summary, project_name)
+  C --> QA : Borrador eliminado/rechazado
 
-== Operaciones sobre casos de uso ==
-
-QA -> SISTEMA : Listar casos de uso
-SISTEMA --> QA : Lista de casos de uso
-note right of SISTEMA
-CU10 - Listar casos de uso
-end note
-
-QA -> SISTEMA : Consultar caso de uso
-SISTEMA --> QA : Detalle de caso de uso
-note right of SISTEMA
-CU11 - Consultar caso de uso
-end note
-
-QA -> SISTEMA : Crear caso de uso
-SISTEMA -> SISTEMA : Guardar caso de uso
-SISTEMA --> QA : Caso de uso creado
-note right of SISTEMA
-CU12 - Crear caso de uso
-CU37 - Guardar resultados
-end note
-
-QA -> SISTEMA : Actualizar caso de uso
-SISTEMA -> SISTEMA : Guardar cambios
-SISTEMA --> QA : Caso de uso actualizado
-note right of SISTEMA
-CU13 - Actualizar caso de uso
-CU37 - Guardar resultados
-end note
-
-QA -> SISTEMA : Eliminar caso de uso
-SISTEMA --> QA : Caso de uso eliminado
-note right of SISTEMA
-CU14 - Eliminar caso de uso
-end note
-
-== Operaciones sobre requisitos funcionales ==
-
-QA -> SISTEMA : Listar requisitos funcionales
-SISTEMA --> QA : Lista de requisitos funcionales
-note right of SISTEMA
-CU16 - Listar requisitos funcionales
-end note
-
-QA -> SISTEMA : Consultar requisito funcional
-SISTEMA --> QA : Detalle de requisito funcional
-note right of SISTEMA
-CU17 - Consultar requisito funcional
-end note
-
-QA -> SISTEMA : Crear requisito funcional
-SISTEMA -> SISTEMA : Guardar requisito funcional
-SISTEMA --> QA : Requisito funcional creado
-note right of SISTEMA
-CU18 - Crear requisito funcional
-CU37 - Guardar resultados
-end note
-
-QA -> SISTEMA : Actualizar requisito funcional
-SISTEMA -> SISTEMA : Guardar cambios
-SISTEMA --> QA : Requisito funcional actualizado
-note right of SISTEMA
-CU19 - Actualizar requisito funcional
-CU37 - Guardar resultados
-end note
-
-QA -> SISTEMA : Eliminar requisito funcional
-SISTEMA --> QA : Requisito funcional eliminado
-note right of SISTEMA
-CU20 - Eliminar requisito funcional
-end note
-
-== Operaciones sobre escenarios Gherkin ==
-
-QA -> SISTEMA : Listar escenarios Gherkin
-SISTEMA --> QA : Lista de escenarios Gherkin
-note right of SISTEMA
-CU21 - Listar escenarios Gherkin
-end note
-
-QA -> SISTEMA : Crear escenario Gherkin
-SISTEMA --> QA : Escenario Gherkin creado
-note right of SISTEMA
-CU22 - Crear escenario Gherkin
-CU37 - Guardar resultados
-end note
-
-QA -> SISTEMA : Consultar escenario Gherkin
-SISTEMA --> QA : Detalle de escenario Gherkin
-note right of SISTEMA
-CU23 - Consultar escenario Gherkin
-end note
-
-QA -> SISTEMA : Actualizar escenario Gherkin
-SISTEMA --> QA : Escenario Gherkin actualizado
-note right of SISTEMA
-CU24 - Actualizar escenario Gherkin
-CU37 - Guardar resultados
-end note
-
-QA -> SISTEMA : Eliminar escenario Gherkin
-SISTEMA --> QA : Escenario Gherkin eliminado
-note right of SISTEMA
-CU25 - Eliminar escenario Gherkin
-end note
-
-== Operaciones sobre borradores ==
-
-QA -> SISTEMA : Listar borradores
-SISTEMA --> QA : Lista de borradores
-note right of SISTEMA
-CU27 - Listar borradores
-end note
-
-QA -> SISTEMA : Consultar borrador
-SISTEMA --> QA : Mostrar borrador
-note right of SISTEMA
-CU28 - Consultar borrador
-end note
-
-alt Anadir feedback
-  QA -> SISTEMA : Anadir feedback a borrador
-  note right of SISTEMA
-  CU29 - Anadir feedback a borrador
-  end note
-
-  SISTEMA -> SISTEMA : Registrar feedback
-  SISTEMA -> SISTEMA : Generar nueva version del borrador
-  SISTEMA --> QA : Mostrar borrador actualizado
-  note right of SISTEMA
-  CU29 - Anadir feedback a borrador
-  CU37 - Guardar resultados
-  end note
-
-else Borrador rechazado
-  QA -> SISTEMA : Rechazar borrador
-  SISTEMA --> QA : Borrador rechazado
-  note right of SISTEMA
-  CU30 - Rechazar borrador
-  end note
-
-else Borrador aceptado y publicado
-  QA -> SISTEMA : Aceptar y publicar caso de prueba a partir de borrador
-  SISTEMA -> SISTEMA : Generar caso de prueba final
-  SISTEMA -> KIWI : Registrar caso de prueba en Kiwi TCMS
-  KIWI --> SISTEMA : Resultado publicacion
-  SISTEMA --> QA : Caso de prueba publicado
-  note right of SISTEMA
-  CU31 - Aceptar y publicar caso de prueba a partir de borrador
-  CU38 - Registrar caso de prueba en Kiwi TCMS
-  end note
+else QA acepta borrador
+  QA -> C : aceptar <summary>
+  C -> STORE : publish_draft(summary, project_name)
+  STORE -> KIWI : TestCase.create(...)
+  KIWI --> STORE : id caso creado / error
+  STORE --> C : Resultado real de publicacion
+  C --> QA : Caso publicado en Kiwi TCMS\ncon id o error
 end
 
-== Consultas en Kiwi TCMS ==
-
-QA -> KIWI : Buscar casos de prueba en Kiwi TCMS
-KIWI --> QA : Lista de resultados
-note right of KIWI
-CU32 - Buscar casos de prueba en Kiwi TCMS
+note right of C
+El Agente C solo publica cuando QA dice
+explicitamente "aceptar <summary>".
 end note
 
-QA -> KIWI : Ver caso de prueba en Kiwi TCMS
-KIWI --> QA : Detalle de caso
-KIWI --> QA : Resultado final / estado
-note right of KIWI
-CU33 - Ver caso de prueba en Kiwi TCMS
-end note
 
-== Operaciones sobre sesiones ==
-
-QA -> SISTEMA : Seleccionar sesiones
-SISTEMA --> QA : Lista de sesiones
-note right of SISTEMA
-CU34 - Seleccionar sesiones
-end note
-
-QA -> SISTEMA : Crear nueva sesion
-SISTEMA --> QA : Sesion creada
-note right of SISTEMA
-CU35 - Crear nueva sesion
-end note
-
-QA -> SISTEMA : Eliminar sesion
-SISTEMA --> QA : Sesion eliminada
-note right of SISTEMA
-CU36 - Eliminar sesion
-end note
 
 @enduml

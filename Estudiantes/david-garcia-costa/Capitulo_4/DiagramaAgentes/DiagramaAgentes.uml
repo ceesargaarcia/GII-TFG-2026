@@ -1,0 +1,40 @@
+@startuml
+
+class kiwi_orchestrator {
+  rol: Agente raíz
+  trabajo: Decide qué agente ejecutar
+}
+
+class draft_pipeline_agent {
+  rol: Pipeline automático
+  trabajo: Coordina extracción y generación
+}
+
+class extract_uc_rf_agent {
+  rol: Extractor
+  trabajo: Extrae UC y RF
+}
+
+class kiwi_gherkin_agent {
+  rol: Generador QA
+  trabajo: Genera escenarios Gherkin
+}
+
+class review_publish_agent {
+  rol: Revisión
+  trabajo: Revisa y publica drafts
+}
+
+class requirements_manager_agent {
+  rol: Gestor requisitos
+  trabajo: Gestiona UC y RF
+}
+
+kiwi_orchestrator --> draft_pipeline_agent
+kiwi_orchestrator --> review_publish_agent
+kiwi_orchestrator --> requirements_manager_agent
+
+draft_pipeline_agent --> extract_uc_rf_agent
+draft_pipeline_agent --> kiwi_gherkin_agent
+
+@enduml

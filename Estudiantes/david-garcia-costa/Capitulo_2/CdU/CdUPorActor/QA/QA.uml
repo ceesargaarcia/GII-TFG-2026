@@ -47,6 +47,8 @@ rectangle "Sistema" {
   usecase "Crear nueva\nsesion" as CU34
   usecase "Eliminar\nsesion" as CU35
   usecase "Guardar\nresultados" as CU36
+  usecase "Registrar\ncuenta" as CU38
+  usecase "Crear traspaso\nal flujo automatico" as CU39
 }
 
 QA --> CU01
@@ -85,4 +87,6 @@ QA --> CU33
 QA --> CU34
 QA --> CU35
 QA --> CU36
+QA --> CU38
+QA --> CU39
 @enduml

@@ -1,0 +1,32 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+
+title CU-39 - Crear traspaso al flujo automatico
+
+package "Vista" {
+  class AutomaticModeView
+}
+
+package "Controlador" {
+  class SessionController
+}
+
+package "Modelo" {
+  class Session
+  class Documentation
+}
+
+package "Sistema externo" {
+  class AgentApiKiwi
+}
+
+AutomaticModeView --> SessionController : POST /api/sessions/:id/handoff-to-agent
+SessionController --> Session : obtener sesion
+SessionController --> Documentation : contar documentacion de sesion
+SessionController --> AgentApiKiwi : POST /api/kiwi-mvc/handoff
+AgentApiKiwi --> SessionController : agent_session_id + handoff_url
+SessionController --> Session : guardar handoff y workflowMode automatico
+
+@enduml

@@ -3,7 +3,7 @@ skinparam packageStyle rectangle
 skinparam shadowing false
 skinparam classAttributeIconSize 0
 
-title CU-01 - Introducir documentación funcional
+title CU-03 - Introducir documentación funcional
 
 package "Vista" {
   class DocumentationView

@@ -9,7 +9,7 @@
 # Modelo de Dominio
 
 ## Descripción general
-En el contexto organizativo, el sistema parte de un **Proyecto**, que proporciona el marco al que debe quedar asociada toda **Documentación**. La documentación constituye el punto de entrada del sistema y puede presentarse en forma de texto libre, DRF, DDS o combinación de varias fuentes documentales.
+En el contexto organizativo, el sistema parte de un **Proyecto**, que proporciona el marco al que debe quedar asociada toda **Documentación**. La documentación constituye el punto de entrada del sistema y puede presentarse en forma de DRF o DDS.
 
 A partir de la documentación se obtienen **Casos de Uso** y **Requisitos Funcionales**, que representan la base funcional del conocimiento extraído. Entre ambos se mantiene una relación de trazabilidad, ya que describen de forma complementaria el comportamiento esperado del sistema.
 
@@ -64,3 +64,7 @@ Este diagrama refuerza la idea de control y trazabilidad sobre los requisitos fu
 #### Explicacion
 
 El `Borrador` comienza en `Generado` cuando el sistema produce una primera propuesta a partir de los escenarios Gherkin. Pasa a `PendienteRevision` cuando queda disponible para el Ingeniero de QA y puede entrar en `Modificado` si se incorpora feedback o se regenera su contenido. Cuando el borrador queda conforme, alcanza el estado `Aprobado`, que habilita la generacion del caso de prueba derivado. Si finalmente se descarta o deja de ser util, tambien puede terminar en `Eliminado`.
+
+---
+
+[← Volver al Índice](../../README.md)

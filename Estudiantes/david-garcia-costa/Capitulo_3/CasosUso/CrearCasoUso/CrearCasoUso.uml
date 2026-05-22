@@ -3,7 +3,7 @@ skinparam packageStyle rectangle
 skinparam shadowing false
 skinparam classAttributeIconSize 0
 
-title CU-02 - Crear caso de uso
+title CU-12 - Crear caso de uso
 
 package "Vista" {
   class UseCasesRequirementsView

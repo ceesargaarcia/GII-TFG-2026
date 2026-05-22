@@ -17,7 +17,7 @@ state aceptarYPublicarCasoPruebaBorrador as "aceptarYPublicarCasoPruebaBorrador(
 
     ConsultandoBorrador -[#green]-> AceptandoBorrador
     note on link
-    <b>Sistema</b> valida el estado del borrador
+    <b>Actor</b> valida el estado del borrador
     y confirma su aceptacion
     end note
 

@@ -1,0 +1,53 @@
+@startuml CrearTraspasoHaciaAgentes
+
+skinparam linetype polyline
+
+state crearTraspasoHaciaAgentes as "crearTraspasoHaciaAgentes()" {
+
+    state " " as ValidandoSesion
+    state " " as CreandoTraspaso
+    state " " as PreparandoContexto
+    state " " as ActivandoEntornoAgentes
+
+    [*] -[#green]-> ValidandoSesion
+    note on link
+    Se solicita iniciar el flujo
+    automatico con agentes
+    end note
+
+    ValidandoSesion -[#green]-> CreandoTraspaso
+    note on link
+    <b>Sistema</b> valida que la sesion
+    tenga proyecto y documentacion asociada
+    end note
+
+    CreandoTraspaso -[#green]-> PreparandoContexto
+    note on link
+    <b>Sistema</b> crea el traspaso
+    al entorno de agentes
+    end note
+
+    PreparandoContexto -[#green]-> ActivandoEntornoAgentes
+    note on link
+    <b>Sistema</b> transfiere la documentacion
+    y prepara los artefactos derivados
+    end note
+
+    ActivandoEntornoAgentes -[#green]-> [*]
+    note on link
+    <b>Sistema</b> marca la sesion como automatica
+    y deja disponible el entorno de agentes
+    end note
+}
+
+crearTraspasoHaciaAgentes -[#green]-> AGENTES_ABIERTO
+note on link
+completarTraspaso()
+end note
+
+crearTraspasoHaciaAgentes -[#red]-> SESION_ABIERTA
+note on link
+rechazarTraspaso()
+end note
+
+@enduml

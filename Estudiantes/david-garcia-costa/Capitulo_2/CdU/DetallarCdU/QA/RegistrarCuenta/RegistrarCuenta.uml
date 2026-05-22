@@ -1,0 +1,46 @@
+@startuml RegistrarCuenta
+
+skinparam linetype polyline
+
+state registrarCuenta as "registrarCuenta()" {
+
+    state " " as SolicitandoDatos
+    state " " as ValidandoDatos
+    state " " as CreandoCuenta
+
+    [*] -[#green]-> SolicitandoDatos
+    note on link
+    Se solicita registrar
+    una nueva cuenta
+    end note
+
+    SolicitandoDatos -[#green]-> ValidandoDatos
+    note on link
+    <b>Sistema</b> muestra el formulario
+    y recibe usuario, email y contrasena
+    end note
+
+    ValidandoDatos -[#green]-> CreandoCuenta
+    note on link
+    <b>Sistema</b> valida los datos
+    y comprueba que el usuario no exista
+    end note
+
+    CreandoCuenta -[#green]-> [*]
+    note on link
+    <b>Sistema</b> crea la cuenta
+    e inicia la sesion del usuario
+    end note
+}
+
+registrarCuenta -[#green]-> SISTEMA_ABIERTO
+note on link
+completarRegistro()
+end note
+
+registrarCuenta -[#red]-> REGISTRO_ABIERTO
+note on link
+rechazarRegistro()
+end note
+
+@enduml

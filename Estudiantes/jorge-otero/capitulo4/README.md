@@ -24,6 +24,14 @@ El sistema contempla cuatro casuísticas principales mediante un bloque **Switch
 
 Asunto definido internamente. Un técnico envía este correo al buzón para actualizar el estado del formulario.
 
+Se extrae el ID del formulario a marcar como resuelto  de la siguiente forma:
+
+```text
+replace(triggerOutputs()?['body/subject'], 'TE:FORMRESUELTO', '')
+```
+
+Se procede a actualizar con la siguiente query sobre el dataset **GestionVariaciones**.
+
 ## 2. Caso `Documentacion Desacuerdo con la Solucion`
 
 Correo enviado por un cliente. El sistema mueve el mensaje a la carpeta de documentación de desacuerdo, facilitando al técnico la gestión de dicha documentación.
@@ -32,11 +40,11 @@ Correo enviado por un cliente. El sistema mueve el mensaje a la carpeta de docum
 
 Correo enviado también por un cliente. El sistema mueve el mensaje a una carpeta específica para que el técnico pueda tratarlo posteriormente.
 
-## 4. Caso por defecto
+## 4. Caso Default
 
 Corresponde a cualquier asunto diferente de los anteriores.
 
-## Detalle del caso por defecto
+## Detalle del caso Defaul
 
 Cuando el asunto no coincide con ninguno de los casos anteriores, el correo es analizado por un agente configurado mediante un prompt. Este agente devuelve un JSON con la intención del mensaje y todos los números de más de cuatro cifras mencionados en el correo.
 
@@ -44,7 +52,7 @@ Modelo IA usado:
 
 ![ModeloIA](./DescripcionSol/ModeloIA.png)
 
-El gasto arpoximado por correo analizado es variable en función del correo y cuando haya que analizar pero se aproxima a 0,011€ por correo analizado.
+El gasto aproximado por correo analizado es variable en función del correo y cuando haya que analizar pero se aproxima a 0,011€ por correo analizado.
 
 El agente está desarrollado en **Power Apps**, herramienta de Microsoft, y se conecta al flujo mediante **Microsoft Dataverse**. 
 

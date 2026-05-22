@@ -60,10 +60,6 @@ Descripción estructurada en lenguaje natural (DSL) que define el comportamiento
 
 Es una forma de representar escenarios de prueba.
 
-### Project Manager
-
-Responsable de generar o gestionar la documentacion, definir casos de uso, definir requisitos funcionales y supervisar la evolucion general del proyecto.
-
 ### Ingeniero QA
 
 Perfil que analiza la documentacion y valida los resultados generados por los agentes de Inteligencia Artificial.
@@ -73,10 +69,6 @@ Es el usuario principal del sistema en la fase de testing.
 
 Sistema externo de gestion de pruebas.
 Recibe, almacena, consulta y permite gestionar los casos de prueba generados por el sistema.
-
-### API de Kiwi TCMS
-
-Interfaz utilizada para enviar, consultar o modificar casos de prueba entre el sistema y Kiwi TCMS.
 
 ### Borrador
 
@@ -89,13 +81,14 @@ En el capitulo 2 se utiliza especialmente para los escenarios Gherkin pendientes
 Observacion, correccion o comentario incorporado durante la revision de un artefacto.
 Se utiliza para refinar escenarios de prueba antes de su aprobacion o publicacion.
 
-### Texto Libre
-
-Entrada documental no necesariamente estructurada en un formato formal como DRF o DDS.
-Puede utilizarse como fuente para extraer casos de uso, requisitos funcionales o generar borradores.
-
-
 ### Artefacto
 
 Elemento de informacion gestionado por el sistema dentro del flujo de analisis, generacion y publicacion.
 Incluye documentos de entrada, resultados de extraccion, escenarios borrador y casos publicados.
+
+### Trazabilidad
+
+Capacidad del sistema para mantener y consultar la cadena de origen entre artefactos.
+Permite saber de que documentacion proviene un caso de uso, a que requisitos esta asociado un escenario y de que borrador se derivo un caso de prueba publicado.
+
+

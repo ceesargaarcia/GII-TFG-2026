@@ -3,7 +3,7 @@ skinparam packageStyle rectangle
 skinparam shadowing false
 skinparam classAttributeIconSize 0
 
-title CU-05 - Crear borrador
+title CU-25 - Crear borrador
 
 package "Vista" {
   class DraftsView
