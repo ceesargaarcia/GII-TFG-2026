@@ -159,7 +159,7 @@ La puesta en producción ha validado que el 100 % de los requisitos funcionales 
 
 - **Confiabilidad:** Cero fallos críticos durante el período de validación en producción con 12+ usuarios concurrentes
 - **Rendimiento:** Cumplimiento del RNF-04 en el percentil P99 durante picos de uso
-- **Seguridad:** Acceso segmentado por rol (Director, Manager, Responsable) sin incidencias; auditoría de sesiones activada
+- **Seguridad:** Acceso segmentado por rol (Director, Responsable) sin incidencias; auditoría de sesiones activada
 - **Mantenibilidad:** Arquitectura que permite extensiones sin regresiones (añadidas 3 nuevas métricas operativas)
 - **Usabilidad:** Interfaz utilizada intuitivamente por usuarios no técnicos (Responsables) sin necesidad de entrenamiento formal
 
