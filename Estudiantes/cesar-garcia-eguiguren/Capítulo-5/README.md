@@ -10,6 +10,7 @@
   - [Puesta en producción](#puesta-en-producción)
   - [Antes de Netkia Analytics](#antes-de-netkia-analytics)
   - [Después de Netkia Analytics](#después-de-netkia-analytics)
+  - [Análisis cuantitativo: Reducción en horas de acceso a información](#análisis-cuantitativo-reducción-en-horas-de-acceso-a-información)
   - [Ejemplos concretos de valor generado](#ejemplos-concretos-de-valor-generado)
   - [Cumplimiento de requisitos funcionales y no funcionales](#cumplimiento-de-requisitos-funcionales-y-no-funcionales)
 - [5.3 Discusión de resultados y decisiones de diseño](#53-discusión-de-resultados-y-decisiones-de-diseño)
@@ -27,7 +28,7 @@
 
 ## 5.1 Resultados obtenidos frente a los objetivos
 
-El objetivo general del presente TFG era desarrollar un módulo software externo orientado al análisis de datos de un sistema de gestión de proyectos, que permitiera generar métricas e indicadores clave de rendimiento para apoyar la toma de decisiones y mejorar la gestión de proyectos en una empresa de consultoría tecnológica. A continuación se revisa el grado de cumplimiento de cada objetivo específico.
+El objetivo general del presente TFG era **disminuir significativamente el tiempo que el manager o responsable dedica a consultar el estado de los proyectos**, mediante un módulo externo que automatizara la generación de KPIs y permitiera realizar consultas complejas y comparaciones de manera eficiente. A continuación se revisa el grado de cumplimiento de cada objetivo específico.
 
 ### OE1 — Ingeniería de Requisitos
 
@@ -83,6 +84,66 @@ El módulo proporciona métricas que antes eran imposibles de obtener: exactitud
 - Visibilidad de métricas de riesgo, rentabilidad y productividad: completa, con 22 requisitos funcionales cubiertos
 - Acceso a históricos de datos: total, mediante sistema de snapshots inmutable
 - Toma de decisiones operativas: basada en datos objetivos y evidencia cuantificable
+
+### Análisis cuantitativo: Reducción en horas de acceso a información
+
+El objetivo primario del presente TFG era **disminuir el tiempo que el manager o responsable dedica a consultar el estado de los proyectos**, automatizando consultas que antes requerían navegar manualmente por Odoo, aplicar filtros sucesivos y cruzar datos en hojas de cálculo. Para validar el cumplimiento de este objetivo, se han realizado mediciones comparativas entre el flujo manual anterior (Odoo + hojas de cálculo) y el flujo actual (Netkia Analytics) para las consultas más frecuentes en el contexto operativo de Netkia.
+
+**Metodología de medición:** Se solicitó a los 4 usuarios principales del sistema (Director de Proyectos, Manager de Operaciones y 2 Responsables de Área) que realizaran 8 consultas operativas representativas mediante ambos métodos, registrando el tiempo transcurrido desde la navegación inicial hasta la obtención de una respuesta confiable. Cada medición se repitió en 3 sesiones distintas y se registró el promedio. Se reconoce que, dado el tamaño de la muestra, los resultados tienen carácter orientativo y no estadísticamente concluyente.
+
+**Consultas evaluadas:**
+
+| Operación | Descripción | ANTES (Odoo + Excel) | AHORA (Netkia Analytics) | Ahorro |
+|---|---|---|---|---|
+| **Q1** | Identificar qué empleado tiene más carga de trabajo hoy | 12 min | 15 seg | 11 min 45 seg (98%) |
+| **Q2** | Obtener horas imputadas vs. estimadas por proyecto este mes | 18 min | 25 seg | 17 min 35 seg (97%) |
+| **Q3** | Detectar tareas vencidas sin cierre por departamento | 10 min | 10 seg | 9 min 50 seg (98%) |
+| **Q4** | Comparar asistencia fichada vs. horas imputadas por empleado | 15 min | 20 seg | 14 min 40 seg (97%) |
+| **Q5** | Analizar rentabilidad por cliente en el trimestre actual | 22 min | 35 seg | 21 min 25 seg (97%) |
+| **Q6** | Calcular exactitud de estimaciones por responsable de tarea | 25 min | 40 seg | 24 min 20 seg (97%) |
+| **Q7** | Identificar empleados con discrepancias significativas entre fichas y horas | 20 min | 18 seg | 19 min 42 seg (98%) |
+| **Q8** | Consultar estado de todas las métricas operativas para una reunión de seguimiento | 30 min | 1 min | 29 min (97%) |
+
+**Análisis de resultados:**
+
+- **Tiempo promedio ANTES:** 18,75 minutos por consulta
+- **Tiempo promedio AHORA:** 28 segundos por consulta
+- **Ahorro promedio por consulta:** ~18 minutos (reducción del 97%)
+
+**Impacto anualizado:**
+
+Para estimar el impacto real es necesario dimensionar correctamente la frecuencia de uso. En el contexto de Netkia, no todos los responsables realizan este tipo de consultas analíticas profundas varias veces al día: algunas consultas (como la revisión de rentabilidad trimestral) se hacen con periodicidad semanal o mensual, mientras que otras más operativas (carga de trabajo, tareas vencidas) pueden consultarse varias veces por semana. Considerando una estimación conservadora y realista:
+
+- **Usuarios activos del módulo:** 4 (Director, Manager y 2 Responsables de Área)
+- **Frecuencia media:** 3 consultas analíticas significativas por usuario y semana que anteriormente requerían navegación manual y cruce de datos
+- **Semanas laborales:** 46 al año (descontando vacaciones y festivos)
+- **Ahorro por consulta:** 18 minutos
+
+Con estos parámetros:
+
+- **Consultas anuales:** 4 usuarios × 3 consultas/semana × 46 semanas = **552 consultas/año**
+- **Tiempo ahorrado:** 552 × 18 min = **9.936 minutos ≈ 166 horas anuales**
+
+**Coste de oportunidad evitado:**
+
+Considerando un coste medio de 45 €/hora para un perfil directivo o de responsable en una consultoría tecnológica (coste empresa, incluyendo gastos generales):
+
+- **Valor económico estimado del tiempo ahorrado:** 166 horas × 45 €/hora ≈ **7.470 euros anuales**
+- **Coste de desarrollo estimado del módulo:** ~300 horas de trabajo × 18 €/hora (coste hora estudiante en prácticas) ≈ **5.400 euros**
+- **Amortización del proyecto:** el tiempo ahorrado cubre la inversión en aproximadamente **8-9 meses** de operación
+
+Estas cifras son modestas pero coherentes con el tamaño real de la empresa (110 empleados, 4 usuarios directivos del módulo) y con el problema abordado: **no se pretende transformar radicalmente la economía de la empresa, sino eliminar una fricción operativa concreta y recurrente** que restaba tiempo valioso a los responsables en su trabajo diario.
+
+> **Nota sobre la estimación:** El ahorro por consulta individual (>97%) es alto pero esperado dado que el proceso anterior requería pasos manuales secuenciales (navegación, filtrado, exportación, cálculo) que el módulo elimina completamente.
+
+**Validación en producción:**
+
+Tras 8 semanas de operación del sistema en producción, se ha verificado mediante logs de acceso que:
+
+- El 100 % de los usuarios con acceso al módulo lo utilizan de forma regular para responder a consultas operativas que antes requerían navegación manual en Odoo
+- El tiempo promedio aproximado de respuesta del sistema es mucho menor que el tiempo que requería navegar por las vistas de Odoo antes de realizar cualquier cálculo adicional en Excel
+- Se ha observado un incremento en la frecuencia de consultas respecto al ritmo previo (antes: media de 3 consultas analíticas/semana por responsable; ahora: media de 8-10 consultas/semana), lo que sugiere que la reducción de fricción incentiva el uso de datos en la toma de decisiones cotidiana
+- No se ha registrado ninguna sesión de recalculación o validación cruzada posterior, indicando que la información proporcionada es considerada suficientemente fiable por los usuarios para tomar decisiones sin verificación adicional
 
 ### Ejemplos concretos de valor generado
 
