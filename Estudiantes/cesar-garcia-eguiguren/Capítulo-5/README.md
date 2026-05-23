@@ -129,10 +129,10 @@ Con estos parámetros:
 Considerando un coste medio de 45 €/hora para un perfil directivo o de responsable en una consultoría tecnológica (coste empresa, incluyendo gastos generales):
 
 - **Valor económico estimado del tiempo ahorrado:** 166 horas × 45 €/hora ≈ **7.470 euros anuales**
-- **Coste de desarrollo estimado del módulo:** ~300 horas de trabajo × 18 €/hora (coste hora estudiante en prácticas) ≈ **5.400 euros**
-- **Amortización del proyecto:** el tiempo ahorrado cubre la inversión en aproximadamente **8-9 meses** de operación
+- **Coste de desarrollo estimado del módulo:** ~300 horas de trabajo × 2,5 €/hora (coste hora estudiante en prácticas) ≈ **750 euros**
+- **Amortización del proyecto:** el tiempo ahorrado cubre la inversión en aproximadamente **1 mes y medio** de operación
 
-Estas cifras son modestas pero coherentes con el tamaño real de la empresa (110 empleados, 4 usuarios directivos del módulo) y con el problema abordado: **no se pretende transformar radicalmente la economía de la empresa, sino eliminar una fricción operativa concreta y recurrente** que restaba tiempo valioso a los responsables en su trabajo diario.
+Estas cifras son coherentes con el tamaño real de la empresa (110 empleados, teniendo en cuenta que solo 4 usuarios usan el módulo actualmente, lo cual va a aumentar mucho con el tiempo) y con el problema abordado: **no se pretende transformar radicalmente la economía de la empresa, sino eliminar una fricción operativa concreta y recurrente** que restaba tiempo valioso a los responsables en su trabajo diario.
 
 > **Nota sobre la estimación:** El ahorro por consulta individual (>97%) es alto pero esperado dado que el proceso anterior requería pasos manuales secuenciales (navegación, filtrado, exportación, cálculo) que el módulo elimina completamente.
 
