@@ -142,7 +142,6 @@ Dashboard global del sistema. Muestra:
 - **Widget "Estado operativo"** con cumplimiento, tasa de retrabajo y lead time (`GET /metrics/compliance`, `/rework-rate`, `/lead-time`).
 - **Widget "Distribución equipo"** (normal / cargado / libre / sin tareas) via `GET /dashboards/summary/manager`.
 - **Gráfico "Distribución por estado"** de tareas activas (`GET /charts/task-distribution`).
-- **Panel de snapshot masivo** (`BulkSnapshotPanel`) para guardar todos los tipos en un clic.
 
 ---
 
@@ -243,7 +242,7 @@ Panel de métricas en dos columnas. La columna izquierda muestra una **cuadrícu
 | ![](./imagenes/CargaTrabajo.png) | **Carga de trabajo** — ocupación vs capacidad de un empleado | `GET /metrics/workload` |
 | ![](./imagenes/IndiceRiesgo.png) | **Índice de riesgo** — % tareas abiertas en riesgo de retraso | `GET /metrics/risk-index` |
 | ![](./imagenes/EficienciaProyecto.png) | **Eficiencia de proyecto** — horas planificadas vs reales | `GET /metrics/project-efficiency` |
-| ![](./imagenes/Rentabilidad por horas.png) | **Rentabilidad estimada** — coste estimado vs coste real | `GET /metrics/profitability` |
+| ![](./imagenes/Rentabilidad%20por%20horas.png) | **Rentabilidad estimada** — coste estimado vs coste real | `GET /metrics/profitability` |
 | ![](./imagenes/TasaRetrabajo.png) | **Tasa de retrabajo** — % tareas reabiertos | `GET /metrics/rework-rate` |
 | ![](./imagenes/ExactitudEstimacion.png) | **Exactitud de estimación** — sesgo estimado/real por empleado | `GET /metrics/estimation-accuracy` |
 | ![](./imagenes/LeadTime.png) | **Lead Time** — días promedio asignación → cierre | `GET /metrics/lead-time` |
