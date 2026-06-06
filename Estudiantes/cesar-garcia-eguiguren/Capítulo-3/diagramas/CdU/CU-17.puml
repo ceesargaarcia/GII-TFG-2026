@@ -1,84 +1,85 @@
-@startuml CU-17_GuardarSnapshot
-!theme plain
-skinparam backgroundColor #07090F
-skinparam defaultFontColor #E2E8F5
-skinparam ArrowColor #38BDF8
-skinparam sequenceParticipantBackgroundColor #141824
-skinparam sequenceParticipantBorderColor #2A3850
-skinparam sequenceParticipantFontColor #E2E8F5
-skinparam sequenceActorBackgroundColor #1E2840
-skinparam sequenceActorBorderColor #38BDF8
-skinparam sequenceLifeLineBorderColor #2A3850
-skinparam noteBackgroundColor #141824
-skinparam noteBorderColor #38BDF8
-skinparam sequenceGroupBackgroundColor #0D1018
-skinparam sequenceGroupBorderColor #2A3850
-skinparam sequenceGroupFontColor #38BDF8
-skinparam sequenceGroupHeaderFontColor #38BDF8
-skinparam sequenceGroupBodyBackgroundColor #0D1018
-skinparam sequenceLifeLineBackgroundColor #0D1018
-skinparam sequenceLifeLineBorderColor #2A3850
+@startuml CU-17
+skinparam MaxMessageSize 150
 
-title CU-17 · Guardar Snapshot (upsert diario)
+title Diagrama de Secuencia de Diseño - CU-17 Guardar Snapshot
 
-actor "Usuario\n(Director/Responsable)" as U
-participant "Vista calculada\n(MetricDetail / Chart / Rentab.)" as UI
-participant "snapshotService.js" as FS
-participant "routes/snapshots.py" as RT
-participant "SnapshotService" as SS
-participant "snapshot.py\n(repo)" as REPO
-database "MongoDB\n(metric/chart/entity_snapshots)" as MG
+actor "Director /\nResponsable" as U
+participant "Frontend\n(React)" as FE
+participant "API\n(FastAPI)" as API
+participant "SnapshotService" as SVC
+participant "SnapshotRepository" as REPO
+database "MongoDB" as DB
 
-U -> UI : pulsa "Guardar snapshot"\nsobre la vista ya calculada
-UI -> FS : save(type, payload)\npayload = { tipo, params, data }
-FS -> RT : POST /snapshots/{metrics|charts|entities}\nAuthorization: Bearer JWT
-activate RT
+U -> FE : Click "Guardar Snapshot"\nen una vista calculada
+activate FE
 
-RT -> RT : require_manager_or_above(token)
-alt token inválido o expirado
-  RT --> FS : 401 Unauthorized
-  FS --> UI : redirige a /login
-else autorizado
-  RT -> SS : save(payload, actor)
-  activate SS
-  SS -> SS : 1. normalize(params)\n2. params_hash = SHA-256
-  SS -> SS : 3. snapshot_date = hoy (UTC)
-  SS -> SS : 4. build SnapshotActor\nfrom JWT claims
-  SS -> REPO : find_one(clave compuesta)\nclave = (tipo, params_hash, date)
-  activate REPO
-  REPO -> MG : findOne({ ... })
-  MG --> REPO : documento | null
-  deactivate REPO
+FE -> API : POST /snapshots/metrics\nBody: {metric_name, params, data}\n(JWT Bearer)
+activate API
 
-  alt ya existe
-    SS -> REPO : update_one(\n  data, updated_at, updated_by)
-    activate REPO
-    REPO -> MG : updateOne({...})
-    MG --> REPO : ack
-    REPO --> SS : {id, created: false}
-    deactivate REPO
-    note right of SS
-      **FA-01 Upsert:**
-      sobrescribe data + updated_at
-      + updated_by. No se crea
-      documento nuevo. No existe
-      CU separado de "Actualizar".
-    end note
-  else no existe
-    SS -> REPO : insert_one(\n  doc completo con\n  created_at/by)
-    activate REPO
-    REPO -> MG : insertOne({...})
-    MG --> REPO : insertedId
-    REPO --> SS : {id, created: true}
-    deactivate REPO
-  end
+API -> API : require_manager_or_above(cu)\n→ 403 si rol = empleado
 
-  SS --> RT : {id, created}
-  deactivate SS
-  RT --> FS : 200/201 JSON
+note right of API
+  También aplica para:
+  POST /snapshots/charts
+  POST /snapshots/entities
+end note
+
+API -> SVC : save_metric(cu, metric_name,\nparams, data)
+activate SVC
+
+SVC -> SVC : Crea actor dict desde cu:\n{user_id, employee_id,\nemployee_name, role}
+
+SVC -> REPO : upsert_metric_snapshot(\nmetric_name, params, data, actor)
+activate REPO
+
+REPO -> REPO : params_hash = SHA-256(params)[:16]
+REPO -> REPO : snap_date = today (YYYY-MM-DD)
+REPO -> REPO : match = {metric_name,\nparams_hash, snapshot_date}
+
+REPO -> DB : coll.update_one(\n  filter=match,\n  update={\n    $set: {data, updated_at, updated_by},\n    $setOnInsert: {created_at, created_by}\n  },\n  upsert=True\n)
+activate DB
+DB --> REPO : UpdateResult
+deactivate DB
+
+alt upserted_id is not None (documento nuevo)
+
+REPO --> SVC : {id: upserted_id,\ncreated: True, snapshot_date}
+
+else Documento ya existía (actualizado)
+
+REPO -> DB : coll.find_one(match)
+activate DB
+DB --> REPO : documento con _id
+deactivate DB
+
+REPO --> SVC : {id: _id,\ncreated: False, snapshot_date}
+
 end
-deactivate RT
+deactivate REPO
 
-FS --> UI : notificación\n"Snapshot creada" | "actualizada"
-UI --> U : muestra notificación
+SVC --> API : {id, created, snapshot_date}
+deactivate SVC
+
+alt created == True
+
+API --> FE : 201 Created\n{id, created, snapshot_date}
+
+else created == False
+
+API --> FE : 200 OK\n{id, created, snapshot_date}
+
+end
+deactivate API
+
+alt Snapshot nuevo
+
+FE --> U : Notificación: "Guardado"
+
+else Snapshot actualizado
+
+FE --> U : Notificación: "Actualizado\n(ya existía hoy)"
+
+end
+deactivate FE
+
 @enduml

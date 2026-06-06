@@ -1,140 +1,172 @@
-@startuml secuencia_cu03
-!theme plain
-skinparam backgroundColor #07090F
-skinparam defaultFontColor #E2E8F5
-skinparam ArrowColor #38BDF8
-skinparam sequenceParticipantBackgroundColor #141824
-skinparam sequenceParticipantBorderColor #2A3850
-skinparam sequenceParticipantFontColor #E2E8F5
-skinparam sequenceActorBackgroundColor #1E2840
-skinparam sequenceActorBorderColor #38BDF8
-skinparam sequenceLifeLineBorderColor #2A3850
-skinparam noteBackgroundColor #141824
-skinparam noteBorderColor #38BDF8
-skinparam sequenceGroupBackgroundColor #0D1018
-skinparam sequenceGroupBorderColor #2A3850
-skinparam sequenceGroupFontColor #38BDF8
-skinparam sequenceGroupHeaderFontColor #38BDF8
-skinparam sequenceGroupBodyBackgroundColor #0D1018
-skinparam sequenceDividerBackgroundColor #141824
-skinparam sequenceDividerBorderColor #2A3850
-skinparam sequenceDividerFontColor #38BDF8
+@startuml CU-03
+skinparam MaxMessageSize 150
 
-actor "Usuario\n(Responsable / Director)" as U
+title Diagrama de Secuencia de Diseño - CU-03 Consultar Ficha del Empleado
 
-participant "React SPA" as FE
-participant "Route\n(Controlador)" as ROUTE
-participant "Auth\nMiddleware" as AUTH
-participant "Service\n(Lógica)" as SVC
-participant "Repository\n(Datos)" as REPO
-participant "PostgreSQL\n(Odoo)" as DB
+actor "Responsable /\nDirector" as User
+participant "Frontend\n(React)" as FE
+participant "API\n(FastAPI)" as API
+participant "EmployeeService" as EmpService
+participant "EmployeeRepository" as EmpRepo
+participant "DashboardService" as DashService
+participant "WorkloadService" as WLService
+participant "WIPService" as WIPService
+participant "ProductivityService" as ProdService
+participant "TaskService" as TaskService
+participant "TaskRepository" as TaskRepo
+participant "TimesheetRepository" as TSRepo
+database "PostgreSQL\n(Odoo)" as DB
 
-== Paso 1: Ficha del empleado == 
+== Paso 1: Ficha del empleado ==
 
-U -> FE : navega a /empleados/{id}\n
-FE -> ROUTE : GET /employees/{id}
-ROUTE -> AUTH : require_manager_or_above()
-AUTH -> AUTH : decode_token(token)\nextraer role, employee_ids,\ndepartment_ids, project_ids
-AUTH --> ROUTE : CurrentUser(role, employee_ids, ...)
-note right of AUTH
-  **CAPA 1 — Guard de rol**
-  Bloquea si role == "empleado"
-end note
+User -> FE: Selecciona un empleado de la lista
+activate FE
 
-ROUTE -> SVC : EmployeeService.get_employee(cu, employee_id)
-SVC -> SVC : verify_employee_scope(cu, employee_id)
-note right of SVC
-  **CAPA 2 — Verificación individual**
-  cu.has_employee_access(id):
-    Director → True siempre
-    Responsable → id in cu.employee_ids
-  403 si no tiene acceso
-end note
+FE -> API: GET /employees/{employee_id}\n(JWT Bearer)
+activate API
 
-SVC -> REPO : get_employee_by_id(db, employee_id)
-REPO -> DB : SELECT hr_employee JOIN hr_department\nWHERE id = :employee_id
-DB --> REPO : row
-REPO --> SVC : Employee row
-SVC --> ROUTE : EmployeeDetail
-ROUTE --> FE : 200 OK + JSON
+API -> API : require_manager_or_above(cu)\n→ 403 si rol = empleado
+
+API -> EmpService: get_employee(cu, employee_id)
+activate EmpService
+
+EmpService -> EmpService: verify_employee_exists(db, employee_id)\n(utils/validation)
+
+alt Empleado no encontrado
+    EmpService --> API: 404 Not Found
+    API --> FE: 404 Not Found
+    FE --> User: Muestra mensaje de error
+end
+
+EmpService -> EmpService: verify_employee_scope(cu, employee_id)\n(utils/validation)
+
+alt Sin acceso al empleado
+    EmpService --> API: 403 Forbidden
+    API --> FE: 403 Forbidden
+    FE --> User: Muestra mensaje de error
+end
+
+EmpService -> EmpRepo: get_employee_by_id(db, employee_id)
+activate EmpRepo
+EmpRepo -> DB: SELECT hr_employee\nJOIN hr_department\nWHERE id = :employee_id
+activate DB
+DB --> EmpRepo: datos completos del empleado
+deactivate DB
+EmpRepo --> EmpService: EmployeeDetail
+deactivate EmpRepo
+
+EmpService --> API: EmployeeDetail
+deactivate EmpService
+
+API --> FE: 200 OK - EmployeeDetail
+deactivate API
+
+FE --> User: Muestra ficha del empleado
 
 == Paso 2: Dashboard del empleado ==
 
-FE -> ROUTE : GET /dashboards/summary/employee/{id}
-ROUTE -> AUTH : require_manager_or_above()
-AUTH -> AUTH : decode_token(token)\nextraer role, employee_ids, ...
-AUTH --> ROUTE : CurrentUser(role, employee_ids, ...)
+FE -> API: GET /dashboards/summary/employee/{employee_id}\n(JWT Bearer)
+activate API
 
-ROUTE -> SVC : DashboardService.get_employee_summary(cu, employee_id)
-SVC -> SVC : verify_employee_scope(cu, employee_id)
-note right of SVC
-  **CAPA 2 — segunda verificación**
-  Misma comprobación: id in cu.employee_ids
-  Evita acceso por ruta directa al dashboard
-end note
+API -> API : require_manager_or_above(cu)\n→ 403 si rol = empleado
 
-SVC -> SVC : WorkloadService.calculate(employee_id, detailed=True)
-note right of SVC
-  El employee_id ya fue validado por scope.
-  Las queries siguientes no necesitan
-  re-filtrar por scope: van por user_id
-end note
+API -> DashService: get_employee_summary(cu, employee_id)
+activate DashService
 
-SVC -> REPO : get_assigned_open_tasks(db, user_id)
-REPO -> DB : SELECT tareas abiertas asignadas al user_id
-DB --> REPO : rows
-REPO --> SVC : pending_rows
+DashService -> DashService: verify_employee_exists +\nverify_employee_scope
 
-SVC -> REPO : get_assigned_closed_tasks(db, user_id, date_from=cutoff)
-REPO -> DB : SELECT tareas cerradas recientes del user_id
-DB --> REPO : rows
-REPO --> SVC : completed_rows
+DashService -> WLService: calculate(employee_id, detailed=True)
+activate WLService
+WLService -> DB: get_user_id_for_employee(db, employee_id)
+activate DB
+DB --> WLService: user_id
+deactivate DB
+WLService -> DB: get_assigned_open_tasks(db, user_id)
+activate DB
+DB --> WLService: tareas abiertas
+deactivate DB
+WLService -> DB: get_assigned_closed_tasks(db, user_id,\ndate_from=cutoff)
+activate DB
+DB --> WLService: tareas cerradas
+deactivate DB
+WLService --> DashService: WorkloadResult
+deactivate WLService
 
-SVC -> SVC : WIPService.calculate(employee_id)
-SVC -> REPO : count_open_assigned_tasks(db, user_id)
-REPO -> DB : SELECT COUNT tareas abiertas
-DB --> REPO : count
-REPO --> SVC : wip_count
+DashService -> WIPService: calculate(employee_id)
+activate WIPService
+WIPService -> DB: get_user_id_for_employee(db, employee_id)
+activate DB
+DB --> WIPService: user_id
+deactivate DB
+WIPService -> DB: count_open_assigned_tasks(db, user_id)
+activate DB
+DB --> WIPService: wip_count
+deactivate DB
+WIPService --> DashService: WIPResult
+deactivate WIPService
 
-SVC -> SVC : ProductivityService.calculate(employee_id, date_from, date_to)
-SVC -> REPO : get_completed_tasks_with_hours(db, employee_id, ...)
-REPO -> DB : SELECT tareas cerradas + horas
-DB --> REPO : rows
-REPO --> SVC : task rows
+DashService -> ProdService: calculate(employee_id,\ndate_from, date_to)
+activate ProdService
+ProdService -> DB: get_completed_tasks_with_hours(db,\nemployee_id, ...)
+activate DB
+DB --> ProdService: tareas completadas con horas
+deactivate DB
+ProdService --> DashService: ProductivityResult
+deactivate ProdService
 
-SVC --> ROUTE : EmployeeSummaryResponse
-ROUTE --> FE : 200 OK + JSON
+DashService --> API: EmployeeSummaryResponse
+deactivate DashService
 
-== Paso 3 (opcional): Carga de tareas al seleccionar pestaña ==
+API --> FE: 200 OK - EmployeeSummaryResponse
+deactivate API
 
-opt Selección de pestaña Pendientes / Completadas / Asignadas / Responsable
-  FE -> ROUTE : GET /tasks/filter?employee_id={id}&status=<modo>
-  ROUTE -> AUTH : require_manager_or_above()
-  AUTH -> AUTH : decode_token(token)
-  AUTH --> ROUTE : CurrentUser(role, employee_ids, project_ids)
+FE --> User: Muestra dashboard con métricas\n(Workload, WIP, Productividad)
 
-  ROUTE -> SVC : TaskService.filter_tasks(cu, employee_id, status, ...)
-  SVC -> SVC : verify_employee_exists + verify_employee_scope(cu, employee_id)
-  note right of SVC
-    **CAPA 2 — tercera verificación**
-    Responsable: employee_id debe estar
-    en cu.employee_ids del JWT
-  end note
+== Paso 3: Tareas del empleado ==
 
-  SVC -> SVC : effective_project_ids = None
-  SVC -> REPO : build_filtered_query(db, employee_id, status, ...)
-  REPO -> DB : SELECT project_task JOIN assignments
-  DB --> REPO : rows
-  REPO --> SVC : Query result
 
-  SVC -> REPO : get_worked_hours_batch(db, task_ids)
-  REPO -> DB : SELECT SUM horas por tarea
-  DB --> REPO : hours_map
-  REPO --> SVC : hours_map
+    User -> FE: Click en pestaña "Tareas"
 
-  SVC -> SVC : _build_items(tasks, status, employee_id, hours_map)
-  SVC --> ROUTE : PaginatedResponse[TaskItem]
-  ROUTE --> FE : 200 OK + JSON
-end
-FE --> U : renderiza los items de la pestaña
+    FE -> API: GET /tasks/filter?employee_id={id}\n&status=pending|completed\n(JWT Bearer)
+    activate API
+
+    API -> API : require_manager_or_above(cu)\n→ 403 si rol = empleado
+
+    API -> TaskService: filter_tasks(cu, employee_id,\nstatus, ...)
+    activate TaskService
+
+    TaskService -> TaskService: verify_employee_exists +\nverify_employee_scope
+
+    TaskService -> TaskRepo: build_filtered_query(db, ...)
+    activate TaskRepo
+    TaskRepo -> DB: SELECT project_task\nJOIN project_project\nWHERE employee_id = :id\nAND [status filters]
+    activate DB
+    DB --> TaskRepo: query resultante
+    deactivate DB
+    TaskRepo --> TaskService: query
+    deactivate TaskRepo
+
+    TaskService -> TaskService: paginate(query, page, page_size)
+
+    TaskService -> TSRepo: get_worked_hours_batch(db, task_ids)
+    activate TSRepo
+    TSRepo -> DB: SELECT SUM(unit_amount)\nFROM account_analytic_line\nGROUP BY task_id
+    activate DB
+    DB --> TSRepo: hours_map
+    deactivate DB
+    TSRepo --> TaskService: hours_map
+    deactivate TSRepo
+
+    TaskService -> TaskService: _build_items(tasks, status,\nemployee_id, hours_map)
+
+    TaskService --> API: PaginatedResponse[TaskItem]
+    deactivate TaskService
+
+    API --> FE: 200 OK\nPaginatedResponse[TaskItem]
+    deactivate API
+
+    FE --> User: Muestra lista paginada de tareas
+
+deactivate FE
+
 @enduml

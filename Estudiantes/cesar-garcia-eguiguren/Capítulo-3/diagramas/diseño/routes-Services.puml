@@ -1,0 +1,82 @@
+@startuml d07b_routes_services
+hide empty members
+left to right direction
+skinparam nodesep 8
+skinparam ranksep 60
+
+package "routes/" {
+  class "auth.router"        as RA  <<router>>
+  class "employee.router"    as RE  <<router>>
+  class "department.router"  as RD  <<router>>
+  class "project.router"     as RP  <<router>>
+  class "task.router"        as RT  <<router>>
+  class "dashboards.router"  as RDB <<router>>
+  class "search.router"      as RS  <<router>>
+  class "charts.router"      as RC  <<router>>
+  class "metrics.router"     as RM  <<router>>
+  class "snapshots.router"   as RSN <<router>>
+}
+
+package "services/ (dominio)" {
+  class AuthService
+  class ScopeService
+  class EmployeeService
+  class DepartmentService
+  class ProjectService
+  class TaskService
+  class DashboardService
+  class ChartService
+  class SearchService
+  class SnapshotService
+}
+
+package "services/metrics/" {
+  class AttendanceService
+  class RentabilityService
+  class ProductivityService
+  class ComplianceService
+  class WorkloadService
+  class WIPService
+  class RiskIndexService
+  class ProjectEfficiencyService
+  class EstimationAccuracyService
+  class LeadTimeService
+  class ReworkRateService
+  class ProfitabilityService
+  class ClientDistributionService
+}
+
+RA  -[#38bdf8]-> AuthService
+RA  -[#38bdf8]-> ScopeService
+
+RE  -[#10b981]-> EmployeeService
+RE  -[#10b981]-> AttendanceService
+
+RD  -[#ec4899]-> DepartmentService
+
+RP  -[#06b6d4]-> ProjectService
+
+RT  -[#a855f7]-> TaskService
+
+RDB -[#f59e0b]-> DashboardService
+
+RC  -[#14b8a6]-> ChartService
+
+RS  -[#84cc16]-> SearchService
+
+RSN -[#8b5cf6]-> SnapshotService
+
+RM  -[#f87171]-> ProductivityService
+RM  -[#f87171]-> ComplianceService
+RM  -[#f87171]-> WorkloadService
+RM  -[#f87171]-> WIPService
+RM  -[#f87171]-> RiskIndexService
+RM  -[#f87171]-> ProjectEfficiencyService
+RM  -[#f87171]-> EstimationAccuracyService
+RM  -[#f87171]-> LeadTimeService
+RM  -[#f87171]-> ReworkRateService
+RM  -[#f87171]-> ProfitabilityService
+RM  -[#f87171]-> ClientDistributionService
+RM  -[#f87171]-> RentabilityService
+
+@enduml

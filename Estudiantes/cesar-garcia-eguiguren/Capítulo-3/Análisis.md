@@ -13,6 +13,8 @@
    - 2.5 [CU-13 — Consultar rentabilidad financiera](#25-cu-13--consultar-rentabilidad-financiera)
    - 2.6 [CU-17 — Guardar snapshot](#26-cu-17--guardar-snapshot)
    - 2.7 [CU-19 — Consultar detalle de snapshot](#27-cu-19--consultar-detalle-de-snapshot)
+   - 2.8 [CU-10 — Mostrar Catálogo de Métricas](#28-cu-10--mostrar-catálogo-de-métricas)
+   - 2.9 [CU-22 — Consultar Productividad](#29-cu-22--consultar-productividad)
 3. [Análisis de Clases](#3-análisis-de-clases)
    - 3.1 [Identificación de clases de análisis](#31-identificación-de-clases-de-análisis)
    - 3.2 [Relaciones entre clases del dominio](#32-relaciones-entre-clases-del-dominio)
@@ -99,6 +101,17 @@ El análisis de este caso de uso se documenta en el archivo [Análisis de CU-17]
 
 El análisis de este caso de uso se documenta en el archivo [Análisis de CU-19](./utils/Análisis_CU19.md).
 
+---
+
+### 2.8 CU-10 — Mostrar Catálogo de Métricas
+
+El análisis de este caso de uso se documenta en el archivo [Análisis de CU-10](./utils/Análisis_CU10.md).
+
+---
+
+### 2.9 CU-22 — Consultar Productividad
+
+El análisis de este caso de uso se documenta en el archivo [Análisis de CU-22](./utils/Análisis_CU22.md).
 
 ---
 

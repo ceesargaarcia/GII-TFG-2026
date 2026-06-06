@@ -1,77 +1,150 @@
-@startuml CU-13_Rentabilidad
-!theme plain
-skinparam backgroundColor #07090F
-skinparam defaultFontColor #E2E8F5
-skinparam ArrowColor #38BDF8
-skinparam sequenceParticipantBackgroundColor #141824
-skinparam sequenceParticipantBorderColor #2A3850
-skinparam sequenceParticipantFontColor #E2E8F5
-skinparam sequenceActorBackgroundColor #1E2840
-skinparam sequenceActorBorderColor #38BDF8
-skinparam sequenceLifeLineBorderColor #2A3850
-skinparam noteBackgroundColor #141824
-skinparam noteBorderColor #38BDF8
-skinparam sequenceGroupBackgroundColor #0D1018
-skinparam sequenceGroupBorderColor #2A3850
-skinparam sequenceGroupFontColor #38BDF8
-skinparam sequenceGroupHeaderFontColor #38BDF8
-skinparam sequenceGroupBodyBackgroundColor #0D1018
-skinparam sequenceLifeLineBackgroundColor #0D1018
-skinparam sequenceLifeLineBorderColor #2A3850
-skinparam sequenceDividerBackgroundColor #141824
-skinparam sequenceDividerBorderColor #2A3850
-skinparam sequenceBoxBackgroundColor #141824
+@startuml CU-13
+skinparam MaxMessageSize 150
 
+title Diagrama de Secuencia de Diseño - CU-13 Consultar Rentabilidad Financiera
 
-title CU-13 · Consultar Rentabilidad Financiera
+actor "Director" as U
+participant "Frontend\n(React)" as FE
+participant "API\n(FastAPI)" as API
+participant "RentabilityService" as SVC
+participant "RentabilityRepository" as REPO
+database "PostgreSQL\n(Odoo)" as DB
 
-actor "Director" as D
-participant "Rentabilidad.jsx" as UI
-participant "rentabilidadService.js" as FS
-participant "dashboards/\nrentability.py" as RR
-participant "RentabilityService" as RS
-participant "AnalyticLineRepo" as ALR
-participant "ProjectRepo" as PR
-database "PostgreSQL\n(Odoo RO)" as PG
+== Fase 1: Resumen global ==
 
-D -> UI : navega a /rentabilidad\n+ ajusta filtros
-UI -> FS : getRentability(filtros)
-FS -> RR : GET /dashboards/rentability\nAuthorization: Bearer JWT
-activate RR
+U -> FE : Selecciona "Rentabilidad Financiera"
+activate FE
 
-RR -> RR : require_director(token)
-alt rol != director
-  RR --> FS : 403 Forbidden
-  FS --> UI : redirige a pantalla restringida
-else rol == director
-  RR -> RS : compute(filtros)
-  activate RS
-  RS -> ALR : aggregate_by_project(rango, filtros)
-  activate ALR
-  ALR -> PG : SELECT SUM(...) FROM\naccount_analytic_line\nWHERE date BETWEEN ...
-  PG --> ALR : filas agregadas
-  ALR --> RS : agregados por proyecto
-  deactivate ALR
-  RS -> PR : fetch_projects(ids)
-  PR -> PG : SELECT * FROM project_project
-  PG --> PR : proyectos
-  PR --> RS : proyectos
-  RS -> RS : calcular margen / %\n+ distribución ganancia/neutro/pérdida
-  RS --> RR : {resumen, tabla, dist}
-  deactivate RS
-  RR --> FS : 200 JSON
-  FS --> UI : render panel completo
+FE -> API : GET /metrics/profitability/summary\n?date_from&date_to (JWT Bearer)
+activate API
+
+API -> API : require_director(cu)\n→ 403 si rol ≠ director
+
+note right of API
+  Solo directores pueden acceder
+  a la rentabilidad financiera.
+  No hay Capa 2 ni Capa 3:
+  el director ve todos los datos.
+end note
+
+API -> SVC : get_summary(date_from, date_to)
+activate SVC
+
+SVC -> REPO : get_global_totals(db, date_from, date_to)
+activate REPO
+REPO -> DB : SELECT SUM(CASE income)\n SUM(CASE expense)\n SUM(amount)\n SUM(unit_amount)\nFROM account_analytic_line\nWHERE project_id IS NOT NULL\n AND date BETWEEN :from AND :to
+activate DB
+DB --> REPO : totales globales
+deactivate DB
+REPO --> SVC : totales globales
+deactivate REPO
+
+SVC -> REPO : get_profitability_by_project(db, date_from, date_to)
+activate REPO
+REPO -> DB : SELECT project_id,\n SUM(income), SUM(expense),\n SUM(amount), SUM(unit_amount)\nFROM account_analytic_line\nWHERE project_id IS NOT NULL\n AND date BETWEEN :from AND :to\nGROUP BY project_id
+activate DB
+DB --> REPO : filas por proyecto
+deactivate DB
+REPO --> SVC : filas por proyecto
+deactivate REPO
+
+SVC -> SVC : Cuenta {ganancia, neutro, pérdida}\npor proyecto
+
+SVC --> API : SummaryJSON
+deactivate SVC
+
+API --> FE : 200 OK (summary)
+deactivate API
+
+FE --> U : Muestra resumen global\n(totales + distribución)
+deactivate FE
+
+== Fase 2: Detalle por proyecto ==
+
+U -> FE : Navega a pestaña "Por Proyecto"
+activate FE
+
+FE -> API : GET /metrics/profitability/per-project\n?date_from&date_to&project_id&manager_id\n(JWT Bearer)
+activate API
+
+API -> SVC : get_per_project(date_from, date_to,\nproject_id, manager_id)
+activate SVC
+
+SVC -> REPO : get_profitability_by_project(db,\nproject_id, manager_id, date_from, date_to)
+activate REPO
+REPO -> DB : SELECT project_id,\n SUM(income), SUM(expense),\n SUM(amount), SUM(unit_amount)\nFROM account_analytic_line\nWHERE [filtros opcionales]\nGROUP BY project_id
+activate DB
+DB --> REPO : filas agrupadas
+deactivate DB
+REPO --> SVC : filas agrupadas
+deactivate REPO
+
+SVC -> REPO : get_project_meta(db, project_ids)
+activate REPO
+REPO -> DB : SELECT pp.id, pp.name, rp.name AS manager\nFROM project_project pp\nLEFT JOIN res_partner rp\n ON pp.partner_id = rp.id\nWHERE pp.id IN (:ids)
+activate DB
+DB --> REPO : metadatos de proyectos
+deactivate DB
+REPO --> SVC : metadatos de proyectos
+deactivate REPO
+
+SVC -> SVC : Construye filas con pct y status\n(ganancia / neutro / pérdida)
+
+SVC --> API : List[ProjectRow]
+deactivate SVC
+
+API --> FE : 200 OK (lista de proyectos)
+deactivate API
+
+FE --> U : Muestra tabla de rentabilidad\npor proyecto
+deactivate FE
+
+== Fase 3 (opcional): Desglose de líneas analíticas ==
+
+opt El usuario pulsa "Ver Detalles" en un proyecto
+
+U -> FE : Click "Ver Detalles" (project_id)
+activate FE
+
+FE -> API : GET /metrics/profitability/per-project\n/{project_id}/lines?date_from&date_to\n(JWT Bearer)
+activate API
+
+API -> SVC : get_project_lines(project_id,\ndate_from, date_to)
+activate SVC
+
+SVC -> REPO : get_account_analytic_lines(db,\nproject_id, date_from, date_to)
+activate REPO
+REPO -> DB : SELECT id, date, name,\n amount, unit_amount\nFROM account_analytic_line\nWHERE project_id = :pid\n AND date BETWEEN :from AND :to
+activate DB
+DB --> REPO : líneas analíticas
+deactivate DB
+REPO --> SVC : líneas analíticas
+deactivate REPO
+
+SVC -> SVC : Separa en {incomes, expenses}
+
+SVC --> API : {incomes: [...], expenses: [...]}
+deactivate SVC
+
+API --> FE : 200 OK (desglose)
+deactivate API
+
+FE --> U : Muestra tabla de ingresos\ny gastos del proyecto
+deactivate FE
+
 end
-deactivate RR
 
-opt Drill-down de línea
-  D -> UI : pulsa "Ver detalles" (proyecto X\no cliente Y)
-  UI -> UI : <<extend>> CU-14\nLíneas Analíticas\n(scope = proyecto | cliente)
-end
+== Opcional: Guardar snapshot (extiende CU-17) ==
 
-opt Guardar snapshot
-  D -> UI : pulsa "Guardar snapshot"
-  UI -> UI : <<extend>> CU-17\nGuardar Snapshot
+opt El usuario pulsa "Guardar Snapshot"
+
+U -> FE : Click "Guardar Snapshot"
+activate FE
+FE -> FE : Empaqueta datos calculados
+note right of FE : Se extiende CU-17\n(Guardar Snapshot)
+FE --> U : Confirmación de guardado
+deactivate FE
+
 end
 
 @enduml

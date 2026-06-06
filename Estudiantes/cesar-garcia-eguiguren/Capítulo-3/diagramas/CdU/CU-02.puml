@@ -1,85 +1,66 @@
-@startuml secuencia_cu02
-!theme plain
-skinparam backgroundColor #07090F
-skinparam defaultFontColor #E2E8F5
-skinparam ArrowColor #38BDF8
-skinparam sequenceParticipantBackgroundColor #141824
-skinparam sequenceParticipantBorderColor #2A3850
-skinparam sequenceParticipantFontColor #E2E8F5
-skinparam sequenceActorBackgroundColor #1E2840
-skinparam sequenceActorBorderColor #38BDF8
-skinparam sequenceLifeLineBorderColor #2A3850
-skinparam noteBackgroundColor #141824
-skinparam noteBorderColor #38BDF8
-skinparam sequenceGroupBackgroundColor #0D1018
-skinparam sequenceGroupBorderColor #2A3850
-skinparam sequenceGroupFontColor #38BDF8
-skinparam sequenceGroupHeaderFontColor #38BDF8
-skinparam sequenceGroupBodyBackgroundColor #0D1018
-skinparam sequenceDividerBackgroundColor #141824
-skinparam sequenceDividerBorderColor #2A3850
-skinparam sequenceDividerFontColor #38BDF8
+@startuml CU-02
+skinparam MaxMessageSize 150
 
-actor "Usuario\n(Responsable / Director)" as U
+title Diagrama de Secuencia de Diseño - CU-02 Listar Empleados
 
-participant "React SPA" as FE
-participant "Route\n(Controlador)" as ROUTE
-participant "Auth\nMiddleware" as AUTH
-participant "Service\n(Lógica)" as SVC
-participant "Repository\n(Datos)" as REPO
-participant "PostgreSQL\n(Odoo)" as DB
+actor "Responsable /\nDirector" as User
+participant "Frontend\n(React)" as FE
+participant "API\n(FastAPI)" as API
+participant "EmployeeService" as Service
+participant "EmployeeRepository" as Repo
+database "PostgreSQL\n(Odoo)" as DB
 
-U -> FE : navega a /empleados\n+ ajusta filtro
-FE -> ROUTE : GET /employees/?department_id=X&search=Y\n&sort_by=name&page=1&page_size=50
+User -> FE: Navega a la vista de Empleados
+activate FE
 
-ROUTE -> AUTH : require_manager_or_above()
-AUTH -> AUTH : decode_token(token)\nextraer role, employee_ids,\ndepartment_ids, project_ids
-AUTH --> ROUTE : CurrentUser(role, employee_ids, department_ids)
-note right of AUTH
-  **CAPA 1 — Guard de rol**
-  Bloquea si role == "empleado"
-  Igual en todas las rutas del sistema
-end note
+FE -> API: GET /employees/?department_id&search&sort_by&page&page_size\n(JWT Bearer)
+activate API
 
-ROUTE -> SVC : EmployeeService.list_employees(\n  cu, department_id, search,\n  active, sort_by, sort_order,\n  page, page_size)
+API -> API : require_manager_or_above(cu)\n→ 403 si rol = empleado
 
-SVC -> SVC : [si department_id]\nverify_department_exists(db, department_id)\nverify_department_scope(cu, department_id)
-note right of SVC
-  **CAPA 2 — Verificación individual**
-  Solo si se filtra por departamento concreto.
-  Responsable: department_id in cu.department_ids
-  403 si no tiene acceso al departamento
-end note
+API -> Service: list_employees(cu, department_id,\nsearch, active, sort_by, sort_order, page, page_size)
+activate Service
 
-SVC -> SVC : Calcular emp_ids según rol
-note right of SVC
-  **CAPA 3 — Filtrado de scope**
-  if cu.is_responsable AND NOT department_id:
-    emp_ids = cu.employee_ids
-    ← Solo empleados del JWT del responsable
-  else (director o department_id dado):
-    emp_ids = None
-    ← Sin restricción adicional de empleados
-end note
+opt department_id proporcionado
+    Service -> Service: verify_department_exists(db, department_id)\n(utils/validation)
 
-SVC -> REPO : get_filtered_employees_query(db,\n  employee_ids=emp_ids,\n  department_id=department_id,\n  search=search,\n  active=active,\n  sort_by=sort_by,\n  sort_order=sort_order)
-note right of REPO
-  Si employee_ids is not None:
-    WHERE id IN (:emp_ids)
-  Si department_id:
-    WHERE department_id = :id
-  Si search:
-    WHERE name ILIKE :term
-  ORDER BY :sort_by :sort_order
-  Siempre: WHERE active = True
-end note
+    alt Departamento no encontrado
+        Service --> API: 404 Not Found
+        API --> FE: 404 Not Found
+        FE --> User: Muestra mensaje de error
+    end
 
-REPO -> DB : SELECT hr_employee\n  LEFT JOIN hr_department\nWHERE active = True\n  AND [id IN (:emp_ids)]\n  AND [department_id = :dept]\n  AND [name ILIKE :search]\nORDER BY :sort_by
-DB --> REPO : rows
-REPO --> SVC : query (sin paginar)
+    Service -> Service: verify_department_scope(cu, department_id)\n(utils/validation)
 
-SVC -> SVC : paginate(query, page, page_size)\nCOUNT(*) + OFFSET/LIMIT
-SVC --> ROUTE : PaginatedResponse[EmployeeDetail] {\n  items, total, page,\n  page_size, total_pages }
-ROUTE --> FE : 200 OK + JSON
-FE --> U : renderiza la lista de empleados con paginación
+    alt Sin acceso al departamento
+        Service --> API: 403 Forbidden
+        API --> FE: 403 Forbidden
+        FE --> User: Muestra mensaje de error
+    end
+end
+
+Service -> Service: Determinar emp_ids:\nsi cu.is_responsable y no department_id\n→ emp_ids = cu.employee_ids\nsi no → None
+
+Service -> Repo: get_filtered_employees_query(db,\nemp_ids, department_id, search,\nactive, sort_by, sort_order)
+activate Repo
+
+Repo -> DB: SELECT hr_employee\nJOIN hr_department\nWHERE [filters]
+activate DB
+DB --> Repo: query resultante
+deactivate DB
+
+Repo --> Service: query
+deactivate Repo
+
+Service -> Service: paginate(query, page, page_size)
+
+Service --> API: PaginatedResponse[EmployeeDetail]
+deactivate Service
+
+API --> FE: 200 OK\nPaginatedResponse[EmployeeDetail]
+deactivate API
+
+FE --> User: Muestra lista paginada de empleados
+deactivate FE
+
 @enduml

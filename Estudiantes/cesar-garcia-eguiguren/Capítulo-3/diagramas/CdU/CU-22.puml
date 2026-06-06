@@ -1,107 +1,93 @@
-@startuml CU-22_Productividad
-!theme plain
-skinparam backgroundColor #07090F
-skinparam defaultFontColor #E2E8F5
-skinparam ArrowColor #38BDF8
-skinparam sequenceParticipantBackgroundColor #141824
-skinparam sequenceParticipantBorderColor #2A3850
-skinparam sequenceParticipantFontColor #E2E8F5
-skinparam sequenceActorBackgroundColor #1E2840
-skinparam sequenceActorBorderColor #38BDF8
-skinparam sequenceLifeLineBorderColor #2A3850
-skinparam noteBackgroundColor #141824
-skinparam noteBorderColor #38BDF8
-skinparam sequenceGroupBackgroundColor #0D1018
-skinparam sequenceGroupBorderColor #2A3850
-skinparam sequenceGroupFontColor #38BDF8
-skinparam sequenceGroupHeaderFontColor #38BDF8
-skinparam sequenceGroupBodyBackgroundColor #0D1018
-skinparam sequenceLifeLineBackgroundColor #0D1018
-skinparam sequenceLifeLineBorderColor #2A3850
-skinparam sequenceDividerBackgroundColor #141824
-skinparam sequenceDividerBorderColor #2A3850
+@startuml CU-22
+skinparam MaxMessageSize 150
 
-title CU-22 · Consultar Productividad
+title Diagrama de Secuencia de Diseño - CU-22 Consultar Productividad
 
-actor "Usuario\n(Director/Responsable)" as U
-participant "Metrics.jsx\n(React SPA)" as UI
-participant "api/metrics.js" as FS
-participant "routes/metrics.py" as RT
+actor "Director /\nResponsable" as U
+participant "Frontend\n(React)" as FE
+participant "API\n(FastAPI)" as API
 participant "ProductivityService" as SVC
-participant "productivity.py\n(repo)" as REPO
-participant "task.py\n(subqueries)" as TSQ
-database "PostgreSQL\n(Odoo RO)" as PG
+participant "ProductivityRepository" as REPO
+database "PostgreSQL\n(Odoo)" as DB
 
-U -> UI : selecciona "Productividad"\nen catálogo (CU-10)
-UI -> UI : needsEmployee=false\nneedsProject=false\nneedsDates=true\ncanFetch = true
+U -> FE : Selecciona "Productividad"\ndesde catálogo de métricas (CU-10)
+activate FE
 
-opt parámetros opcionales
-  U -> UI : configura empleado,\nproyecto o fechas
+U -> FE : Configura filtros opcionales:\nemployee_id, project_id,\ndate_from, date_to
+FE -> API : GET /metrics/productivity\n?employee_id&project_id\n&date_from&date_to&root_only\n(JWT Bearer)
+activate API
+
+API -> API : require_manager_or_above(cu)\n→ 403 si rol = empleado
+
+== Validaciones ==
+
+opt date_from o date_to proporcionados
+API -> API : validate_date_range(\ndate_from, date_to)
+note right of API : 400 si rango inválido
 end
 
-UI -> FS : getProductivity(\n  {employee_id, project_id,\n   date_from, date_to})
-FS -> RT : GET /metrics/productivity\n?employee_id=X&project_id=Y\n&date_from=Z&date_to=W\nAuthorization: Bearer JWT
-activate RT
-
-RT -> RT : require_manager_or_above(token)
-alt rol == empleado
-  RT --> FS : 403 Forbidden
-else autorizado
-
-  RT -> RT : validaciones opcionales
-  note right of RT
-    Si employee_id dado:
-      verify_employee_exists → 404
-      verify_employee_scope → 403
-    Si project_id dado:
-      verify_project_exists → 404
-      verify_project_scope → 403
-    Si fechas:
-      validate_date_range → 400
-  end note
-
-  RT -> SVC : ProductivityService(db)\n.calculate(employee_id,\n  project_id, date_from,\n  date_to, root_only)
-  activate SVC
-
-  SVC -> REPO : get_completed_tasks_with_hours(\n  db, employee_id, project_id,\n  date_from, date_to, root_only)
-  activate REPO
-
-  REPO -> REPO : subconsulta de horas reales:\nSELECT task_id,\n  SUM(unit_amount) AS actual_hours\nFROM account_analytic_line\n[WHERE employee_id = :eid]\n[AND date >= :from AND date <= :to]\nGROUP BY task_id
-  note right of REPO
-    Si employee_id dado:
-    las horas se filtran al
-    empleado concreto para
-    productividad individual
-  end note
-
-  REPO -> TSQ : closed_stage_ids_subq(db)
-  TSQ --> REPO : subquery IDs etapas cerradas
-
-  REPO -> PG : SELECT id, name, planned_hours,\n  parent_id, COALESCE(actual_hrs, 0)\nFROM project_task\nOUTER JOIN subconsulta_horas\nWHERE active = TRUE\n  AND is_closed = TRUE\n  AND stage_id IN (closed_ids)\n  AND planned_hours > 0\n  [AND project_id = :pid]\n  [AND parent_id IS NULL]
-  PG --> REPO : rows (tareas + horas)
-  deactivate REPO
-
-  SVC -> SVC : Para cada tarea con actual_hours > 0:\n  pct = (planned / actual) × 100\nAcumular suma y contador
-  SVC -> SVC : items.sort(productivity_pct DESC)
-  SVC -> SVC : avg = Σpct / count(valid)\nsi count = 0 → avg = 0
-  SVC --> RT : ProductivityResponse {\n  average_productivity,\n  total_tasks,\n  tasks: [...] }
-  deactivate SVC
-
-  RT --> FS : 200 OK + JSON
+opt employee_id proporcionado
+API -> API : verify_employee_exists(db,\nemployee_id) → 404 si no existe
+API -> API : verify_employee_scope(cu,\nemployee_id) → 403 si fuera de alcance
 end
-deactivate RT
 
-FS --> UI : data
-UI -> UI : cachear resultado\nen metricCache + metricCardCache
+opt project_id proporcionado
+API -> API : verify_project_exists(db,\nproject_id) → 404 si no existe
+API -> API : verify_project_scope(cu,\nproject_id) → 403 si fuera de alcance
+end
 
-== Renderizado del resultado ==
-UI -> UI : MetricCard preview:\n  gauge + valor % +\n  "{N} tareas analizadas"
-UI -> UI : MetricDetail:\n  KPI productividad media\n  KPI total tareas\n  BarChart horizontal top 8
-UI --> U : muestra panel completo
+== Cálculo de productividad ==
 
-opt Guardar snapshot
-  U -> UI : pulsa "Guardar snapshot"
-  UI -> UI : <<extend>> CU-17\ntype='metric',\nname='productivity'
+API -> SVC : calculate(employee_id, project_id,\ndate_from, date_to, root_only)
+activate SVC
+
+SVC -> REPO : get_completed_tasks_with_hours(\ndb, employee_id, project_id,\ndate_from, date_to, root_only)
+activate REPO
+
+REPO -> DB : Subquery horas:\nSELECT task_id,\n SUM(unit_amount) AS actual_hours\nFROM account_analytic_line\n[WHERE employee_id = :eid]\n[WHERE date BETWEEN :from AND :to]\nGROUP BY task_id
+activate DB
+DB --> REPO : subquery horas
+deactivate DB
+
+REPO -> DB : Subquery etapas cerradas:\nSELECT id\nFROM project_task_type\nWHERE closed = True
+activate DB
+DB --> REPO : closed_stage_ids
+deactivate DB
+
+REPO -> DB : SELECT pt.id, pt.name,\n pt.planned_hours, pt.parent_id,\n COALESCE(sq.actual_hours, 0)\nFROM project_task pt\nLEFT OUTER JOIN subquery sq\n ON pt.id = sq.task_id\nWHERE pt.active = True\n AND pt.is_closed = True\n AND pt.stage_id IN (closed_ids)\n AND pt.planned_hours > 0\n [AND pt.project_id = :pid]\n [AND pt.parent_id IS NULL if root_only]
+activate DB
+DB --> REPO : filas de tareas con horas
+deactivate DB
+
+REPO --> SVC : task rows
+deactivate REPO
+
+SVC -> SVC : Para cada tarea con actual_hours > 0:\npct = (planned / actual) × 100\nCrea ProductivityTaskItem
+
+SVC -> SVC : Ordena por pct DESC\nCalcula average_productivity
+
+SVC --> API : ProductivityResponse {\n  average_productivity,\n  total_tasks,\n  tasks: [items]\n}
+deactivate SVC
+
+API --> FE : 200 OK (ProductivityResponse)
+deactivate API
+
+FE -> FE : Renderiza MetricCard preview\n(gauge + %) y MetricDetail\n(StatBox + BarChart top 8)
+
+FE --> U : Muestra vista de productividad
+deactivate FE
+
+== Opcional: Guardar snapshot (extiende CU-17) ==
+
+opt El usuario pulsa "Guardar Snapshot"
+
+U -> FE : Click "Guardar Snapshot"
+activate FE
+FE -> FE : Empaqueta datos calculados
+note right of FE : Se extiende CU-17\n(Guardar Snapshot)
+FE --> U : Confirmación de guardado
+deactivate FE
+
 end
 
 @enduml

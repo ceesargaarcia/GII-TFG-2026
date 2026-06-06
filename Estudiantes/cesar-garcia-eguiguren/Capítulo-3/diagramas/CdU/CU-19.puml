@@ -1,88 +1,130 @@
-@startuml CU-19_DetalleSnapshot
-!theme plain
-skinparam backgroundColor #07090F
-skinparam defaultFontColor #E2E8F5
-skinparam ArrowColor #38BDF8
-skinparam sequenceParticipantBackgroundColor #141824
-skinparam sequenceParticipantBorderColor #2A3850
-skinparam sequenceParticipantFontColor #E2E8F5
-skinparam sequenceActorBackgroundColor #1E2840
-skinparam sequenceActorBorderColor #38BDF8
-skinparam sequenceLifeLineBorderColor #2A3850
-skinparam noteBackgroundColor #141824
-skinparam noteBorderColor #38BDF8
-skinparam sequenceGroupBackgroundColor #0D1018
-skinparam sequenceGroupBorderColor #2A3850
-skinparam sequenceGroupFontColor #38BDF8
-skinparam sequenceGroupHeaderFontColor #38BDF8
-skinparam sequenceGroupBodyBackgroundColor #0D1018
-skinparam sequenceLifeLineBackgroundColor #0D1018
-skinparam sequenceLifeLineBorderColor #2A3850
+@startuml CU-19
+skinparam MaxMessageSize 150
 
-title CU-19 · Consultar Detalle de Snapshot (visor frontend2)
+title Diagrama de Secuencia de Diseño - CU-19 Consultar Detalle de Snapshot
 
-actor "Actor\n(Director/Responsable)" as U
-participant "SnapshotDetail.jsx\n(visor frontend con datos persistentes)" as UI
-participant "Renderer\n(MetricView /\nChartView /\nEntityView)" as R
-participant "snapshotService.js" as FS
-participant "routes/snapshots.py" as RT
-participant "SnapshotService" as SS
-participant "snapshot.py\n(repo)" as REPO
-database "MongoDB" as MG
+actor "Director /\nResponsable" as U
+participant "Frontend 2\n(Visor React)" as FE
+participant "API\n(FastAPI)" as API
+participant "SnapshotService" as SVC
+participant "SnapshotRepository" as REPO
+database "MongoDB" as DB
 
-U -> UI : entra desde CU-18\n(selecciona fila)
-UI -> FS : getSnapshot(type, id)
-FS -> RT : GET /snapshots/{type}/{id}\nAuthorization: Bearer JWT
-activate RT
+== Consultar detalle ==
 
-RT -> RT : require_manager_or_above(token)
-RT -> SS : get_by_id(type, id)
-activate SS
-SS -> REPO : find_by_id(type, id)
+U -> FE : Selecciona snapshot de la lista\n(procedente de CU-18)
+activate FE
+
+FE -> API : GET /snapshots/{type}/{snapshot_id}\n(JWT Bearer)
+activate API
+
+API -> API : require_manager_or_above(cu)\n→ 403 si rol = empleado
+
+note right of API
+  type: metrics | charts | entities
+end note
+
+API -> SVC : get_metric(snapshot_id)
+activate SVC
+
+SVC -> REPO : get_metric_snapshot(id_str)
 activate REPO
-REPO -> MG : findOne({_id: ObjectId(id)})
-MG --> REPO : documento | null
-REPO --> SS : snapshot | None
+
+REPO -> DB : coll.find_one(\n  {_id: ObjectId(id)}\n)
+activate DB
+DB --> REPO : documento o null
+deactivate DB
+
+alt Documento encontrado
+
+REPO -> REPO : Serializa (_id -> string id)
+REPO --> SVC : snapshot document
 deactivate REPO
 
-alt no encontrada
-  SS --> RT : None
-  RT --> FS : 404 Not Found
-  FS --> UI : muestra mensaje\n"snapshot no encontrada"
-else encontrada
-  SS --> RT : snapshot
-  deactivate SS
-  RT --> FS : 200 JSON
-end
-deactivate RT
+SVC --> API : snapshot data
+deactivate SVC
 
-FS --> UI : snapshot JSON
+API --> FE : 200 OK (JSON)
+deactivate API
 
-UI -> UI : elige renderer según subtipo\n(metric_name · chart_name · entity_type)
+FE -> FE : Determina renderer según type:\nMetricView / ChartView / EntityView
 
-alt Métrica
-  UI -> R : <MetricView\n  data={data}\n  metric={metric_name}/>
-  R --> UI : gauge + gráfico + KPIs
-else Gráfico
-  UI -> R : <ChartView\n  data={data}\n  chart={chart_name}/>
-  R --> UI : chart interactivo
-else Entidad
-  UI -> R : <EntityView\n  data={data}\n  type={entity_type}/>
-  R --> UI : ficha con avatar,\ncampos y barra de progreso
-end
+FE --> U : Muestra vista reconstruida\ndesde los datos del snapshot
+deactivate FE
 
-UI --> U : vista reconstruida\n+ botón "Ver JSON completo"\n+ botón "Eliminar"
+else Documento no encontrado
 
-opt Eliminar
-  U -> UI : pulsa "Eliminar"
-  UI -> UI : <<extend>> CU-20\nEliminar Snapshot
+REPO --> SVC : null
+deactivate REPO
+
+SVC -> SVC : raise HTTPException(404,\n"Snapshot no encontrada")
+
+SVC --> API : HTTPException 404
+deactivate SVC
+
+API --> FE : 404 Not Found
+deactivate API
+
+FE --> U : Muestra mensaje de error
+deactivate FE
+
 end
 
-note right of UI
-  **Clave del diseño:** el visor reconstruye
-  la visualización exactamente como se guardó
-  el día de la snapshot. No se dispara cálculo
-  alguno sobre PostgreSQL.
-end note
+== Opcional: Eliminar snapshot ==
+
+opt El usuario pulsa "Eliminar"
+
+U -> FE : Click "Eliminar"
+activate FE
+
+FE -> API : DELETE /snapshots/{type}/{snapshot_id}\n(JWT Bearer)
+activate API
+
+API -> API : require_manager_or_above(cu)\n→ 403 si rol = empleado
+
+API -> SVC : delete_metric(snapshot_id)
+activate SVC
+
+SVC -> REPO : delete_metric_snapshot(id_str)
+activate REPO
+
+REPO -> DB : coll.delete_one(\n  {_id: ObjectId(id)}\n)
+activate DB
+DB --> REPO : DeleteResult
+deactivate DB
+
+alt deleted_count == 1
+
+    REPO --> SVC : True
+    deactivate REPO
+
+    SVC --> API : {deleted: True, id}
+    deactivate SVC
+
+    API --> FE : 200 OK
+    deactivate API
+
+    FE --> U : Notificación: "Snapshot eliminada"
+    deactivate FE
+
+else deleted_count == 0
+
+    REPO --> SVC : False
+    deactivate REPO
+
+    SVC -> SVC : raise HTTPException(404,\n"Snapshot no encontrada")
+
+    SVC --> API : HTTPException 404
+    deactivate SVC
+
+    API --> FE : 404 Not Found
+    deactivate API
+
+    FE --> U : Muestra mensaje de error
+    deactivate FE
+
+end
+
+end
 
 @enduml

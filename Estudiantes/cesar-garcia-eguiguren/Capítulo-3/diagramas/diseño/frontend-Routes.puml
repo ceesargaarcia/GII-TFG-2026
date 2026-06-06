@@ -1,0 +1,97 @@
+@startuml d07a_frontend_routes
+hide empty members
+left to right direction
+skinparam nodesep 8
+skinparam ranksep 60
+
+package "Frontend PARTE 1" as P1 {
+  class Login
+  class Overview
+  class Manager
+  class Employees
+  class EmployeeDetail
+  class Departments
+  class DepartmentDetail
+  class Attendance
+  class Search
+}
+
+package "routes/" as P3 {
+  class "auth.router"        as RA  <<router>>
+  class "employee.router"    as RE  <<router>>
+  class "department.router"  as RD  <<router>>
+  class "dashboards.router"  as RDB <<router>>
+  class "search.router"      as RS  <<router>>
+  class "project.router"     as RP  <<router>>
+  class "task.router"        as RT  <<router>>
+  class "charts.router"      as RC  <<router>>
+  class "metrics.router"     as RM  <<router>>
+}
+
+package "Frontend PARTE 2" as P2 {
+  class Projects
+  class ProjectDetail
+  class Tasks
+  class TaskDetail
+  class Metrics
+  class Charts
+  class Rentability
+}
+
+P1 -[hidden]-> P3
+P3 -[hidden]-> P2
+
+' ── PARTE 1 (izquierda → rutas) ──
+
+Login            -[#9ca3af]-> RA
+
+Overview         -[#38bdf8]-> RDB
+Overview         -[#38bdf8]-> RC
+Overview         -[#38bdf8]-> RM
+
+Manager          -[#d946ef]-> RDB
+Manager          -[#d946ef]-> RD
+
+Employees        -[#10b981]-> RE
+Employees        -[#10b981]-> RD
+
+EmployeeDetail   -[#34d399]-> RE
+EmployeeDetail   -[#34d399]-> RDB
+EmployeeDetail   -[#34d399]-> RT
+
+Departments      -[#ec4899]-> RD
+
+DepartmentDetail -[#f472b6]-> RD
+
+Attendance       -[#6366f1]-> RE
+
+Search           -[#84cc16]-> RS
+
+' ── PARTE 2 (rutas ← derecha) ──
+
+RP  <-[#06b6d4]- Projects
+
+RP  <-[#14b8a6]- ProjectDetail
+RDB <-[#14b8a6]- ProjectDetail
+RT  <-[#14b8a6]- ProjectDetail
+
+RT  <-[#a855f7]- Tasks
+RP  <-[#a855f7]- Tasks
+
+RT  <-[#8b5cf6]- TaskDetail
+
+RM  <-[#f59e0b]- Metrics
+RP  <-[#f59e0b]- Metrics
+RE  <-[#f59e0b]- Metrics
+
+RC  <-[#d946ef]- Charts
+RE  <-[#d946ef]- Charts
+RD  <-[#d946ef]- Charts
+RP  <-[#d946ef]- Charts
+RM  <-[#d946ef]- Charts
+
+RM  <-[#f87171]- Rentability
+RP  <-[#f87171]- Rentability
+RE  <-[#f87171]- Rentability
+
+@enduml

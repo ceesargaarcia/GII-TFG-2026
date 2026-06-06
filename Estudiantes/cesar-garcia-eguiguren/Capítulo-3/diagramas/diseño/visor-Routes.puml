@@ -1,0 +1,39 @@
+@startuml d07c_visor_routes
+hide empty members
+left to right direction
+skinparam nodesep 10
+skinparam ranksep 60
+
+package "Visor de snapshots (React · puerto 3001)" {
+  class Home
+  class Login
+  class MetricSnapshots
+  class ChartSnapshots
+  class EntitySnapshots
+  class SnapshotDetail
+}
+
+package "routes/" {
+  class "auth.router"      as RA  <<router>>
+  class "snapshots.router"  as RSN <<router>>
+}
+
+package "services/" {
+  class AuthService
+  class ScopeService
+  class SnapshotService
+}
+
+Login            -[#9ca3af]-> RA
+
+Home             -[#38bdf8]-> RSN
+MetricSnapshots  -[#10b981]-> RSN
+ChartSnapshots   -[#f59e0b]-> RSN
+EntitySnapshots  -[#a855f7]-> RSN
+SnapshotDetail   -[#f87171]-> RSN
+
+RA  --> AuthService
+RA  --> ScopeService
+RSN --> SnapshotService
+
+@enduml

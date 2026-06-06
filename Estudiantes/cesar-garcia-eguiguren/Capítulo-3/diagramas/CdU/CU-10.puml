@@ -1,104 +1,100 @@
-@startuml CU-10_CatalogoMetricas
+@startuml CU-10
+skinparam MaxMessageSize 150
 
-skinparam backgroundColor #07090F
-skinparam defaultFontColor #E2E8F5
-skinparam ArrowColor #38BDF8
-skinparam sequenceParticipantBackgroundColor #141824
-skinparam sequenceParticipantBorderColor #2A3850
-skinparam sequenceParticipantFontColor #E2E8F5
-skinparam sequenceActorBackgroundColor #1E2840
-skinparam sequenceActorBorderColor #38BDF8
-skinparam sequenceLifeLineBorderColor #2A3850
-skinparam noteBackgroundColor #141824
-skinparam noteBorderColor #38BDF8
-skinparam sequenceGroupBackgroundColor #0D1018
-skinparam sequenceGroupBorderColor #2A3850
-skinparam sequenceGroupFontColor #38BDF8
-skinparam sequenceGroupHeaderFontColor #38BDF8
-skinparam sequenceGroupBodyBackgroundColor #0D1018
-skinparam sequenceLifeLineBackgroundColor #0D1018
-skinparam sequenceLifeLineBorderColor #2A3850
-skinparam sequenceDividerBackgroundColor #141824
-skinparam sequenceDividerBorderColor #2A3850
+title Diagrama de Secuencia de Diseño - CU-10 Mostrar Catálogo de Métricas
 
-title CU-10 · Mostrar Catálogo de Métricas
+actor "Director /\nResponsable" as User
+participant "Frontend\n(React)" as FE
+participant "API\n(FastAPI)" as API
+participant "MetricService" as Service
+participant "MetricRepository" as Repo
+database "PostgreSQL\n(Odoo)" as DB
 
-actor "Usuario\n(Director/Responsable)" as U
-participant "Metrics.jsx\n(React SPA)" as UI
-participant "api/metrics.js" as FS
-participant "routes/metrics.py" as RT
-participant "Auth\nMiddleware" as AUTH
-participant "{Metric}Service" as SVC
-participant "{metric}_repo.py" as REPO
-database "PostgreSQL\n(Odoo RO)" as PG
+== Paso 1: Catálogo local de métricas ==
 
-== Carga del catálogo (local) ==
-U -> UI : navega a /metrics
-UI -> UI : buildMetrics(isDirector)\nconstruye array de métricas\n(11 o 12 según rol)
-UI -> UI : renderiza cuadrícula\nde MetricCards + panel\nde detalle vacío
+User -> FE: Navega a /métricas
+activate FE
 
-== Filtrado por categoría ==
-U -> UI : selecciona grupo\n(Todas/Proyecto/Empleado/General)
-UI -> UI : filtra métricas\nvisibles según grupo
+FE -> FE: buildMetrics(isDirector)\nGenera 10-11 MetricCard según rol JWT
 
-== Selección de métrica ==
-U -> UI : clic en tarjeta\nde métrica seleccionada
+FE --> User: Muestra grid con MetricCards
+deactivate FE
 
-alt la métrica requiere parámetros
-  UI -> UI : muestra panel de\nparámetros (empleado,\nproyecto, fechas)
-  U -> UI : configura parámetros
+== Paso 2: Filtrar por grupo (local) ==
+
+User -> FE: Selecciona filtro de grupo\n(Todas / Proyecto / Empleado / General)
+activate FE
+
+FE -> FE: Filtra filteredMetrics\npor needsProject / needsEmployee
+
+FE --> User: Muestra MetricCards filtradas
+deactivate FE
+
+== Paso 3: Seleccionar métrica y consultar API ==
+
+User -> FE: Click en una MetricCard
+activate FE
+
+opt La métrica requiere parámetros (employee_id, project_id, fechas)
+    FE --> User: Muestra panel de filtros
+    User -> FE: Configura parámetros requeridos
 end
 
-UI -> UI : canFetch = true?\nVerifica parámetros obligatorios
-note right of UI
-  canFetch = true si:
-  - No requiere empleado, o employeeId está dado
-  - No requiere proyecto, o projectId está dado
-end note
+FE -> FE: canFetch: verifica que\nlos parámetros requeridos estén completos
 
-== Invocación del CU individual (<<extend>> P10) ==
-UI -> FS : apiMap[selected](params)\ne.g. getProductivity({...})
-FS -> RT : GET /metrics/{metric-key}\n?employee_id=X&project_id=Y\nAuthorization: Bearer JWT
-activate RT
+FE -> API: GET /metrics/{key}?employee_id&project_id\n&date_from&date_to\n(JWT Bearer)
+activate API
 
-RT -> AUTH : require_manager_or_above()
-AUTH -> AUTH : decode_token(JWT)\nextraer role, scope
-AUTH --> RT : CurrentUser
+API -> API : require_manager_or_above(cu)\n→ 403 si rol = empleado
 
-alt rol == empleado
-  RT --> FS : 403 Forbidden
-  FS --> UI : muestra ErrorState
-else autorizado
-  RT -> RT : validar parámetros\nverify_*_exists → 404\nverify_*_scope → 403\nvalidate_date_range → 400
-  note right of RT
-    **CAPA 2 — Verificación individual**
-    Si employee_id o project_id dados:
-    - verify_employee_scope(cu, id)
-    - verify_project_scope(cu, id)
-    403 si no tiene acceso
-  end note
+API -> API: validate_date_range(date_from, date_to)
 
-  RT -> SVC : {Metric}Service(db).calculate(...)
-  activate SVC
-  SVC -> REPO : get_{metric}_data(db, filtros)
-  activate REPO
-  REPO -> PG : query específica de la métrica\n(reutiliza subqueries de task.py\ny timesheet.py)
-  PG --> REPO : rows
-  deactivate REPO
-  SVC -> SVC : aplicar fórmula\ny construir respuesta
-  SVC --> RT : {Metric}Response
-  deactivate SVC
-  RT --> FS : 200 OK + JSON
+opt employee_id proporcionado
+    API -> API: verify_employee_exists(db, employee_id)
+    API -> API: verify_employee_scope(cu, employee_id)
+    alt Empleado no encontrado o sin acceso
+        API --> FE: 404 / 403
+        FE --> User: Muestra mensaje de error
+    end
 end
-deactivate RT
 
-FS --> UI : data
-UI -> UI : cachear en metricCache\ny metricCardCache
-UI -> UI : renderizar MetricDetail\n(KPIs + gráfico + SaveSnapshotButton)\ny actualizar preview\nen MetricCard
+opt project_id proporcionado
+    API -> API: verify_project_exists(db, project_id)
+    API -> API: verify_project_scope(cu, project_id)
+    alt Proyecto no encontrado o sin acceso
+        API --> FE: 404 / 403
+        FE --> User: Muestra mensaje de error
+    end
+end
 
-opt Guardar snapshot
-  U -> UI : pulsa "Guardar snapshot"
-  UI -> UI : <<extend>> CU-17\nGuardar Snapshot
+API -> Service: calculate(employee_id, project_id,\ndate_from, date_to, root_only)
+activate Service
+
+Service -> Repo: get_metric_data(db, filters)
+activate Repo
+
+Repo -> DB: Consulta específica\n(varía según métrica)
+activate DB
+DB --> Repo: datos crudos
+deactivate DB
+
+Repo --> Service: datos
+deactivate Repo
+
+Service -> Service: Computa fórmula de la métrica\ny construye MetricResponse
+
+Service --> API: MetricResponse
+deactivate Service
+
+API --> FE: 200 OK\nMetricResponse
+deactivate API
+
+FE --> User: Muestra MetricCard preview\n(gauge + valor) y MetricDetail (KPIs + gráfico)
+deactivate FE
+
+opt Usuario desea guardar snapshot
+    User -> FE: Click "Guardar snapshot"
+    FE --> User: Extiende CU-17
 end
 
 @enduml

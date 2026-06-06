@@ -1,19 +1,8 @@
 @startuml d06_dominio_repos
-!theme plain
 hide empty members
 left to right direction
-
-skinparam backgroundColor #07090f
-skinparam classBackgroundColor #141824
-skinparam classBorderColor #2a3850
-skinparam packageBackgroundColor #0d1018
-skinparam packageBorderColor #2a3850
-skinparam defaultFontColor #c8d0dc
-skinparam arrowColor #8896a8
-skinparam shadowing false
 skinparam nodesep 10
 skinparam ranksep 70
-skinparam NoteBackgroundColor #414c69
 
 package "services/ (dominio)" {
   class AuthService
@@ -40,7 +29,7 @@ package "repositories/ (base)" {
   class "dashboard.py"   as DB <<repo>>
 }
 
-AuthService        -[#38bdf8]-> A
+AuthService        -[#ec4899]-> A
 
 ScopeService       -[#a855f7]-> S
 
@@ -49,9 +38,9 @@ EmployeeService    -[#10b981]-> E
 DepartmentService  -[#f59e0b]-> D
 DepartmentService  -[#f59e0b]-> E
 
-ProjectService     -[#ec4899]-> P
-ProjectService     -[#ec4899]-> T
-ProjectService     -[#ec4899]-> TS
+ProjectService     -[#38bdf8]-> P
+ProjectService     -[#38bdf8]-> T
+ProjectService     -[#38bdf8]-> TS
 
 TaskService        -[#f87171]-> T
 TaskService        -[#f87171]-> E
@@ -64,10 +53,5 @@ SearchService      -[#fbbf24]-> SE
 
 DashboardService   -[#8b5cf6]-> DB
 DashboardService   -[#8b5cf6]-> E
-
-
-note bottom of EmployeeService
-    EmployeeService → rentability.py para devolver los posibles managers para filtrar en rentabilidad
-end note
 
 @enduml
