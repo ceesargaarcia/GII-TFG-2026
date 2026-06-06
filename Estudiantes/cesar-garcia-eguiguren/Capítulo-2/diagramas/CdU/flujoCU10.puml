@@ -1,14 +1,4 @@
 @startuml flujoCU10
-!theme plain
-skinparam backgroundColor #07090F
-skinparam defaultFontColor #E2E8F5
-skinparam ArrowColor #38BDF8
-skinparam ActivityBorderColor #1E2840
-skinparam ActivityBackgroundColor #141824
-skinparam ActivityDiamondBackgroundColor #0D1018
-skinparam ActivityDiamondBorderColor #38BDF8
-skinparam NoteBackgroundColor #141824
-skinparam NoteBorderColor #38BDF8
 
 title CU-10 · Consultar Catálogo de Métricas
 
@@ -43,12 +33,12 @@ else (SÍ)
     :<<extend>> CU-28 Consultar Exactitud de Estimación;
   else if (Métrica seleccionada) then (Lead Time)
     :<<extend>> CU-29 Consultar Lead Time;
-  else if (Métrica seleccionada) then (Tiempo por Estado)
-    :<<extend>> CU-30 Consultar Tiempo por Estado;
-  else if (Métrica seleccionada) then (Tareas Canceladas)
-    :<<extend>> CU-31 Consultar Tareas Canceladas;
-  else (Tiempo por Prioridad)
-    :<<extend>> CU-32 Consultar Tiempo por Prioridad;
+  else if (Métrica seleccionada) then (Distribución por Cliente)
+    :<<extend>> CU-30 Consultar Distribución por Cliente;
+  else if (Métrica seleccionada) then (Eficiencia de Proyecto)
+    :<<extend>> CU-31 Consultar Eficiencia de Proyecto;
+  else (Rentabilidad por Horas)
+    :<<extend>> CU-32 Consultar Rentabilidad por Horas;
   endif
   stop
 endif

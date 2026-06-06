@@ -64,12 +64,6 @@ object "departamento1 : Departamento" as d1 {
   activo = true
 }
 
-object "usuario1 : Usuario" as u1 {
-  id = 50
-  login = "agarcia"
-  activo = true
-}
-
 object "parte1 : ParteDeHoras" as ph1 {
   id = 200
   descripcion = "Kickoff proyecto"
@@ -84,6 +78,22 @@ object "parte2 : ParteDeHoras" as ph2 {
   fecha = 2024-02-02
 }
 
+object "asistencia1 : Asistencia" as a1 {
+  id = 300
+  entrada = 2024-02-01T09:00:00
+  salida = 2024-02-01T18:00:00
+  horasTrabajadas = 8.5
+  fecha = 2024-02-01
+}
+
+object "asistencia2 : Asistencia" as a2 {
+  id = 301
+  entrada = 2024-02-02T09:15:00
+  salida = 2024-02-02T18:30:00
+  horasTrabajadas = 8.75
+  fecha = 2024-02-02
+}
+
 ' ── Relaciones ────────────────────────────────
 c1 --> p1 : tiene
 
@@ -93,8 +103,6 @@ t1 --> st1 : subtarea
 e1 --> d1 : pertenece a
 e2 --> d1 : pertenece a
 
-e1 --> u1 : accede como
-
 e1 --> t1 : asignado a
 e2 --> t1 : asignado a
 
@@ -103,5 +111,8 @@ ph1 --> t1 : imputable a
 
 ph2 --> e2 : registrada por
 ph2 --> t1 : imputable a
+
+a1 --> e1 : fichada por
+a2 --> e1 : fichada por
 
 @enduml

@@ -8,11 +8,12 @@ En las siguientes secciones se presentan los diferentes diagramas que conforman 
 
 ## Diagrama de Clases
 
-En el contexto de Netkia, el diagrama de clases está directamente alineado con la estructura de datos del ERP Odoo v16, lo que garantiza la consistencia entre la información almacenada en el sistema de gestión y los indicadores generados por el módulo analítico. Cada clase del dominio operativo representa una entidad real del entorno organizativo —clientes, proyectos, tareas, empleados o departamentos— y refleja los atributos necesarios para calcular métricas de productividad, carga de trabajo y rentabilidad.
+El diagrama de clases muestra la **realidad empresarial** de Netkia —cómo se organizan clientes, proyectos, tareas, personas y registros de tiempo— **sin entrar en detalles técnicos**. Se trata de un modelo conceptual, alineado con el vocabulario del negocio y con la estructura del ERP Odoo v16, que garantiza la coherencia entre la información corporativa y los indicadores del módulo analítico. Cada clase representa una entidad real del entorno organizativo —clientes, proyectos, tareas, empleados, departamentos, partes de horas y asistencias— y recoge los atributos relevantes para el cálculo de los indicadores presentados por el sistema.
 
 ![Diagrama de clases](./imagenes/diagramaDeClases.png)
 
-Las relaciones entre las clases permiten entender la jerarquía y dependencia entre los elementos del sistema. Por ejemplo, un cliente puede tener múltiples proyectos, cada proyecto puede contener varias tareas, y cada tarea puede estar asociada a diferentes empleados y partes de horas. Esta estructura refleja el flujo natural del trabajo dentro de la empresa y facilita la obtención de indicadores agregados.
+Las relaciones entre las clases permiten entender la jerarquía y dependencia entre los elementos del sistema. Por ejemplo, un cliente puede tener múltiples proyectos, cada proyecto puede contener varias tareas, y cada tarea puede estar asociada a diferentes empleados y partes de horas. A su vez, cada empleado puede registrar partes de horas imputadas a tareas y asistencias de fichaje; ambos registros son la base del análisis comparativo de "asistencia vs imputación". Esta estructura refleja el flujo natural del trabajo dentro de la empresa y facilita la obtención de indicadores agregados.
+
 
 ## Diagrama de Objetos
 
@@ -93,10 +94,11 @@ Este diagrama refleja las transiciones más comunes dentro del ciclo de vida de 
 | RNF-08 | **Compatibilidad con el ERP** | Compatible con el ERP corporativo sin necesidad de módulos adicionales ni modificación de su esquema. |
 | RNF-09 | **Compatibilidad con navegadores** | Chrome, Firefox y Edge en sus dos últimas versiones. |
 | RNF-10 | **Internacionalización** | Los nombres multilingües procedentes del ERP se muestran en español, con fallback automático a inglés cuando no existe traducción disponible. |
-| RNF-11 | **Trazabilidad de datos** | Las métricas de retrabajo y los tiempos por estado se basan en el historial inmutable de cambios que mantiene el propio ERP, lo que garantiza la trazabilidad. |
-| RNF-12 | **Configuración por entorno** | La conexión con las bases de datos, la clave de firma de sesiones y los parámetros del servidor se establecen mediante variables de entorno. Sin credenciales en código. |
-| RNF-13 | **Usabilidad — Tiempo de respuesta percibido** | Indicadores de carga durante las peticiones, estados de error con opción de reintento y paginación en listados largos. |
-| RNF-14 | **Usabilidad — Adaptación al rol** | La navegación y las opciones disponibles se adaptan automáticamente al rol del actor. |
-| RNF-15 | **Escalabilidad** | Pool de conexiones gestionado y paginación en servidor para listados masivos. |
-| RNF-16 | **Persistencia documental de capturas** | El subsistema de capturas utiliza una base de datos documental independiente de la base relacional del ERP. Cada colección de capturas mantiene un índice único sobre su clave compuesta, lo que garantiza a nivel de base de datos la restricción "una captura por tipo, parámetros y día". El acceso a esta base es de lectura y escritura, a diferencia del acceso al ERP, que es exclusivamente de lectura. |
-| RNF-17 | **Dos frontends, un mismo esquema de autenticación** | El sistema expone dos aplicaciones independientes —el frontend principal y el visor de capturas— que consumen el mismo backend y comparten el mecanismo de autenticación. La separación es intencional: el principal resuelve el caso de uso operativo sobre datos en vivo; el visor resuelve el caso de uso histórico sobre las capturas guardadas. |
+| RNF-11 | **Configuración por entorno** | La conexión con las bases de datos, la clave de firma de sesiones y los parámetros del servidor se establecen mediante variables de entorno. Sin credenciales en código. |
+| RNF-12 | **Usabilidad — Tiempo de respuesta percibido** | Indicadores de carga durante las peticiones, estados de error con opción de reintento y paginación en listados largos. |
+| RNF-13 | **Usabilidad — Adaptación al rol** | La navegación y las opciones disponibles se adaptan automáticamente al rol del actor. |
+| RNF-14 | **Escalabilidad** | Pool de conexiones gestionado y paginación en servidor para listados masivos. |
+| RNF-15 | **Persistencia documental de capturas** | El subsistema de capturas utiliza una base de datos documental independiente de la base relacional del ERP. Cada colección de capturas mantiene un índice único sobre su clave compuesta, lo que garantiza a nivel de base de datos la restricción "una captura por tipo, parámetros y día". El acceso a esta base es de lectura y escritura, a diferencia del acceso al ERP, que es exclusivamente de lectura. |
+| RNF-16 | **Dos frontends, un mismo esquema de autenticación** | El sistema expone dos aplicaciones independientes —el frontend principal y el visor de capturas— que consumen el mismo backend y comparten el mecanismo de autenticación. La separación es intencional: el principal resuelve el caso de uso operativo sobre datos en vivo; el visor resuelve el caso de uso histórico sobre las capturas guardadas. |
+| RNF-17 | **Conveniencia tecnológica — Backend en FastAPI** | El backend se desarrolla con FastAPI por alineación con el entorno corporativo: Netkia ya utiliza este framework en sus desarrollos y el ERP Odoo opera en Python, lo que facilita la integración, el mantenimiento y la reutilización de conocimiento del equipo. |
+| RNF-18 | **Interfaz — SPA interactiva** | La interfaz de usuario se implementa como aplicación de página única capaz de actualizar filtros, tablas, indicadores y gráficos de forma interactiva sin recargar la página completa. |

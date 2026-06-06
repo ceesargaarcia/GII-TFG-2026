@@ -1,27 +1,5 @@
 @startuml ActorDirector
-!theme plain
 left to right direction
-
-skinparam backgroundColor #07090F
-skinparam defaultFontColor #E2E8F5
-skinparam ArrowColor #38BDF8
-skinparam NoteBackgroundColor #2c354e
-skinparam usecase {
-  BackgroundColor #141824
-  BorderColor #2A3850
-  FontColor #E2E8F5
-}
-skinparam actor {
-  BackgroundColor #1E2840
-  BorderColor #38BDF8
-  FontColor #E2E8F5
-}
-skinparam package {
-  BackgroundColor #0D1018
-  BorderColor #2A3850
-  FontColor #38BDF8
-  FontStyle bold
-}
 
 actor "Director" as D
 
@@ -62,7 +40,7 @@ package "P10 · Métricas Operativas" {
   usecase "CU-32 Consultar tiempo invertido por prioridad" as CU32
 }
 
-package "P7 · Rentabilidad" #1A0A0A {
+package "P7 · Rentabilidad" {
   usecase "CU-13 Consultar rentabilidad Financiera ★" as CU13
   usecase "CU-14 Listar líneas analíticas ★\n(scope: proyecto | cliente)" as CU14
 }
@@ -71,7 +49,7 @@ package "P8 · Utilidades" {
   usecase "CU-15 Realizar búsqueda global" as CU15
 }
 
-package "P9 · Snapshots" #0F1E2A {
+package "P9 · Snapshots"  {
   usecase "CU-17 Guardar Snapshot\n(upsert diario)" as CU17
   usecase "CU-18 Listar Snapshots" as CU18
   usecase "CU-19 Consultar Detalle Snapshot" as CU19
@@ -117,12 +95,6 @@ D --> CU18
 D --> CU19
 D --> CU20
 D --> CU21
-
-note right of CU10
-  Punto de entrada al catálogo de métricas.
-  Cada selección activa el CU correspondiente
-  de P10 vía <<extend>>.
-end note
 
 
 @enduml

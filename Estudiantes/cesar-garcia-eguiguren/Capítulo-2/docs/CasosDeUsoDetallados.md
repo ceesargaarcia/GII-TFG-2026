@@ -223,33 +223,25 @@
 
 ---
 
-## CU-10 – Consultar Métrica Operativa
+## CU-10 – Mostrar Catálogo de Métricas
 
 | Campo | Valor |
 |---|---|
 | **Actores** | Director, Responsable |
-| **Precondición** | CU-01 completado. Los parámetros que requiera la métrica elegida están dentro del ámbito del actor. |
-| **Postcondición** | El actor ha consultado el valor de una métrica con los filtros configurados. |
+| **Precondición** | CU-01 completado. |
+| **Postcondición** | El actor visualiza el catálogo de métricas disponibles. Si selecciona una, el sistema muestra su panel de detalle. |
 
 ![Diagrama de flujo](../imagenes/CdU/flujoCU10.png)
 
 **Flujo principal:**
 1. El actor accede a la página de métricas.
-2. El sistema muestra las métricas disponibles agrupadas por categoría (proyecto, empleado, equipo y generales).
-3. El actor selecciona una métrica.
-4. El sistema muestra los parámetros que requiere esa métrica (empleado, proyecto, departamento, rango de fechas, etc.).
-5. El actor configura los parámetros y confirma.
-6. El sistema verifica que los parámetros están dentro del ámbito del actor.
-7. El sistema calcula la métrica y muestra el panel de detalle con sus indicadores y gráficos específicos.
+2. El sistema muestra las métricas disponibles agrupadas por categoría (proyecto, empleado y generales).
+3. El actor puede seleccionar una métrica de la cuadrícula. Si no selecciona ninguna, permanece en la vista de catálogo.
+4. Si el actor selecciona una métrica, el sistema invoca el caso de uso correspondiente del paquete P10 vía `<<extend>>` (CU-22 a CU-32) y muestra su panel de parámetros y resultado.
 
-**Flujos alternativos:**
-- `FA-01`: Parámetro obligatorio sin informar → el sistema muestra un estado vacío solicitando el parámetro.
-- `FA-02`: Parámetros fuera del ámbito del actor → acceso denegado.
-- `FA-03`: Sin datos para los filtros → el sistema muestra un panel vacío con mensaje informativo.
+**Observación:** CU-10 actúa exclusivamente como punto de entrada y presentación del catálogo. La lógica de cálculo, los parámetros específicos y los umbrales de interpretación de cada métrica se recogen en el paquete P10. El detalle completo de cada caso de uso de métrica se documenta en [Casos de Uso de Métricas Operativas](../docs/CasosDeUsoMetricas.md).
 
-**Observación:** Caso de uso único parametrizado por el nombre de la métrica. Cada métrica concreta se modela como un **subcaso** de CU-10 que comparte actores, precondición esencial, postcondición y flujo principal con el padre, y solo añade los parámetros específicos, la fórmula de cálculo y los umbrales de interpretación. Los subcasos documentados son CU-10.1 a CU-10.11; el detalle de cada uno (con su diagrama de flujo) se recoge en el documento [Casos de Uso de Métricas](../docs/subCasosDeUso.md). La métrica de carga de trabajo admite además el modo agregado de equipo, que se activa cuando el actor no especifica un empleado concreto.
-
-**Relaciones:** `<<extend>>` hacia CU-17 (guardar snapshot de la métrica calculada). Cada subcaso CU-10.x hereda esta misma relación.
+**Relaciones:** Extendido por CU-22 a CU-32 (cada uno se activa cuando el actor selecciona la métrica correspondiente).
 
 ---
 

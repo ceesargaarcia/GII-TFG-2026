@@ -39,6 +39,14 @@ class ParteDeHoras {
   +fecha : Date
 }
 
+class Asistencia {
+  +id : Integer
+  +entrada : DateTime
+  +salida : DateTime
+  +horasTrabajadas : Float
+  +fecha : Date
+}
+
 class Empleado {
   +id : Integer
   +nombre : String
@@ -60,5 +68,6 @@ Empleado       "0..*" }--  "0..1" Departamento   : pertenece a
 Empleado       "0..*" }--o{ "0..*" Tarea         : asignado a
 ParteDeHoras   "0..*" }--  "1"   Empleado        : registrada por
 ParteDeHoras   "0..*" }-  "0..1" Tarea          : imputable a
+Asistencia     "0..*" }--  "1"   Empleado        : fichada por
 
 @enduml

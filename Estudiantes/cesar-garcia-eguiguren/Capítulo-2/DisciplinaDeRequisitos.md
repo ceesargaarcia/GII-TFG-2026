@@ -82,11 +82,11 @@ El sistema se organiza en **10 paquetes funcionales** que agrupan los **32 casos
 |                        | CU-27 | Consultar tasa de retrabajo | ✅ | ✅ [scope] |
 |                        | CU-28 | Consultar exactitud de estimación | ✅ | ✅ [scope] |
 |                        | CU-29 | Consultar lead time | ✅ | ✅ [scope] |
-|                        | CU-30 | Consultar tiempo por estado | ✅ | ✅ [scope] |
-|                        | CU-31 | Consultar tareas canceladas | ✅ | ✅ [scope] |
-|                        | CU-32 | Consultar tiempo invertido por prioridad | ✅ | ✅ [scope] |
+|                        | CU-30 | Consultar distribución por cliente ★ | ✅ | ❌ |
+|                        | CU-31 | Consultar eficiencia de proyecto | ✅ | ✅ [scope] |
+|                        | CU-32 | Consultar rentabilidad por horas estimadas/reales | ✅ | ✅ [scope] |
  
-**Totales:** Director → 32 CU · Responsable → 29 CU (excluidos CU-13, CU-14 y CU-20).
+**Totales:** Director → 32 CU · Responsable → 28 CU (excluidos CU-13, CU-14, CU-20 y CU-30).
  
 #### Observaciones sobre la consolidación de CUs
  
@@ -110,59 +110,78 @@ Ambos actores comparten la mayoría de los casos de uso. El Director tiene acces
 
 **Resumen rápido:**
 - **Director:** Acceso a los 32 CU sin restricciones de ámbito.
-- **Responsable:** Acceso a 29 CU con filtro de ámbito (excluidos CU-13, CU-14 y CU-20).
+- **Responsable:** Acceso a 28 CU con filtro de ámbito (excluidos CU-13, CU-14, CU-20 y CU-30).
 
 ---
 
-## 2. Priorizar Casos de Uso
+# 2. Priorizar casos de uso
 
-### 2.1 Criterios
-Los siguientes criterios se han consolidado tras una reunión de priorización con el Director de la empresa. Cada caso de uso se ha evaluado en una escala del 1 al 3 para cada criterio, donde 3 representa el mayor impacto o importancia.
+Cuatro criterios evaluados de 1 a 3 con el manager de Netkia.
 
-| Criterio | Descripción | Escala |
+| Criterio | Nombre | Descripción |
 |---|---|---|
-| **Criticidad** | ¿Bloquea la ejecución de otros CU? | 1–3 |
-| **Valor de negocio** | ¿Apoya decisiones estratégicas o tácticas? | 1–3 |
-| **Frecuencia de uso** | ¿Se ejecuta en cada sesión o esporádicamente? | 1–3 |
-| **Riesgo técnico** | ¿Implica lógica compleja o integración crítica con el ERP? | 1–3 |
+| **C1** | Criticidad técnica | ¿Bloquea otros CUs o es prerequisito de infraestructura? |
+| **C2** | Valor de negocio | ¿Apoya decisiones operativas o estratégicas del día a día? |
+| **C3** | Frecuencia de uso | ¿Se ejecuta en cada sesión o de forma esporádica? |
+| **C4** | Complejidad implementada | Peso real del código: capas, validaciones, lógica de scope y fórmulas. |
 
-#### Prioridad Alta (A) — MVP imprescindible
-
-| CU | Nombre | Criticidad | Valor de negocio | Frecuencia | Riesgo técnico | Justificación |
-|---|---|:---:|:---:|:---:|:---:|---|
-| CU-01 | Autenticarse | 3 | 3 | 3 | 2 | Sin autenticación no hay sistema. Puerta de entrada. |
-| CU-02 | Listar empleados | 3 | 2 | 3 | 1 | Dato base para todos los paneles de empleado. |
-| CU-03 | Resumen de empleado | 2 | 3 | 3 | 2 | Vista canónica de consulta operativa diaria. |
-| CU-06 | Listar proyectos | 3 | 2 | 3 | 1 | Dato base para paneles de proyecto y rentabilidad. |
-| CU-07 | Resumen de proyecto | 2 | 3 | 3 | 2 | Vista canónica sobre el estado de un proyecto. |
-| CU-08 | Listar tareas | 2 | 3 | 3 | 2 | Consulta operativa de alta frecuencia. |
-| CU-10 | Mostrar catálogo de métricas | 2 | 3 | 3 | 3 | Indicadores que guían la decisión diaria. |
-| CU-13 | Rentabilidad financiera ★ | 2 | 3 | 2 | 3 | Indicador económico global del Director. |
-| CU-21 | Consultar carga de trabajo de equipo | 2 | 3 | 2 | 2 | Control de la carga de trabajo de los empleados. |
-| CU-17 | Guardar snapshot | 1 | 3 | 2 | 2 | Permite persistir el estado para seguimiento histórico. |
-
-#### Prioridad Media (M) — complementarios
-
-| CU | Nombre | Criticidad | Valor de negocio | Frecuencia | Riesgo técnico | Justificación |
-|---|---|:---:|:---:|:---:|:---:|---|
-| CU-04 | Listar departamentos | 2 | 2 | 2 | 1 | Exploración por estructura organizativa. |
-| CU-05 | Resumen de departamento | 2 | 2 | 2 | 2 | Soporte al análisis de carga agregada. |
-| CU-09 | Detalle de tarea | 1 | 2 | 2 | 1 | Profundización puntual sobre una tarea. |
-| CU-11 | Gráficos analíticos | 1 | 2 | 2 | 2 | Análisis visual complementario. |
-| CU-12 | Asistencia vs imputaciones | 1 | 2 | 2 | 2 | Control de coherencia horaria. |
-| CU-14 | Líneas analíticas ★ | 1 | 2 | 1 | 1 | Desglose contextual sobre rentabilidad. |
-| CU-18 | Listar snapshots | 1 | 2 | 1 | 1 | Consumo del histórico persistido. |
-| CU-19 | Detalle de snapshot | 1 | 2 | 1 | 1 | Reconstrucción de vistas guardadas. |
-
-#### Prioridad Baja (B) — opcionales
-
-| CU | Nombre | Criticidad | Valor de negocio | Frecuencia | Riesgo técnico | Justificación |
-|---|---|:---:|:---:|:---:|:---:|---|
-| CU-15 | Búsqueda global | 1 | 1 | 2 | 1 | Atajo de navegación; no imprescindible. |
-| CU-16 | Cerrar sesión | 1 | 1 | 1 | 1 | Deseable pero no bloqueante. |
-| CU-20 | Eliminar snapshot | 1 | 1 | 1 | 1 | Operación excepcional; uso puntual. |
+> Escala: **3** alto · **2** medio · **1** bajo
 
 ---
+
+## 🟢 Alta — MVP, núcleo del sistema (10 casos de uso)
+
+| CU | Nombre | C1 | C2 | C3 | C4 | Justificación |
+|---|---|:---:|:---:|:---:|:---:|---|
+| CU-01 | Autenticarse | 3 | 3 | 3 | 3 | Puerta de entrada. Implementa JWT HS256, RBAC con tres roles, cálculo de scope completo (CTE recursiva para subordinados) y embedded claims. Sin esto no arranca nada. |
+| CU-08 | Listar tareas | 3 | 3 | 3 | 3 | Endpoint más complejo del sistema: 3 capas de scope, 10+ filtros combinables, 4 tipos de respuesta distintos (Pending/Completed/Assigned/Generic), batch de horas. Reutilizado por CU-03 y CU-07. |
+| CU-03 | Resumen de empleado | 2 | 3 | 3 | 3 | Orquesta DashboardService → WorkloadService + WIPService + ProductivityService + TaskService. Vista operativa de consulta diaria más compleja del sistema. |
+| CU-02 | Listar empleados | 3 | 2 | 3 | 2 | Dato base para navegación. Implementa paginación server-side, scope en 3 capas y ordenación multi-columna. |
+| CU-21 | Carga de trabajo del equipo | 2 | 3 | 3 | 3 | Página /manager con paginación server-side, get_pending_hours_per_employee sobre todo el equipo, filtrado de estado y ordenación dinámica. Panel principal del responsable. |
+| CU-07 | Resumen de proyecto | 2 | 3 | 3 | 3 | Orquesta ProjectEfficiencyService + RiskIndexService + ProfitabilityService. Pestañas de tareas y equipo con paginación propia. |
+| CU-10 | Catálogo de métricas | 2 | 3 | 3 | 2 | Punto de entrada a 11 métricas. buildMetrics(), apiMap dispatch sin if/elif, caché de resultados. Arquitectura OCP en frontend. |
+| CU-13 | Rentabilidad financiera ★ | 2 | 3 | 2 | 3 | RentabilityService con 6 endpoints distintos, require_director en todas las rutas, cálculo de margen/estado por proyecto y agregación por cliente/responsable. |
+| CU-17 | Guardar snapshot (upsert) | 2 | 3 | 2 | 3 | SnapshotService con SHA-256, normalización canónica de params, upsert sobre MongoDB, SnapshotActor desde JWT claims. Único subsistema con escritura real. |
+| CU-06 | Listar proyectos | 3 | 2 | 3 | 1 | Prerequisito de CU-07 y CU-13. Implementación ligera (lista sin paginación) pero con filtrado de scope y extracción de nombre JSONB multilingüe. |
+
+---
+
+## 🟡 Media — Complementarios, completan la experiencia (14 casos de uso)
+
+| CU | Nombre | C1 | C2 | C3 | C4 | Justificación |
+|---|---|:---:|:---:|:---:|:---:|---|
+| CU-22 | Consultar productividad | 2 | 3 | 2 | 2 | Métrica más compleja de P10: subconsulta de horas por empleado, filtrado en timesheet (no en task), ordenación post-query porque el campo es calculado. |
+| CU-25 | Carga de trabajo individual | 2 | 3 | 2 | 2 | WorkloadService.calculate() con modo detailed: dos queries (open + closed), formato de pending tasks con is_overdue, reutilizado por CU-03 y CU-21. |
+| CU-24 | WIP de empleado | 2 | 3 | 2 | 1 | WIPService con umbrales configurados en constants.py. Reutilizado por CU-03. Implementación compacta pero con valor operativo alto. |
+| CU-23 | Cumplimiento de plazos | 1 | 3 | 2 | 2 | ComplianceService con CASE WHEN sobre date_end vs date_deadline. Requiere que ambas fechas existan. |
+| CU-26 | Riesgo de proyecto | 1 | 2 | 2 | 2 | RiskIndexService con lógica _is_at_risk: vencidas + umbral 80% del tiempo transcurrido. Reutilizado por CU-07. |
+| CU-31 | Eficiencia de proyecto | 1 | 2 | 2 | 1 | ProjectEfficiencyService sobre worked_hours_subq. Reutilizado por CU-07 y DashboardService. |
+| CU-32 | Rentabilidad horas est./reales | 1 | 2 | 2 | 2 | ProfitabilityService con coste estimado (planned×hourly_cost) vs coste real (worked×hourly_cost). Reutilizado por CU-07. |
+| CU-05 | Resumen de departamento | 1 | 2 | 2 | 2 | DepartmentService orquesta WorkloadService por cada empleado del departamento + paginación propia de empleados y workload. |
+| CU-04 | Listar departamentos | 2 | 2 | 2 | 1 | Prerequisito de CU-05. Implementación ligera con scope en Capa 3. |
+| CU-11 | Gráficos analíticos | 1 | 2 | 2 | 2 | ChartService con tres endpoints (task-distribution, productivity-trend, task-evolution). Filtrado por entidad (empleado/dpto/proyecto) y agrupación temporal. |
+| CU-12 | Asistencia vs imputaciones | 1 | 2 | 2 | 3 | AttendanceService con dos subqueries (hr_attendance + account_analytic_line), tres modos de vista (equipo/empleado/manager), serie diaria y CTE de subordinados. |
+| CU-14 | Líneas analíticas ★ | 1 | 2 | 1 | 1 | Dos endpoints (per-project/{id}/lines y per-client/{id}/lines). Clasificación por signo del importe. Solo accesible desde CU-13. |
+| CU-18 | Listar snapshots | 1 | 2 | 1 | 1 | SnapshotRepository con paginación, filtros por nombre/tipo y DateBadgePicker de fechas disponibles. Frontend2 independiente. |
+| CU-19 | Detalle de snapshot | 1 | 2 | 1 | 3 | SnapshotDetail.jsx con 18 renderers especializados (MetricVisualizer × 14 tipos + ChartVisualizer × 4 + EntityVisualizer × 4). Sin recálculo contra PostgreSQL. |
+
+---
+
+## ⚪ Baja — Opcionales, valor puntual o de soporte (8 casos de uso)
+
+| CU | Nombre | C1 | C2 | C3 | C4 | Justificación |
+|---|---|:---:|:---:|:---:|:---:|---|
+| CU-28 | Exactitud de estimación | 1 | 2 | 1 | 1 | EstimationAccuracyService con ratio planned/actual y clasificación en subestima/sobreestima/preciso. Análisis de calidad esporádico. |
+| CU-27 | Tasa de retrabajo | 1 | 2 | 1 | 2 | ReworkRateService + tracking.py: lectura de mail_tracking_value para detectar transiciones cerrado→abierto. Única métrica que accede al historial de auditoría de Odoo. |
+| CU-29 | Lead time | 1 | 1 | 1 | 1 | LeadTimeService con extract(epoch from date_end - date_assign). Métrica complementaria de ciclo de vida. |
+| CU-30 | Distribución por cliente ★ | 1 | 2 | 1 | 1 | ClientDistributionService con require_director. Análisis de horas por partner. Exclusivo Director. |
+| CU-09 | Detalle de tarea | 1 | 1 | 2 | 2 | TaskService.get_task_detail() con horas, subtareas, empleados asignados y responsable. Scope verificado en ruta. Navegación puntual. |
+| CU-15 | Búsqueda global | 1 | 1 | 2 | 1 | SearchService con tres queries paralelas (tasks/projects/employees) con scope. Atajo de navegación, no imprescindible. |
+| CU-20 | Eliminar snapshot | 1 | 1 | 1 | 1 | DELETE sobre MongoDB por _id. Operación permanente, uso excepcional. Solo Director. |
+| CU-16 | Cerrar sesión | 1 | 1 | 1 | 1 | logout() borra localStorage y cabecera Authorization. Deseable pero no bloqueante. |
+
+---
+
 
 ## 3. Detallar Casos de Uso
 
@@ -845,7 +864,7 @@ El Director tiene acceso a los 32 casos de uso sin restricciones de ámbito. Es 
 
 ![navResponsable](./imagenes/navResponsable.png)
 
-El Responsable tiene acceso a 29 casos de uso, pero con datos filtrados automáticamente a su ámbito organizativo (empleados, departamentos y proyectos bajo su responsabilidad).
+El Responsable tiene acceso a 28 casos de uso, pero con datos filtrados automáticamente a su ámbito organizativo (empleados, departamentos y proyectos bajo su responsabilidad).
 
 ---
 
@@ -864,19 +883,20 @@ Todos los casos de uso del sistema (excepto CU-01 Autenticarse) requieren sesió
 | Extensión | Desde → Hacia | Condición |
 |---|---|---|
 | Consultar productividad | CU-10 → CU-22 | Actor selecciona la métrica *Productividad* en el catálogo. |
-| Consultar cumplimiento | CU-10 → CU-23 | Actor selecciona la métrica *Cumplimiento de Plazos* en el catálogo. |
-| Consultar WIP | CU-10 → CU-24 | Actor selecciona la métrica *WIP* en el catálogo. |
-| Consultar carga de trabajo | CU-10 → CU-25 | Actor selecciona la métrica *Carga de Trabajo* en el catálogo. |
+| Consultar cumplimiento de plazos | CU-10 → CU-23 | Actor selecciona la métrica *Cumplimiento de Plazos* en el catálogo. |
+| Consultar WIP de empleado | CU-10 → CU-24 | Actor selecciona la métrica *WIP* en el catálogo. |
+| Consultar carga de trabajo de empleado | CU-10 → CU-25 | Actor selecciona la métrica *Carga de Trabajo* en el catálogo. |
 | Consultar riesgo de proyecto | CU-10 → CU-26 | Actor selecciona la métrica *Índice de Riesgo* en el catálogo. |
 | Consultar tasa de retrabajo | CU-10 → CU-27 | Actor selecciona la métrica *Tasa de Retrabajo* en el catálogo. |
 | Consultar exactitud de estimación | CU-10 → CU-28 | Actor selecciona la métrica *Exactitud de Estimación* en el catálogo. |
 | Consultar lead time | CU-10 → CU-29 | Actor selecciona la métrica *Lead Time* en el catálogo. |
-| Consultar tiempo por estado | CU-10 → CU-30 | Actor selecciona la métrica *Tiempo por Estado* en el catálogo. |
-| Consultar tareas canceladas | CU-10 → CU-31 | Actor selecciona la métrica *Tareas Canceladas* en el catálogo. |
-| Consultar tiempo por prioridad | CU-10 → CU-32 | Actor selecciona la métrica *Tiempo por Prioridad* en el catálogo. |
+| Consultar distribución por cliente | CU-10 → CU-30 | Actor selecciona la métrica *Distribución por Cliente* en el catálogo. (Director exclusivo) |
+| Consultar eficiencia de proyecto | CU-10 → CU-31 | Actor selecciona la métrica *Eficiencia de Proyecto* en el catálogo. |
+| Consultar rentabilidad por horas | CU-10 → CU-32 | Actor selecciona la métrica *Rentabilidad por Horas Estimadas/Reales* en el catálogo. |
 | Desglose de rentabilidad | CU-13 → CU-14 | Actor pulsa "Ver detalles" sobre una fila de la tabla por proyecto o por cliente. |
 | Guardar snapshot de métrica | CU-22..CU-32 → CU-17 | Actor pulsa "Guardar snapshot" desde una vista calculada de métrica. |
 | Guardar snapshot de gráfico | CU-11 → CU-17 | Actor pulsa "Guardar snapshot" sobre un gráfico concreto. |
+| Guardar snapshot de asistencia | CU-12 → CU-17 | Actor pulsa "Guardar snapshot" sobre la vista de asistencia. |
 | Guardar snapshot de rentabilidad ★ | CU-13 → CU-17 | Director pulsa "Guardar snapshot" sobre el resumen financiero. |
 | Guardar snapshot de entidad | CU-03, CU-05, CU-07, CU-09 → CU-17 | Actor pulsa "Guardar snapshot" desde la ficha de una entidad. |
 | Detalle de snapshot listada | CU-18 → CU-19 | Actor selecciona una fila en la tabla del visor. |
