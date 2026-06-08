@@ -1,0 +1,71 @@
+@startuml diagrama-catalogo-metricas
+left to right direction
+skinparam linetype polyline
+skinparam backgroundColor white
+
+' ── Estado del Catálogo ───────────────────────────────────────
+state "Vista Catálogo de Métricas" as Metricas
+
+' ── Estados individuales de métricas (P10) ────────────────────
+state "Vista Productividad" as MetProd
+state "Vista Cumplimiento" as MetCumpl
+state "Vista WIP" as MetWIP
+state "Vista Carga de Trabajo" as MetWorkload
+state "Vista Índice de Riesgo" as MetRiesgo
+state "Vista Tasa de Retrabajo" as MetRetrabajo
+state "Vista Exactitud de Estimación" as MetEstimacion
+state "Vista Lead Time" as MetLeadTime
+state "Vista Distribución por Cliente" as MetDistCliente
+state "Vista Eficiencia de Proyecto" as MetEficiencia
+state "Vista Rentabilidad por Horas" as MetRentHoras
+
+[*] --> Metricas
+
+' ── P10 · Catálogo de métricas → P10 Métricas individuales ─────
+Metricas --> MetProd            : CU-22: consultarProductividad()
+Metricas --> MetCumpl           : CU-23: consultarCumplimiento()
+Metricas --> MetWIP             : CU-24: consultarWIP()
+Metricas --> MetWorkload        : CU-25: consultarCargaTrabajo()
+Metricas --> MetRiesgo          : CU-26: consultarRiesgoProyecto()
+Metricas --> MetRetrabajo       : CU-27: consultarRetrabajo()
+Metricas --> MetEstimacion      : CU-28: consultarExactitudEstimacion()
+Metricas --> MetLeadTime        : CU-29: consultarLeadTime()
+Metricas --> MetDistCliente     : CU-30: consultarDistribucionCliente()
+Metricas --> MetEficiencia      : CU-31: consultarEficienciaProyecto()
+Metricas --> MetRentHoras       : CU-32: consultarRentabilidadHoras()
+
+' ── P10 · Métricas individuales (patrón común) ────────────────
+MetProd          --> MetProd          : guardarSnapshot()
+MetProd          --> Metricas         : volver()
+
+MetCumpl         --> MetCumpl         : guardarSnapshot()
+MetCumpl         --> Metricas         : volver()
+
+MetWIP           --> MetWIP           : guardarSnapshot()
+MetWIP           --> Metricas         : volver()
+
+MetWorkload      --> MetWorkload      : guardarSnapshot()
+MetWorkload      --> Metricas         : volver()
+
+MetRiesgo        --> MetRiesgo        : guardarSnapshot()
+MetRiesgo        --> Metricas         : volver()
+
+MetRetrabajo     --> MetRetrabajo     : guardarSnapshot()
+MetRetrabajo     --> Metricas         : volver()
+
+MetEstimacion    --> MetEstimacion    : guardarSnapshot()
+MetEstimacion    --> Metricas         : volver()
+
+MetLeadTime      --> MetLeadTime      : guardarSnapshot()
+MetLeadTime      --> Metricas         : volver()
+
+MetDistCliente   --> MetDistCliente   : guardarSnapshot()
+MetDistCliente   --> Metricas         : volver()
+
+MetEficiencia    --> MetEficiencia    : guardarSnapshot()
+MetEficiencia    --> Metricas         : volver()
+
+MetRentHoras     --> MetRentHoras     : guardarSnapshot()
+MetRentHoras     --> Metricas         : volver()
+
+@enduml

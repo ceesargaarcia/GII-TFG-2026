@@ -1,0 +1,30 @@
+@startuml visor-snapshots-responsable
+left to right direction
+skinparam defaultFontSize 16
+skinparam linetype polyline
+
+state "Vista Iniciar Sesión"          as NoAuth
+state "Vista Visor Inicial Abierto"   as VisorInicial
+state "Vista Snapshots Listadas"      as Visor
+state "Vista Snapshot Detalle"        as DetSnap
+
+[*] --> NoAuth
+
+' ── Autenticación ───────────────────────────────
+NoAuth --> VisorInicial : iniciarSesion()
+VisorInicial --> NoAuth : cerrarSesion()
+
+' ── Acceso al visor ──────────────────────────────
+VisorInicial --> Visor : listarSnapshots()
+
+' ── Navegación principal ─────────────────────────
+Visor --> DetSnap : consultarDetalleSnapshot()
+DetSnap --> Visor : volver()
+
+Visor --> VisorInicial : volver()
+
+' ── Acciones sobre snapshots ──────────────────────
+Visor --> Visor : eliminarSnapshot()
+DetSnap --> Visor : eliminarSnapshot()
+
+@enduml

@@ -1,0 +1,95 @@
+@startuml diagrama-navegacion-director
+top to bottom direction
+skinparam linetype polyline
+
+state "Vista Iniciar Sesión"              as NoAuth
+state "Vista Página Inicial Abierta"      as Overview
+state "Vista Empleados Listados"          as ListEmp
+state "Vista Empleado Detalle"            as DetEmp
+state "Vista Departamentos Listados"      as ListDept
+state "Vista Departamento Detalle"        as DetDept
+state "Vista Proyectos Listados"          as ListProy
+state "Vista Proyecto Detalle"            as DetProy
+state "Vista Tareas Listadas"             as ListTarea
+state "Vista Tarea Detalle"               as DetTarea
+state "Vista Catálogo Métricas Abierto"   as Metricas
+state "Vista Gráficos Abierto"            as Graficos
+state "Vista Asistencia Abierto"          as Asistencia
+state "Vista Manager Abierto"             as Manager
+state "Vista Búsqueda Abierta"            as Busqueda
+state "Vista Rentabilidad Abierta"        as Rentabilidad
+state "Vista Líneas Analíticas Abierto"   as Lineas
+
+[*] --> NoAuth
+
+' ── Autenticación ─────────────────────────────────────────────
+NoAuth      -> Overview    : iniciarSesion()
+Overview    --> NoAuth      : cerrarSesion()
+
+' ── Navegación principal desde Overview ───────────────────────
+Overview -> ListEmp        : listarEmpleados()
+Overview -> ListDept       : listarDepartamentos()
+Overview -> ListProy       : listarProyectos()
+Overview -> ListTarea      : listarTareas()
+Overview -> Metricas       : mostrarCatalogoMetricas()
+Overview -> Graficos       : visualizarGraficosAnaliticos()
+Overview -> Asistencia     : consultarAsistenciaVsImputaciones()
+Overview -> Manager        : consultarCargaEquipo()
+Overview -> Busqueda       : buscarGlobal()
+Overview -> Rentabilidad   : analizarRentabilidadFinanciera()
+
+ListDept     --> Overview : volver()
+ListEmp      --> Overview : volver()
+ListProy     --> Overview : volver()
+ListTarea    --> Overview : volver()
+Metricas     --> Overview : volver()
+Asistencia   --> Overview : volver()
+Rentabilidad --> Overview : volver()
+Busqueda     --> Overview : volver()
+Manager      --> Overview : volver()
+Graficos     --> Overview : volver()
+
+' ── P2 · Empleados ────────────────────────────────────────────
+ListEmp  --> DetEmp         : visualizarResumenEmpleado()
+DetEmp   --> ListTarea      : listarTareas()
+DetEmp   --> DetTarea       : consultarDetalleTarea()
+DetEmp   --> DetEmp         : guardarSnapshot()
+DetEmp   --> ListEmp        : volver()
+
+' ── P3 · Departamentos ────────────────────────────────────────
+ListDept --> DetDept        : visualizarResumenDepartamento()
+DetDept  --> DetEmp         : visualizarResumenEmpleado()
+DetDept  --> DetDept        : guardarSnapshot()
+DetDept  --> ListDept       : volver()
+
+' ── P4 · Proyectos ────────────────────────────────────────────
+ListProy --> DetProy        : visualizarResumenProyecto()
+DetProy  --> DetTarea       : consultarDetalleTarea()
+DetProy  --> DetEmp         : visualizarResumenEmpleado()
+DetProy  --> DetProy        : guardarSnapshot()
+DetProy  --> ListProy       : volver()
+
+' ── P5 · Tareas ───────────────────────────────────────────────
+ListTarea --> DetTarea      : consultarDetalleTarea()
+DetTarea  --> DetProy       : visualizarResumenProyecto()
+DetTarea  --> DetEmp        : visualizarResumenEmpleado()
+DetTarea  --> DetTarea      : consultarDetalleTarea()
+DetTarea  --> DetTarea      : guardarSnapshot()
+DetTarea  --> ListTarea     : volver()
+
+' ── P6 · Otros análisis ───────────────────────────────────────
+Graficos   --> Graficos     : guardarSnapshot()
+Asistencia --> Asistencia   : guardarSnapshot()
+Manager    --> DetEmp       : visualizarResumenEmpleado()
+
+' ── P7 · Rentabilidad ★ Director exclusivo ───────────────────
+Rentabilidad --> Lineas     : consultarLineasAnaliticas()
+Rentabilidad --> Rentabilidad : guardarSnapshot()
+Lineas       --> Rentabilidad : volver()
+
+' ── P8 · Utilidades ───────────────────────────────────────────
+Busqueda --> DetEmp         : visualizarResumenEmpleado()
+Busqueda --> DetProy        : visualizarResumenProyecto()
+Busqueda --> DetTarea       : consultarDetalleTarea()
+
+@enduml

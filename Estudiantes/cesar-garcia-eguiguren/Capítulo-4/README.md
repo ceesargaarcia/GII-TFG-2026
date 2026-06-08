@@ -12,29 +12,20 @@ Los diagramas de estados del Capítulo 4 muestran el flujo real de la aplicació
 
 ### Frontend 1 — Aplicación principal (puerto 3000)
 
-El diagrama de navegación del frontend principal se ha dividido en tres partes por cuestiones de espacio y legibilidad: la primera cubre los módulos de gestión (empleados, departamentos, proyectos y tareas), la segunda algunos módulos de análisis (gráficos, asistencia y rentabilidad) y la tercera el catálogo de métricas. 
+El diagrama de navegación del frontend principal se ha dividido en dos partes por cuestiones de espacio y legibilidad: la primera cubre los módulos de gestión y análisis y la segunda el catálogo de métricas. 
 
-#### Parte 1 — Módulos de gestión
+#### Parte 1 — Navegación general
 
-![Diagrama de navegación principal — parte 1](./diagramas/diagrama-navegacion-principal.svg)
+![Diagrama de navegación principal — parte 1](./imagenes/vistas/navegaciónGeneral.png)
 
-> El fuente PlantUML está en [`diagramas/navegacion-principal.puml`](./diagramas/navegacion-principal.puml).
+> El fuente PlantUML está en [`diagramas/vistas/navegacion-principal.puml`](./diagramas/vistas/navegarcionGeneral.puml).
 
-Cubre el flujo de autenticación, el dashboard de inicio (Overview) y la navegación por los módulos de gestión: empleados, departamentos, proyectos y tareas.
+Cubre todo el flujo de navegación desde el inicio de sesión hasta las vistas de detalle de empleados, departamentos, proyectos y tareas, así como los paneles de análisis (métricas, gráficos, asistencia y manager) y la vista de rentabilidad financiera exclusiva del Director.
 
-#### Parte 2 — Módulos de análisis
+#### Parte 2 — Catálogo de métricas
 
-![Diagrama de navegación principal — parte 2](./diagramas/diagrama-navegacion-principal-2.svg)
-
-> El fuente PlantUML está en [`diagramas/navegacion-principal2.puml`](./diagramas/navegacion-principal2.puml).
-
-Cubre algunos módulos de análisis: gráficos analíticos, asistencia vs imputaciones y rentabilidad financiera (exclusivo Director). Se separó del diagrama anterior únicamente por espacio para mantener la legibilidad.
-
-#### Detalle — Catálogo de métricas
-
-![Diagrama del catálogo de métricas](./diagramas/diagrama-catalogo-metricas.svg)
-
-> El fuente PlantUML está en [`diagramas/catalogo-metricas.puml`](./diagramas/catalogo-metricas.puml).
+![Diagrama del catálogo de métricas](./imagenes/vistas/catalogoMétricas.png)
+> El fuente PlantUML está en [`diagramas/vistas/catalogoMetricas.puml`](./diagramas/vistas/catalogoMetricas.puml).
 
 Diagrama de detalle del módulo P6. Muestra la selección de métricas en el catálogo y la transición al panel de detalle individual con gráficos, selector de empleado/proyecto y botón de snapshot.
 
@@ -42,9 +33,9 @@ Diagrama de detalle del módulo P6. Muestra la selección de métricas en el cat
 
 ### Frontend 2 — Visor de snapshots (puerto 3001)
 
-![Diagrama del visor de snapshots](./diagramas/diagrama-visor-snapshots.svg)
+![Diagrama del visor de snapshots](./imagenes/vistas/visorSnapshots.png)
 
-> El fuente PlantUML está en [`diagramas/visor-snapshots.puml`](./diagramas/visor-snapshots.puml).
+> El fuente PlantUML está en [`diagramas/vistas/visor-snapshots.puml`](./diagramas/vistas/visor-snapshots.puml).
 
 Diagrama de navegación de la aplicación independiente de snapshots. Muestra el flujo desde la pantalla de inicio con estadísticas hasta los listados por tipo (métricas, gráficos, entidades), el detalle de cada snapshot y la confirmación de eliminación.
 
@@ -56,16 +47,16 @@ El diagrama refleja la navegación completa del sistema dividida en paquetes fun
 
 | Paquete | Estados | Descripción |
 |---|---|---|
-| **Autenticación** | `NoAuth` → `Overview` | Inicio de sesión con JWT. El Responsable inicia también el visor de snapshots. |
-| **P2 · Empleados** | `ListEmp`, `DetEmp` | Listado filtrable y ficha de resumen con KPIs y pestañas de tareas. |
-| **P3 · Departamentos** | `ListDept`, `DetDept` | Listado y ficha con distribución de carga del equipo. |
-| **P4 · Proyectos** | `ListProy`, `DetProy` | Listado y ficha con eficiencia, riesgo y rentabilidad del proyecto. |
-| **P5 · Tareas** | `ListTarea`, `DetTarea` | Listado polimórfico y detalle con subtareas y horas. |
-| **P6 · Análisis** | `MostrarCatálogoMetricas`, `MostrarGraficos`, `MostrarAsistencia`, `MostrarManager`| Métricas operativas, gráficos analíticos, asistencia vs imputaciones, distribución de equipo.|
-| **P7 · Rentabilidad ★** | `Rentabilidad`, `Lineas` | Exclusivo Director. Resumen financiero y líneas analíticas. |
-| **P8 · Utilidades** |`Busqueda` | Búsqueda global. |
-| **P9 · Snapshots** | `VisorInicial`, `Visor`, `DetSnap` | Visor independiente (puerto 3001) para consultar y eliminar snapshots. |
-| **P10 · Métricas Operativas** | `MetricasOperativas` | Métricas operativas del sistema. |
+| **Autenticación** | `Vista Iniciar Sesión` → `Vista Página Inicial Abierta` | Inicio de sesión con JWT. El Responsable inicia también el visor de snapshots. |
+| **P2 · Empleados** | `Vista Listado Empleados`, `Vista Detalle Empleado` | Listado filtrable y ficha de resumen con KPIs y pestañas de tareas. |
+| **P3 · Departamentos** | `Vista Listado Departamentos`, `Vista Detalle Departamento` | Listado y ficha con distribución de carga del equipo. |
+| **P4 · Proyectos** | `Vista Listado Proyectos`, `Vista Detalle Proyecto` | Listado y ficha con eficiencia, riesgo y rentabilidad del proyecto. |
+| **P5 · Tareas** | `Vista Listado Tareas`, `Vista Detalle Tarea` | Listado polimórfico y detalle con subtareas y horas. |
+| **P6 · Análisis** | `Vista Catálogo de Métricas`, `Vista Gráficos`, `Vista Asistencia`, `Vista Manager`| Métricas operativas, gráficos analíticos, asistencia vs imputaciones, distribución de equipo.|
+| **P7 · Rentabilidad ★** | `Vista Rentabilidad`, `Vista Líneas Analíticas` | Exclusivo Director. Resumen financiero y líneas analíticas. |
+| **P8 · Utilidades** |`Vista Búsqueda` | Búsqueda global. |
+| **P9 · Snapshots** | `Vista Visor Inicial`, `Vista Snapshots Listadas`, `Vista Snapshot Detalle` | Visor independiente (puerto 3001) para consultar y eliminar snapshots. |
+| **P10 · Métricas Operativas** | `Vista Métricas Operativas` | Métricas operativas del sistema. |
 
 ---
 
