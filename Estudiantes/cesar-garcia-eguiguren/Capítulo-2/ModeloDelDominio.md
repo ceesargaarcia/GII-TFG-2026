@@ -4,7 +4,11 @@ El sistema se compone de una aplicación web analítica conectada a la base de d
 
 Por ello, el modelo del dominio se apoya en las entidades existentes en Odoo, garantizando coherencia con la base de datos corporativa y evitando inconsistencias. La única familia de entidades añadidas por el propio sistema es la de las **capturas históricas** (snapshots), que se guardan en una base documental independiente y son ajenas al ciclo de vida de las entidades de Odoo.
 
-En las siguientes secciones se presentan los diferentes diagramas que conforman el modelo del dominio: el diagrama de clases, el diagrama de objetos, el diagrama de estados y el glosario de términos, proporcionando una visión completa de la estructura conceptual del sistema.
+El diagrama siguiente muestra el modelo conceptual del dominio: las entidades clave del negocio y sus relaciones, sin atributos ni detalles técnicos, en el vocabulario de Netkia:
+
+![Diagrama de dominio](./imagenes/diagramaDominio.png)
+
+En las siguientes secciones se presentan los diagramas que completan el modelo del dominio: el diagrama de clases, el diagrama de objetos, el diagrama de estados y el glosario de términos.
 
 ## Diagrama de Clases
 
@@ -65,7 +69,7 @@ Este diagrama refleja las transiciones más comunes dentro del ciclo de vida de 
 | RF-08 | Listar tareas con filtros combinables por proyecto, responsable, estado y prioridad | CU-08 |
 | RF-09 | Consultar el detalle de una tarea con historial, imputaciones y subtareas | CU-09 |
 | RF-10 | Consultar cualquiera de las métricas operativas con parámetros dinámicos | CU-10 |
-| RF-11 | Calcular la métrica de carga de trabajo en modo agregado de equipo cuando no se especifica un empleado concreto | CU-10 (variante equipo) |
+| RF-11 | Calcular la métrica de carga de trabajo en modo agregado de equipo | CU-21 (variante equipo) |
 | RF-12 | Visualizar gráficos de evolución y distribución de tareas | CU-11 |
 | RF-13 | Visualizar el gráfico de horas por cliente (solo Director) | CU-11 |
 | RF-14 | Comparar asistencia fichada frente a horas imputadas por empleado y período | CU-12 |

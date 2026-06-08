@@ -1,0 +1,38 @@
+@startuml
+
+class Cliente {
+
+}
+
+class Proyecto {
+
+}
+
+class Tarea {
+
+}
+
+class ParteDeHoras {
+
+}
+
+class Asistencia {
+
+}
+
+class Empleado {
+}
+
+class Departamento {
+}
+
+' ── Relaciones ────────────────────────────────
+Cliente       -- Proyecto       : tiene
+Proyecto      -- Tarea           : contiene
+Empleado      -- Departamento   : pertenece a
+Empleado      -- Tarea         : asignado a
+ParteDeHoras  -- Empleado        : registrada por
+ParteDeHoras  -- Tarea          : imputable a
+Asistencia    -- Empleado        : fichada por
+
+@enduml

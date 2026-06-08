@@ -19,9 +19,7 @@ state "MANAGER_ABIERTO"             as Manager
 state "BUSQUEDA_ABIERTO"            as Busqueda
 state "RENTABILIDAD_ABIERTA"        as Rentabilidad
 state "LINEAS_ANALITICAS_ABIERTO"   as Lineas
-state "SNAPSHOTS_LISTADAS"     as Visor
-state "SNAPSHOT_DETALLE"    as DetSnap
-state "VISOR_INICIAL_ABIERTO"     as VisorInicial
+
 ' ── Estados individuales de métricas (P10) ────────────────────
 state "PRODUCTIVIDAD_ABIERTO"       as MetProd
 state "CUMPLIMIENTO_ABIERTO"        as MetCumpl
@@ -38,22 +36,20 @@ state "RENTABILIDAD_HORAS_ABIERTO"    as MetRentabilidadHoras
 [*] --> NoAuth
 
 ' ── Autenticación ─────────────────────────────────────────────
-NoAuth      --> Overview    : iniciarSesion()
+NoAuth      -> Overview    : iniciarSesion()
 Overview    --> NoAuth      : cerrarSesion()
 
 ' ── Navegación principal desde Overview ───────────────────────
-Overview --> ListEmp        : listarEmpleados()
-Overview --> ListDept       : listarDepartamentos()
-Overview --> ListProy       : listarProyectos()
-Overview --> ListTarea      : listarTareas()
-Overview --> Metricas       : mostrarCatalogoMetricas()
-Overview --> Graficos       : visualizarGraficosAnaliticos()
-Overview --> Asistencia     : consultarAsistenciaVsImputaciones()
-Overview --> Manager        : consultarCargaEquipo()
-Overview --> Busqueda       : buscarGlobal()
-Overview --> Rentabilidad   : analizarRentabilidadFinanciera()
-VisorInicial   --> Visor          : listarSnapshots()
-NoAuth   --> VisorInicial   : iniciarSesion()
+Overview -> ListEmp        : listarEmpleados()
+Overview -> ListDept       : listarDepartamentos()
+Overview -> ListProy       : listarProyectos()
+Overview -> ListTarea      : listarTareas()
+Overview -> Metricas       : mostrarCatalogoMetricas()
+Overview -> Graficos       : visualizarGraficosAnaliticos()
+Overview -> Asistencia     : consultarAsistenciaVsImputaciones()
+Overview -> Manager        : consultarCargaEquipo()
+Overview -> Busqueda       : buscarGlobal()
+Overview -> Rentabilidad   : analizarRentabilidadFinanciera()
 
 ListDept     --> Overview : volver()
 ListEmp      --> Overview : volver()
@@ -69,6 +65,7 @@ Graficos     --> Overview : volver()
 ' ── P2 · Empleados ────────────────────────────────────────────
 ListEmp  --> DetEmp         : visualizarResumenEmpleado()
 DetEmp   --> ListTarea      : listarTareas()
+DetEmp   --> DetTarea         : consultarDetalleTarea()
 DetEmp   --> DetEmp         : guardarSnapshot()
 DetEmp   --> ListEmp        : volver()
 
@@ -80,7 +77,7 @@ DetDept  --> ListDept        : volver()
 
 ' ── P4 · Proyectos ────────────────────────────────────────────
 ListProy --> DetProy          : visualizarResumenProyecto()
-DetProy  --> ListTarea        : listarTareas()
+DetProy  --> DetTarea         : consultarDetalleTarea()
 DetProy  --> DetEmp           : visualizarResumenEmpleado()
 DetProy  --> DetProy          : guardarSnapshot()
 DetProy  --> ListProy         : volver()
@@ -144,13 +141,5 @@ Lineas       --> Rentabilidad : volver()
 Busqueda --> DetEmp           : visualizarResumenEmpleado()
 Busqueda --> DetProy          : visualizarResumenProyecto()
 Busqueda --> DetTarea         : consultarDetalleTarea()
-
-' ── P9 · Snapshots ────────────────────────────────────────────
-Visor    --> DetSnap          : consultarDetalleSnapshot()
-VisorInicial    --> NoAuth           : cerrarSesion()
-DetSnap  --> Visor            : eliminarSnapshot()
-DetSnap  --> Visor            : volver()
-Visor --> Visor            : eliminarSnapshot()
-Visor --> VisorInicial     : volver()
 
 @enduml

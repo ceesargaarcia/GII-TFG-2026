@@ -854,7 +854,13 @@ Panel de supervisión global para responsables que presenta cinco tarjetas numé
 
 ### 5.1 Diagrama de Contexto – Director
 
+**Navegación General:**
+
 ![navDirector](./imagenes/navDirector.png)
+
+**Gestión de Snapshots:**
+
+![navSnapshots](./imagenes/navSnapshots.png)
 
 El Director tiene acceso a los 32 casos de uso sin restricciones de ámbito. Es el único actor con acceso al módulo de rentabilidad financiera (CU-13 y CU-14).
 
@@ -862,7 +868,13 @@ El Director tiene acceso a los 32 casos de uso sin restricciones de ámbito. Es 
 
 ### 5.2 Diagrama de Contexto – Responsable
 
+**Navegación General:**
+
 ![navResponsable](./imagenes/navResponsable.png)
+
+**Gestión de Snapshots:**
+
+![navSnapshotsResponsable](./imagenes/navSnapshotsResponsable.png)
 
 El Responsable tiene acceso a 28 casos de uso, pero con datos filtrados automáticamente a su ámbito organizativo (empleados, departamentos y proyectos bajo su responsabilidad).
 
