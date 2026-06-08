@@ -1,7 +1,7 @@
 @startuml CU-22
 skinparam MaxMessageSize 150
 
-title Diagrama de Secuencia de Diseño - CU-22 Consultar Productividad
+title Diagrama de Secuencia de Diseño - CU-22 Consultar Productividad (Cálculo)
 
 actor "Director /\nResponsable" as U
 participant "Frontend\n(React)" as FE
@@ -10,71 +10,46 @@ participant "ProductivityService" as SVC
 participant "ProductivityRepository" as REPO
 database "PostgreSQL\n(Odoo)" as DB
 
-U -> FE : Selecciona "Productividad"\ndesde catálogo de métricas (CU-10)
-activate FE
-
-U -> FE : Configura filtros opcionales:\nemployee_id, project_id,\ndate_from, date_to
-FE -> API : GET /metrics/productivity\n?employee_id&project_id\n&date_from&date_to&root_only\n(JWT Bearer)
-activate API
-
-API -> API : require_manager_or_above(cu)\n→ 403 si rol = empleado
-
-== Validaciones ==
-
-opt date_from o date_to proporcionados
-API -> API : validate_date_range(\ndate_from, date_to)
-note right of API : 400 si rango inválido
-end
-
-opt employee_id proporcionado
-API -> API : verify_employee_exists(db,\nemployee_id) → 404 si no existe
-API -> API : verify_employee_scope(cu,\nemployee_id) → 403 si fuera de alcance
-end
-
-opt project_id proporcionado
-API -> API : verify_project_exists(db,\nproject_id) → 404 si no existe
-API -> API : verify_project_scope(cu,\nproject_id) → 403 si fuera de alcance
-end
 
 == Cálculo de productividad ==
 
 API -> SVC : calculate(employee_id, project_id,\ndate_from, date_to, root_only)
 activate SVC
 
-SVC -> REPO : get_completed_tasks_with_hours(\ndb, employee_id, project_id,\ndate_from, date_to, root_only)
+SVC -> REPO : get_completed_tasks_with_hours(...)
 activate REPO
 
-REPO -> DB : Subquery horas:\nSELECT task_id,\n SUM(unit_amount) AS actual_hours\nFROM account_analytic_line\n[WHERE employee_id = :eid]\n[WHERE date BETWEEN :from AND :to]\nGROUP BY task_id
+REPO -> DB : Obtener horas registradas\npara las tareas filtradas
 activate DB
-DB --> REPO : subquery horas
+DB --> REPO : Horas reales por tarea
 deactivate DB
 
-REPO -> DB : Subquery etapas cerradas:\nSELECT id\nFROM project_task_type\nWHERE closed = True
+REPO -> DB : Obtener etapas marcadas\ncomo cerradas
 activate DB
-DB --> REPO : closed_stage_ids
+DB --> REPO : Lista de etapas cerradas
 deactivate DB
 
-REPO -> DB : SELECT pt.id, pt.name,\n pt.planned_hours, pt.parent_id,\n COALESCE(sq.actual_hours, 0)\nFROM project_task pt\nLEFT OUTER JOIN subquery sq\n ON pt.id = sq.task_id\nWHERE pt.active = True\n AND pt.is_closed = True\n AND pt.stage_id IN (closed_ids)\n AND pt.planned_hours > 0\n [AND pt.project_id = :pid]\n [AND pt.parent_id IS NULL if root_only]
+REPO -> DB : Obtener tareas completadas\ncon horas planificadas y reales
 activate DB
-DB --> REPO : filas de tareas con horas
+DB --> REPO : Datos de tareas filtradas
 deactivate DB
 
-REPO --> SVC : task rows
+REPO --> SVC : Tareas con métricas asociadas
 deactivate REPO
 
-SVC -> SVC : Para cada tarea con actual_hours > 0:\npct = (planned / actual) × 100\nCrea ProductivityTaskItem
+SVC -> SVC : Calcular productividad\n(planned_hours / actual_hours × 100)
 
-SVC -> SVC : Ordena por pct DESC\nCalcula average_productivity
+SVC -> SVC : Ordenar resultados y calcular\nproductividad media
 
-SVC --> API : ProductivityResponse {\n  average_productivity,\n  total_tasks,\n  tasks: [items]\n}
+SVC --> API : ProductivityResponse
 deactivate SVC
 
 API --> FE : 200 OK (ProductivityResponse)
 deactivate API
 
-FE -> FE : Renderiza MetricCard preview\n(gauge + %) y MetricDetail\n(StatBox + BarChart top 8)
+FE -> FE : Renderizar MetricCard\n(gauge + %) y MetricDetail\n(estadísticas y gráfico)
 
-FE --> U : Muestra vista de productividad
+FE --> U : Mostrar vista de productividad
 deactivate FE
 
 == Opcional: Guardar snapshot (extiende CU-17) ==
@@ -83,8 +58,10 @@ opt El usuario pulsa "Guardar Snapshot"
 
 U -> FE : Click "Guardar Snapshot"
 activate FE
-FE -> FE : Empaqueta datos calculados
+
+FE -> FE : Preparar datos de la métrica
 note right of FE : Se extiende CU-17\n(Guardar Snapshot)
+
 FE --> U : Confirmación de guardado
 deactivate FE
 

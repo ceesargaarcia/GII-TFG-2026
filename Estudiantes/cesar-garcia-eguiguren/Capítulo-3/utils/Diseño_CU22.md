@@ -23,4 +23,21 @@
 | 14 | Frontend | `Metrics.jsx` → `MetricCard` | Actualiza preview: gauge con productividad media (capeada a 100%), coloreada por umbral: verde ≥ 90%, ámbar ≥ 70%, rojo < 70%. Subtítulo: `"{total_tasks} tareas analizadas"` |
 | 15 | Frontend | `MetricDetail` → `metric.renderDetail(data)` | Muestra panel: dos KPI cards (productividad y total), gráfico de barras horizontal con top 8 tareas por `productivity_pct`, cada barra coloreada por umbral. Cabecera con `SaveSnapshotButton` |
 
-**Datos de salida:** `ProductivityResponse` con `average_productivity`, `total_tasks` y `tasks: List[ProductivityTaskItem]` (contiene `task_id`, `task_name`, `planned_hours`, `actual_hours`, `parent_id`, `productivity_pct`).
+**Datos de salida:** `ProductivityResponse`:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `average_productivity` | `float` | Media de productividad (%) sobre las tareas válidas |
+| `total_tasks` | `int` | Número de tareas con horas reales > 0 |
+| `tasks` | `List[ProductivityTaskItem]` | Detalle por tarea, ordenado por productividad DESC |
+
+Cada `ProductivityTaskItem` contiene:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `task_id` | `int` | Identificador de la tarea |
+| `task_name` | `str` | Nombre de la tarea |
+| `planned_hours` | `float` | Horas planificadas |
+| `actual_hours` | `float` | Horas reales trabajadas |
+| `parent_id` | `int?` | ID de la tarea padre (si es subtarea) |
+| `productivity_pct` | `float` | Productividad individual (`planned / actual × 100`) |

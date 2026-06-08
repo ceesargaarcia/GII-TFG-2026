@@ -15,4 +15,16 @@
 | 6 | Utils | `pagination.py → paginate()` | Ejecuta `COUNT(*)` para el total y aplica `OFFSET`/`LIMIT` según página |
 | 7 | Routes | `employee.router` | Devuelve `200 OK` + `PaginatedResponse[EmployeeDetail]` |
 
-**Datos de salida:** `PaginatedResponse[EmployeeDetail]` con `id`, `name`, `department_name`, `job_title`, `work_email`, `hourly_cost` y `active` por cada empleado visible para el actor.
+**Datos de salida:** `PaginatedResponse[EmployeeDetail]` — respuesta paginada con `items`, `total`, `page`, `page_size` y `total_pages`. Cada `EmployeeDetail` contiene:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | `int` | Identificador del empleado |
+| `name` | `str` | Nombre completo |
+| `department_id` | `int?` | ID del departamento |
+| `department_name` | `str?` | Nombre del departamento |
+| `job_title` | `str?` | Puesto de trabajo |
+| `work_email` | `str?` | Correo electrónico laboral |
+| `work_phone` | `str?` | Teléfono laboral |
+| `hourly_cost` | `float?` | Coste por hora |
+| `active` | `bool` | Si el empleado está activo |

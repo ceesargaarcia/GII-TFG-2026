@@ -23,4 +23,62 @@
 | 14 | Frontend | `EmployeeDetail.jsx` | Renderiza KpiCards de carga, WIP y productividad |
 | 15 | Frontend | Pestañas de tareas | Cada pestaña lanza `GET /tasks/filter` bajo demanda, reutilizando CU-08 |
 
-**Datos de salida:** `EmployeeSummaryResponse` con `workload`, `wip`, `productivity_last_30_days` y `quick_stats`.
+**Datos de salida:**
+
+**Paso 1** — `EmployeeDetail`:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | `int` | Identificador del empleado |
+| `name` | `str` | Nombre completo |
+| `department_id` | `int?` | ID del departamento |
+| `department_name` | `str?` | Nombre del departamento |
+| `job_title` | `str?` | Puesto de trabajo |
+| `work_email` | `str?` | Correo electrónico laboral |
+| `work_phone` | `str?` | Teléfono laboral |
+| `hourly_cost` | `float?` | Coste por hora |
+| `active` | `bool` | Si el empleado está activo |
+
+**Paso 2** — `EmployeeSummaryResponse`:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `employee_id` | `int` | Identificador del empleado |
+| `workload` | `WorkloadResponse` | Resultado del cálculo de carga de trabajo |
+| `wip` | `WIPResponse` | Resultado del cálculo de WIP |
+| `productivity_last_30_days` | `ProductivityResponse` | Productividad en los últimos 30 días |
+| `quick_stats` | `EmployeeQuickStats` | Resumen rápido de indicadores |
+
+Donde `WorkloadResponse` contiene:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `workload_percentage` | `float` | Porcentaje de carga respecto a horas de referencia |
+| `pending_hours` | `float` | Horas pendientes totales |
+| `available_hours` | `float` | Horas de referencia disponibles |
+| `status` | `str` | `sobrecargado`, `normal` o `subcargado` |
+| `total_pending_tasks` | `int` | Número de tareas pendientes |
+| `total_completed_tasks` | `int` | Número de tareas completadas (últimos 30 días) |
+| `pending_tasks` | `List[WorkloadTaskItem]?` | Detalle de tareas pendientes (solo con `detailed=True`) |
+| `completed_tasks` | `List[dict]?` | Detalle de tareas completadas (solo con `detailed=True`) |
+
+Donde `WIPResponse` contiene:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `wip_count` | `int` | Número de tareas abiertas simultáneas |
+| `status` | `str` | `optimo`, `aceptable` o `sobrecargado` |
+| `recommendation` | `str` | Recomendación textual según el nivel de WIP |
+
+Donde `EmployeeQuickStats` contiene:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `workload_status` | `str` | Estado de carga |
+| `pending_hours` | `float` | Horas pendientes |
+| `pending_tasks` | `int` | Tareas pendientes |
+| `completed_last_30_days` | `int` | Tareas completadas en los últimos 30 días |
+| `wip_count` | `int` | Tareas abiertas simultáneas |
+| `avg_productivity` | `float` | Productividad media (%) |
+
+**Paso 3** — `PaginatedResponse[TaskItem]`: misma estructura que CU-08 (ver datos de salida de CU-08).

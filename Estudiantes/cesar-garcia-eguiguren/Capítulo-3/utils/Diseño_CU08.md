@@ -17,6 +17,26 @@
 | 8 | Services | `TaskService._build_items()` | Selecciona el constructor según el modo: `_to_pending`, `_to_completed`, `_to_assigned` o `_to_default` |
 | 9 | Routes | `task.router` | Devuelve `200 OK` + `PaginatedResponse` con ítems tipados |
 
-**Datos de salida:** `PaginatedResponse[PendingTaskItem | CompletedTaskItem | AssignedTaskItem | TaskResponse]` según los filtros activos.
+**Datos de salida:** `PaginatedResponse` — respuesta paginada con `items`, `total`, `page`, `page_size` y `total_pages`. El tipo de cada ítem depende de los filtros activos:
+
+**Campos comunes** (heredados de `TaskWithContext`):
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | `int` | Identificador de la tarea |
+| `name` | `str` | Nombre de la tarea |
+| `project_id` | `int?` | ID del proyecto |
+| `project_name` | `str?` | Nombre del proyecto |
+| `stage_name` | `str?` | Nombre de la etapa actual |
+| `planned_hours` | `float?` | Horas planificadas |
+| `date_deadline` | `date?` | Fecha límite |
+
+**`PendingTaskItem`** (cuando `status=pending` + `employee_id`): añade `worked_hours`, `pending_hours`, `date_assign` e `is_overdue`.
+
+**`CompletedTaskItem`** (cuando `status=completed` + `employee_id`): añade `actual_hours`, `productivity`, `completion_date`, `date_assign` y `on_time`.
+
+**`AssignedTaskItem`** (cuando `employee_id` sin status específico): añade `worked_hours`, `actual_hours`, `pending_hours`, `productivity`, `date_assign`, `date_end` e `is_overdue`.
+
+**`TaskResponse`** (sin `employee_id`): añade `effective_hours`, `date_assign`, `date_end`, `is_closed` y `subtasks`.
 
 **Decisión de diseño:** el mismo endpoint `GET /tasks/filter` es reutilizado tanto por la página global de tareas como por las pestañas de `EmployeeDetail` (CU-03).

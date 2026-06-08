@@ -1,0 +1,70 @@
+@startuml CU-03-paso3
+skinparam MaxMessageSize 150
+
+title Diagrama de Secuencia de Diseño – CU-03 Consultar Ficha del Empleado\n(Paso 3: Tareas del empleado)
+
+actor "Responsable /\nDirector" as User
+participant "Frontend\n(React)" as FE
+participant "API\n(FastAPI)" as API
+participant "TaskService" as Service
+participant "TaskRepository" as TaskRepo
+participant "TimesheetRepository" as TSRepo
+database "PostgreSQL\n(Odoo)" as DB
+
+User -> FE: Click en pestaña "Tareas"
+activate FE
+
+FE -> API: GET /tasks/filter?employee_id={id}\n&status=pending|completed\n(JWT Bearer)
+activate API
+
+API -> API : require_manager_or_above(cu)\n→ 403 si rol = empleado
+
+API -> Service: filter_tasks(cu, employee_id,\nstatus, sort_by, sort_order,\npage, page_size)
+activate Service
+
+Service -> Service: verify_employee_exists(db, employee_id)\n(utils/validation)
+
+Service -> Service: verify_employee_scope(cu, employee_id)
+
+alt Empleado no encontrado o sin acceso
+    Service --> API: 404 / 403
+    API --> FE: Error
+    FE --> User: Muestra mensaje de error
+end
+
+Service -> TaskRepo: build_filtered_query(db,\nemployee_id, status,\nsort_by, sort_order)
+activate TaskRepo
+
+TaskRepo -> DB: SELECT project_task\nJOIN project_task_user_rel\nJOIN hr_employee\nOUTER JOIN project_project\nWHERE [filters]
+activate DB
+DB --> TaskRepo: query resultante
+deactivate DB
+
+TaskRepo --> Service: query
+deactivate TaskRepo
+
+Service -> Service: paginate(query, page, page_size)
+
+Service -> TSRepo: get_worked_hours_batch(db, task_ids)
+activate TSRepo
+
+TSRepo -> DB: SELECT task_id, SUM(unit_amount)\nFROM account_analytic_line\nGROUP BY task_id
+activate DB
+DB --> TSRepo: hours_map
+deactivate DB
+
+TSRepo --> Service: hours_map
+deactivate TSRepo
+
+Service -> Service: _build_items(tasks, status,\nemployee_id, hours_map)
+
+Service --> API: PaginatedResponse[TaskItem]
+deactivate Service
+
+API --> FE: 200 OK\nPaginatedResponse[TaskItem]
+deactivate API
+
+FE --> User: Muestra lista paginada de tareas
+deactivate FE
+
+@enduml

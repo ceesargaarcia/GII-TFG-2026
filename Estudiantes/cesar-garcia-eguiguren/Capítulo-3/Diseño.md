@@ -422,53 +422,77 @@ src/
 ```
 El visor no duplica los componentes de cálculo del frontend principal: sus renderizadores operan exclusivamente sobre los datos guardados en la base documental, sin llamar a ningún endpoint de cálculo sobre el ERP. Este desacoplamiento entre cálculo y visualización garantiza que una captura mantenga su representación original aunque los cálculos del frontend principal evolucionen en el futuro.
 
-### 8.2 Principios aplicados en la organización de paquetes
+# 8.2 Principios aplicados en la organización de paquetes
 
-**Jerarquización por capas (Principio de jerarquización)**
+---
 
-Las dependencias entre paquetes son exclusivamente descendentes. Ningún import apunta hacia arriba. Las rutas no importan modelos ORM ni repositorios directamente. El subsistema de snapshots respeta el mismo criterio: `snapshots.router` importa `SnapshotService`, que a su vez importa `SnapshotRepository`, que a su vez importa el cliente de `core/mongo.py`.
+## SRP — Principio de Responsabilidad Única
 
-**SRP — Una responsabilidad por módulo**
+Cada módulo tiene exactamente una razón para cambiar. Los 13 ficheros de `repositories/metrics/` encapsulan cada uno una única consulta de dominio (`wip.py` solo cuenta tareas abiertas, `compliance.py` solo cuenta tareas a tiempo). Los módulos de `utils/` son igualmente especializados: `pagination.py` solo pagina, `translation.py` solo extrae nombres JSONB, `constants.py` solo centraliza umbrales. En el frontend, cada módulo de `api/` habla con un único recurso (`employees.js` → `/employees/`, `snapshots.js` → `/snapshots/`) y los componentes reutilizables (`Card`, `KpiCard`, `SaveSnapshotButton`) encapsulan una única preocupación visual.
 
-Cada fichero de `repositories/metrics/` tiene una única razón para cambiar: la estructura de la tabla Odoo relevante para esa métrica. Cada fichero de `services/metrics/` tiene también una única razón: la fórmula de cálculo de esa métrica, correspondiente al caso de uso del paquete P10 que implementa. `SnapshotService` tiene una única razón para cambiar: las reglas de persistencia (normalización, hash, upsert). El añadir una nueva métrica implica crear exactamente dos ficheros nuevos y un endpoint, sin tocar ningún módulo existente; añadir un nuevo subtipo de snapshot implica una nueva colección, un nuevo schema Pydantic y un nuevo renderer en el visor.
+---
 
-**OCP — Abierto para extensión**
+## OCP — Principio Abierto/Cerrado
 
-El registro `_ITEM_BUILDERS` de `TaskService` permite añadir un nuevo tipo de ítem (por ejemplo, `"subtask"`) sin modificar el método `_build_items`: basta con añadir una entrada al diccionario y un método `_to_subtask()`. El bucle de construcción no contiene ningún `if/elif`. De forma análoga, el visor selecciona el renderer de CU-19 por clave de subtipo, sin ramificar en `if/elif`: añadir un nuevo renderer no requiere modificar el código existente.
+El sistema está abierto a extensión y cerrado a modificación. Añadir una nueva métrica implica crear un único fichero de servicio y un endpoint en `metrics.router`, sin tocar ninguno de los servicios existentes. En el visor, `SnapshotDetail.jsx` registra los renderers en un objeto `map`; añadir `MetricRentabilidadResumen` o `MetricAsistenciaEquipo` solo requirió añadir una entrada al mapa, sin modificar la lógica de selección. La lista `origins` de CORS en `main.py` admite nuevos frontends sin tocar el middleware.
 
-**ISP — Interfaces pequeñas y específicas**
+---
 
-Cada servicio de métricas importa únicamente las funciones del submódulo concreto que necesita (`from app.repositories.metrics.wip import count_open_assigned_tasks`), no el paquete completo. En los frontends, cada página importa solo su módulo de API (`employees.js`, `metrics.js`, `snapshots.js`, etc.).
+## LSP — Principio de Sustitución de Liskov
 
-**DIP — Inversión de dependencias**
+Las clases derivadas son sustituibles por sus bases. `EmployeeDetail` extiende `EmployeeBase` añadiendo campos opcionales sin redefinir ninguno de los heredados. `TaskDetail` sigue la misma jerarquía desde `TaskBase`. `PaginatedResponse` es genérico (`Generic[T]`) y funciona como respuesta paginada de cualquier tipo de entidad. Todos los servicios de métricas comparten la misma firma — reciben parámetros de filtro y devuelven un objeto Pydantic —, lo que permite que `DashboardService` los invoque de forma intercambiable.
 
-Los servicios (módulos de alto nivel) no dependen de los modelos ORM ni del cliente MongoDB directamente (módulos de bajo nivel). Acceden a los datos exclusivamente a través de las funciones de repositorio, que actúan como abstracción. Cero imports `from app.models` en `routes/` o `services/`; cero imports de `pymongo` fuera de `core/mongo.py` y `repositories/snapshot.py`.
+---
 
-**DRY — No te repitas**
+## ISP — Principio de Segregación de Interfaces
 
-Las subqueries `open_stage_ids_subq()`, `closed_stage_ids_subq()` y `worked_hours_subq()` están definidas una sola vez en `task.py` y `timesheet.py` respectivamente. Todos los repositorios de métricas las importan y reutilizan. Las constantes de dominio (umbrales, etiquetas, ventanas temporales) están centralizadas en `core/constants.py`. La normalización de parámetros y el cálculo de `params_hash` están definidos una única vez en `SnapshotService`, y son reutilizados por los tres métodos `save_metric`, `save_chart` y `save_entity`.
+Ningún módulo depende de funcionalidades que no usa. Cada servicio de métricas importa exclusivamente la función que necesita de su repositorio: `from app.repositories.metrics.wip import count_open_assigned_tasks`. El `__init__.py` de `repositories/metrics/` re-exporta solo las funciones de uso externo, actuando como fachada. En el frontend, las páginas importan únicamente los módulos de API de su dominio; `SnapshotDetail.jsx` del visor nunca importa funciones de cálculo del frontend principal.
 
-**Cohesión funcional**
+---
 
-Cada repositorio agrupa únicamente consultas de un mismo dominio de datos. No existe ningún módulo con funciones heterogéneas: `task.py` solo consulta tareas, `employee.py` solo consulta empleados, `rentability.py` solo consulta datos financieros, `snapshot.py` solo opera sobre MongoDB.
+## DIP — Principio de Inversión de Dependencias
 
-**Bajo acoplamiento**
+Los módulos de alto nivel no dependen de los de bajo nivel. Ningún router importa directamente un modelo ORM ni un cliente de base de datos: las rutas dependen de servicios, los servicios de repositorios, y los repositorios de la infraestructura (`get_db`, `get_mongo_db`). El cliente MongoDB está centralizado en `core/mongo.py`; es el único módulo que importa `pymongo`. En el frontend, las páginas no hacen llamadas HTTP directas sino que dependen de los módulos de `api/`, de modo que cualquier cambio de `baseURL` o cabeceras afecta solo a `api/client.js`.
 
-Los dos únicos casos de dependencia cruzada entre repositorios del mismo nivel (`repositories/metrics/` → `repositories/task.py` y `repositories/timesheet.py`) son de **acoplamiento por datos**: se comparten subqueries puras sin estado ni efectos secundarios. Este es el nivel más bajo de la escala de acoplamiento. `snapshot.py` no tiene ninguna dependencia cruzada con otros repositorios: su aislamiento es total.
+---
 
-### 8.3 Métricas de calidad
+## DRY — No te repitas
 
-| Principio | Indicador | Valor | Estado |
-|---|---|---|---|
-| Jerarquización | Imports ascendentes (violaciones de capa) | 0 | ✅ |
-| SRP | Módulos de repositorio con más de un dominio | 0 | ✅ |
-| OCP | Bifurcaciones if/elif en `_build_items` | 0 | ✅ |
-| DIP | Imports directos de Models en Routes | 0 | ✅ |
-| DIP | Imports de `pymongo` fuera de `core/mongo.py` y `repositories/snapshot.py` | 0 | ✅ |
-| ISP | Servicios que importan el módulo de repo completo | 0 | ✅ |
-| DRY | Subqueries duplicadas entre repositorios | 0 | ✅ |
-| Cohesión funcional | Repos con funciones de múltiples dominios | 0 | ✅ |
-| Bajo acoplamiento | Dependencias cruzadas entre repos (acoplamiento por datos) | 2 justificadas | ✅ |
+Ninguna lógica está duplicada. `open_stage_ids_subq()`, `closed_stage_ids_subq()` y `worked_hours_subq()` están definidas una única vez en `repositories/task.py` y `repositories/timesheet.py`; los 13 repositorios de métricas las importan sin redefinir la lógica. Todos los umbrales numéricos del negocio (`WORKLOAD_REFERENCE_HOURS`, `WIP_OPTIMAL_THRESHOLD`, `RISK_ELAPSED_THRESHOLD`…) viven en `utils/constants.py`. La función `_upsert()` de `repositories/snapshot.py` es compartida por los tres métodos de upsert de snapshot variando solo la colección destino. En el frontend, `utils/formatters.js` define una única vez `fmtHours`, `fmtPct`, `taskStatusBadge` y `workloadConfig`; las 17 páginas los importan sin redefinir ninguna función de formato local.
+
+---
+
+## Separación de responsabilidades
+
+Las preocupaciones transversales están segregadas en capas con fronteras claras. La verificación JWT y la construcción de `CurrentUser` ocurren exclusivamente en `core/auth.py`. El control de acceso por scope se aplica en tres niveles bien diferenciados: guard de rol (Capa 1), verificación de entidad concreta mediante `verify_*_scope()` en `utils/validation.py` (Capa 2), y filtrado de listado por IDs del JWT en el repositorio (Capa 3). El subsistema de snapshots separa completamente cálculo de visualización: el frontend principal calcula y guarda; el visor solo lee y renderiza el campo `data` de MongoDB, sin invocar ningún endpoint de cálculo sobre PostgreSQL.
+
+---
+
+## Cohesión funcional alta
+
+Cada módulo agrupa únicamente elementos del mismo dominio conceptual. `repositories/scope.py` encapsula exclusivamente las operaciones que determinan el ámbito organizativo de un usuario (CTE recursiva de subordinados, departamentos gestionados, proyectos gestionados). `repositories/tracking.py` contiene solo las consultas sobre el historial de cambios de estado de las tareas en `mail_tracking_value`. `services/scope_service.py` tiene una única responsabilidad de orquestación: combinar los repositorios de scope para producir las listas de IDs que se embeben en el JWT en el momento del login.
+
+---
+
+## Bajo acoplamiento
+
+Los módulos conocen lo mínimo necesario de los demás. Las dependencias cruzadas entre repositorios del mismo nivel son de **acoplamiento por datos** — el nivel más bajo — : los repositorios de métricas importan únicamente una subquery SQL pura (`closed_stage_ids_subq`, `worked_hours_subq`) sin estado ni efectos secundarios. La única excepción justificada es `repositories/metrics/attendance.py`, que importa `get_subordinate_employee_ids` de `repositories/scope.py` para evitar duplicar una CTE recursiva de diez líneas. Ningún módulo de `routes/` ni `services/` importa directamente de `models/` ni de la capa de infraestructura.
+
+---
+
+## Resumen
+
+| Principio | Evidencia principal | Estado |
+|---|---|:---:|
+| **SRP** | 13 repos de métricas con función única · `utils/` especializado · `api/` por dominio | ✅ |
+| **OCP** | Nueva métrica = 1 fichero, 0 modificaciones · renderer map sin if/elif en visor | ✅ |
+| **LSP** | `EmployeeDetail` sustituible por `EmployeeBase` · `PaginatedResponse[T]` genérico | ✅ |
+| **ISP** | Imports por función concreta · páginas consumen solo su módulo `api/` | ✅ |
+| **DIP** | Cero imports de ORM en `routes/` · `pymongo` solo en `core/mongo.py` | ✅ |
+| **DRY** | `worked_hours_subq` definida 1 vez · `constants.py` centralizado · `_upsert()` compartida | ✅ |
+| **Separación** | Auth en `core/auth.py` · scope en 3 capas · cálculo vs. visualización desacoplados | ✅ |
+| **Cohesión** | `scope.py` solo scope · `tracking.py` solo historial · `scope_service.py` solo resolución de rol | ✅ |
+| **Acoplamiento** | 1 dependencia cruzada justificada · 0 imports de infra en servicios | ✅ |
 
 ---
 ## 9. Prototipos de Interfaz

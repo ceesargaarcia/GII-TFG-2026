@@ -1,0 +1,58 @@
+@startuml CU-03-paso1
+skinparam MaxMessageSize 150
+
+title Diagrama de Secuencia de Diseño – CU-03 Consultar Ficha del Empleado\n(Paso 1: Ficha del empleado)
+
+actor "Responsable /\nDirector" as User
+participant "Frontend\n(React)" as FE
+participant "API\n(FastAPI)" as API
+participant "EmployeeService" as EmpService
+participant "EmployeeRepository" as EmpRepo
+database "PostgreSQL\n(Odoo)" as DB
+
+User -> FE: Selecciona un empleado de la lista
+activate FE
+
+FE -> API: GET /employees/{employee_id}\n(JWT Bearer)
+activate API
+
+API -> API : require_manager_or_above(cu)\n→ 403 si rol = empleado
+
+API -> EmpService: get_employee(cu, employee_id)
+activate EmpService
+
+EmpService -> EmpService: verify_employee_exists(db, employee_id)\n(utils/validation)
+
+alt Empleado no encontrado
+    EmpService --> API: 404 Not Found
+    API --> FE: 404 Not Found
+    FE --> User: Muestra mensaje de error
+end
+
+EmpService -> EmpService: verify_employee_scope(cu, employee_id)\n(utils/validation)
+
+alt Sin acceso al empleado
+    EmpService --> API: 403 Forbidden
+    API --> FE: 403 Forbidden
+    FE --> User: Muestra mensaje de error
+end
+
+EmpService -> EmpRepo: get_employee_by_id(db, employee_id)
+activate EmpRepo
+EmpRepo -> DB: SELECT hr_employee\nOUTER JOIN hr_department\nWHERE id = :employee_id\nAND active = True
+activate DB
+DB --> EmpRepo: datos completos del empleado
+deactivate DB
+EmpRepo --> EmpService: EmployeeDetail
+deactivate EmpRepo
+
+EmpService --> API: EmployeeDetail
+deactivate EmpService
+
+API --> FE: 200 OK - EmployeeDetail
+deactivate API
+
+FE --> User: Muestra ficha del empleado
+deactivate FE
+
+@enduml

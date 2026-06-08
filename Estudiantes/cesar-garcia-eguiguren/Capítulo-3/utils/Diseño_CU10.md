@@ -19,4 +19,18 @@
 | 10 | Routes | `metrics.router` | Devuelve `200 OK` + JSON con la respuesta tipada |
 | 11 | Frontend | `Metrics.jsx` → `MetricDetail` | Cachea el resultado. Renderiza panel de detalle con cabecera, KPIs y gráficos usando `metric.renderDetail(data)`. Actualiza preview de la tarjeta |
 
-**Datos de salida:** no hay esquema propio de CU-10. El catálogo se construye localmente en el frontend. Cuando el actor selecciona una métrica, los datos corresponden al esquema del caso de uso individual invocado (CU-22 a CU-32).
+**Datos de salida:** CU-10 no tiene un esquema propio. El catálogo se construye localmente en el frontend. Cuando el actor selecciona una métrica, los datos corresponden al esquema del caso de uso individual invocado. La correspondencia es:
+
+| Métrica | Endpoint | Esquema de respuesta |
+|---|---|---|
+| Productividad | `GET /metrics/productivity` | `ProductivityResponse` (`average_productivity`, `total_tasks`, `tasks[]`) |
+| Carga de trabajo | `GET /metrics/workload` | `WorkloadResponse` (`workload_percentage`, `pending_hours`, `status`, `pending_tasks[]`) |
+| WIP | `GET /metrics/wip` | `WIPResponse` (`wip_count`, `status`, `recommendation`) |
+| Eficiencia de proyecto | `GET /metrics/project-efficiency` | `ProjectEfficiencyResponse` (`efficiency_index`, `total_planned_hours`, `total_actual_hours`) |
+| Índice de riesgo | `GET /metrics/risk-index` | `RiskIndexResponse` (`risk_index`, `tasks_at_risk`, `total_open_tasks`) |
+| Rentabilidad | `GET /metrics/profitability` | `ProfitabilityResponse` (`profitability_percentage`, `status`) |
+| Cumplimiento de plazos | `GET /metrics/compliance` | `ComplianceResponse` (`compliance_rate`, `tasks_on_time`, `total_tasks`) |
+| Lead Time | `GET /metrics/lead-time` | `LeadTimeResponse` (`average_lead_time_days`, `total_tasks`) |
+| Precisión de estimación | `GET /metrics/estimation-accuracy` | `EstimationAccuracyResponse` (`accuracy_percentage`, `estimation_bias`) |
+| Tasa de retrabajo | `GET /metrics/rework-rate` | `ReworkRateResponse` (`rework_rate`, `reopened_tasks`, `total_closed_tasks`) |
+| Distribución por cliente | `GET /metrics/client-distribution` | `ClientDistributionResponse` (`distribution[]`, `total_hours`) |

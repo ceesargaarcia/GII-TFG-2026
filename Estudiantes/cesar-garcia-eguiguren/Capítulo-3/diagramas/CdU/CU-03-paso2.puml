@@ -1,0 +1,141 @@
+@startuml CU-03-paso2
+skinparam MaxMessageSize 150
+
+title Diagrama de Secuencia de Diseño – CU-03 Consultar Ficha del Empleado\n(Paso 2: Dashboard del empleado)
+
+actor "Responsable /\nDirector" as User
+participant "Frontend\n(React)" as FE
+participant "API\n(FastAPI)" as API
+participant "DashboardService" as DashService
+participant "WorkloadService" as WLService
+participant "WIPService" as WIPService
+participant "ProductivityService" as ProdService
+participant "EmployeeRepository" as EmpRepo
+participant "WorkloadRepository" as WLRepo
+participant "WIPRepository" as WIPRepo
+participant "ProductivityRepository" as ProdRepo
+database "PostgreSQL\n(Odoo)" as DB
+
+User -> FE: Accede a la ficha del empleado
+activate FE
+
+FE -> API: GET /dashboards/summary/employee/{employee_id}\n(JWT Bearer)
+activate API
+
+API -> API : require_manager_or_above(cu)\n→ 403 si rol = empleado
+
+API -> DashService: get_employee_summary(cu, employee_id)
+activate DashService
+
+DashService -> DashService: verify_employee_exists(db, employee_id)
+
+DashService -> DashService: verify_employee_scope(cu, employee_id)
+
+alt Empleado no encontrado o sin acceso
+    DashService --> API: 404 / 403
+    API --> FE: Error
+    FE --> User: Muestra mensaje de error
+end
+
+== Cálculo de Workload ==
+
+DashService -> WLService: calculate(employee_id, detailed=True)
+activate WLService
+
+WLService -> EmpRepo: get_user_id_for_employee(db, employee_id)
+activate EmpRepo
+EmpRepo -> DB: Obtener user_id del empleado
+activate DB
+DB --> EmpRepo: user_id
+deactivate DB
+EmpRepo --> WLService: user_id
+deactivate EmpRepo
+
+alt user_id no encontrado
+    WLService --> DashService: WorkloadResponse vacío
+end
+
+WLService -> WLRepo: get_assigned_open_tasks(db, user_id)
+activate WLRepo
+WLRepo -> DB: Obtener tareas abiertas asignadas\ncon horas planificadas y trabajadas
+activate DB
+DB --> WLRepo: tareas abiertas con horas
+deactivate DB
+WLRepo --> WLService: pending_rows
+deactivate WLRepo
+
+WLService -> WLRepo: get_assigned_closed_tasks(db, user_id,\ndate_from=cutoff_30_days)
+activate WLRepo
+WLRepo -> DB: Obtener tareas cerradas asignadas\nen los últimos 30 días
+activate DB
+DB --> WLRepo: tareas cerradas
+deactivate DB
+WLRepo --> WLService: completed_rows
+deactivate WLRepo
+
+WLService -> WLService: Calcula workload_percentage,\npending_hours y status
+
+WLService --> DashService: WorkloadResponse
+deactivate WLService
+
+== Cálculo de WIP ==
+
+DashService -> WIPService: calculate(employee_id)
+activate WIPService
+
+WIPService -> EmpRepo: get_user_id_for_employee(db, employee_id)
+activate EmpRepo
+EmpRepo -> DB: Obtener user_id del empleado
+activate DB
+DB --> EmpRepo: user_id
+deactivate DB
+EmpRepo --> WIPService: user_id
+deactivate EmpRepo
+
+WIPService -> WIPRepo: count_open_assigned_tasks(db, user_id)
+activate WIPRepo
+WIPRepo -> DB: Contar tareas abiertas\nasignadas al usuario
+activate DB
+DB --> WIPRepo: wip_count
+deactivate DB
+WIPRepo --> WIPService: wip_count
+deactivate WIPRepo
+
+WIPService -> WIPService: Clasifica status:\noptimo / aceptable / sobrecargado
+
+WIPService --> DashService: WIPResponse
+deactivate WIPService
+
+== Cálculo de Productividad ==
+
+DashService -> ProdService: calculate(employee_id,\ndate_from=hoy-30d, date_to=hoy)
+activate ProdService
+
+ProdService -> ProdRepo: get_completed_tasks_with_hours(db,\nemployee_id, date_from, date_to)
+activate ProdRepo
+ProdRepo -> DB: Obtener tareas completadas\ncon horas planificadas y reales
+activate DB
+DB --> ProdRepo: tareas con métricas asociadas
+deactivate DB
+ProdRepo --> ProdService: rows
+deactivate ProdRepo
+
+ProdService -> ProdService: Calcula ratio planned/actual × 100\ny productividad media
+
+ProdService --> DashService: ProductivityResponse
+deactivate ProdService
+
+== Ensamblado de respuesta ==
+
+DashService -> DashService: Ensambla EmployeeSummaryResponse\ncon workload, wip, productivity\ny construye quick_stats
+
+DashService --> API: EmployeeSummaryResponse
+deactivate DashService
+
+API --> FE: 200 OK - EmployeeSummaryResponse
+deactivate API
+
+FE --> User: Muestra dashboard con métricas\n(Workload, WIP, Productividad)
+deactivate FE
+
+@enduml

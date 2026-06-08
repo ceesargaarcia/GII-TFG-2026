@@ -1,7 +1,7 @@
 @startuml CU10-mostrarCatalogoMetricas-analisis
 skinparam linetype polyline
 
-rectangle #CDEBA5 ":PAGINA_METRICAS_ABIERTA" as Overview
+rectangle #CDEBA5 ":PAGINA_INICIAL_ABIERTA" as Overview
 
 package "mostrarCatalogoMetricas()" {
 
