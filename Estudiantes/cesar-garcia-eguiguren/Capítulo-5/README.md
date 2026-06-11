@@ -34,7 +34,7 @@ El objetivo general del presente TFG era **disminuir significativamente el tiemp
 
 El primer objetivo específico consistía en definir y analizar los requisitos funcionales y no funcionales del módulo de analítica a partir del estudio del contexto organizativo de Netkia y las necesidades de información de sus responsables de proyecto y dirección.
 
-Este objetivo se materializó íntegramente en el Capítulo 2. Se identificaron dos actores con perfiles de acceso diferenciados, Director y Responsable, y se documentaron 32 casos de uso organizados en 10 paquetes funcionales. Cada caso de uso se especificó con flujos principal y alternativos, precondiciones, postcondiciones y diagramas de actividad en PlantUML. Se definieron 22 requisitos funcionales y 17 requisitos no funcionales con su justificación arquitectónica. El modelo del dominio se completó con un diagrama de clases, un diagrama de objetos y dos diagramas de estados que cubren tanto el ciclo de vida de la sesión como el ciclo de vida de una tarea en el ERP.
+Este objetivo se materializó íntegramente en el Capítulo 2. Se identificaron dos actores con perfiles de acceso diferenciados, Director y Responsable, y se documentaron 32 casos de uso organizados en 10 paquetes funcionales. Cada caso de uso se especificó con flujos principal y alternativos, precondiciones, postcondiciones y diagramas de actividad en PlantUML. Se definieron 22 requisitos funcionales y 18 requisitos no funcionales con su justificación arquitectónica. El modelo del dominio se completó con un diagrama de clases, un diagrama de objetos y dos diagramas de estados que cubren tanto el ciclo de vida de la sesión como el ciclo de vida de una tarea en el ERP.
 
 
 ### OE2 — Análisis, Diseño y Arquitectura
@@ -47,7 +47,7 @@ Los principios SOLID se verificaron mediante la tabla de métricas de calidad de
 
 ### OE3 — Implementación y Validación
 
-El tercer objetivo específico era implementar un prototipo funcional que permitiera el procesamiento, almacenamiento y visualización de la información mediante paneles de control e informes exportables, y validar su funcionamiento frente a los requisitos definidos.
+El tercer objetivo específico era implementar un prototipo funcional que permitiera el procesamiento, almacenamiento y visualización de la información mediante paneles de control interactivos, y validar su funcionamiento frente a los requisitos definidos.
 
 El Capítulo 4 documenta la implementación real del sistema, incluyendo capturas de pantalla de la interfaz en producción para cada caso de uso representativo. La solución cuenta con dos aplicaciones React independientes (frontend principal en puerto 3000 y visor de snapshots en puerto 3001), un backend FastAPI con 32 casos de uso cubiertos y un total de 13 entidades ORM mapeadas sobre PostgreSQL más tres colecciones MongoDB para el subsistema de capturas históricas.
 
@@ -159,7 +159,7 @@ Los siguientes casos ilustran el tipo de situaciones en las que el módulo ha de
 
 ### Cumplimiento de requisitos funcionales y no funcionales
 
-La validación del sistema en producción durante unas semanas ha permitido verificar el cumplimiento de los requisitos documentados en el Capítulo 2. A continuación se presenta una comparativa detallada de los 22 requisitos funcionales y 17 requisitos no funcionales especificados y su estado verificado en la operación real.
+La validación del sistema en producción durante unas semanas ha permitido verificar el cumplimiento de los requisitos documentados en el Capítulo 2. A continuación se presenta una comparativa detallada de los 22 requisitos funcionales y 18 requisitos no funcionales especificados y su estado verificado en la operación real.
 
 **Requisitos funcionales: 22 de 22 implementados y validados**
 
@@ -190,9 +190,9 @@ Los 22 requisitos funcionales (RF-01 a RF-22) han sido implementados y están op
 | **RF-21** | Consultar el detalle de una captura reconstruyendo la vista a partir de los datos guardados | ✓ Validado | Reconstrucción de vistas históricas exacta; datos inmutables garantizados; visor de snapshots estable |
 | **RF-22** | Eliminar una captura de forma permanente | ✓ Validado | Eliminación de snapshots funcional; cascada correcta sin huérfanos; auditoría de eliminaciones registrada |
 
-**Requisitos no funcionales: 17 de 17 cumplidos**
+**Requisitos no funcionales: 18 de 18 cumplidos**
 
-Los 17 requisitos no funcionales (RNF-01 a RNF-17) han sido validados mediante observación del comportamiento del sistema en producción:
+Los 18 requisitos no funcionales (RNF-01 a RNF-18) han sido validados mediante observación del comportamiento del sistema en producción:
 
 | Categoría | Requisito | Especificación | Validación verificada |
 |---|---|---|---|
@@ -206,13 +206,14 @@ Los 17 requisitos no funcionales (RNF-01 a RNF-17) han sido validados mediante o
 | **Compatibilidad** | RNF-08 | Compatible con Odoo sin extensiones | ✓ Schema de Odoo v16 íntegro; cero modificaciones a base de datos corporativa |
 | | RNF-09 | Chrome, Firefox, Edge (últimas 2 versiones) | ✓ Validado en todas las versiones soportadas; renderizado consistente |
 | | RNF-10 | Multilingüismo (ES / EN) | ✓ Nombres de entidades traducidos automáticamente; fallback a inglés activo |
-| **Datos** | RNF-11 | Trazabilidad por historial inmutable de ERP | ✓ Métricas de retrabajo basadas en changelog de Odoo verificado |
-| | RNF-12 | Configuración por entorno sin credenciales en código | ✓ Todas las variables de entorno externalizadas; sin secretos en repositorio |
-| **Usabilidad** | RNF-13 | Indicadores de carga y reintentos | ✓ Spinners visuales; modales de error con botón de reintento |
-| | RNF-14 | Navegación adaptada al rol | ✓ Menú dinámico; opciones ocultas según rol; sin acceso a URLs de Director para Responsable |
-| **Escalabilidad** | RNF-15 | Pool de conexiones y paginación | ✓ PostgreSQL: pool de 10 conexiones sin agotamiento; paginación de 50 registros |
-| **Persistencia** | RNF-16 | Base documental independiente (MongoDB) | ✓ 10,000+ snapshots almacenadas; índice único funcionando sin duplicados |
-| | RNF-17 | Dos frontends, un esquema de autenticación | ✓ Login compartido; sesión válida en ambas aplicaciones simultáneamente |
+| **Configuración** | RNF-11 | Configuración por entorno sin credenciales en código | ✓ Todas las variables de entorno externalizadas; sin secretos en repositorio |
+| **Usabilidad** | RNF-12 | Indicadores de carga y reintentos | ✓ Spinners visuales; modales de error con botón de reintento |
+| | RNF-13 | Navegación adaptada al rol | ✓ Menú dinámico; opciones ocultas según rol; sin acceso a URLs de Director para Responsable |
+| **Escalabilidad** | RNF-14 | Pool de conexiones y paginación | ✓ PostgreSQL: pool de 10 conexiones sin agotamiento; paginación de 50 registros |
+| **Persistencia** | RNF-15 | Base documental independiente (MongoDB) | ✓ 10,000+ snapshots almacenadas; índice único funcionando sin duplicados |
+| **Arquitectura cliente** | RNF-16 | Dos frontends, un esquema de autenticación | ✓ Login compartido; sesión válida en ambas aplicaciones simultáneamente |
+| **Stack tecnológico** | RNF-17 | Backend en FastAPI | ✓ Backend implementado con FastAPI 0.109 + Python 3.11; API REST con validación Pydantic y documentación OpenAPI |
+| | RNF-18 | SPA interactiva | ✓ Requisito cumplido mediante React 18 + Vite en el frontend principal y el visor de capturas; filtros, tablas, KPIs y gráficos reactivos sin recarga de página |
 
 **Síntesis del cumplimiento:**
 
@@ -268,7 +269,7 @@ Además de la propuesta automática, la vista permite el ajuste manual: el respo
 
 **Notificaciones y alertas proactivas.** El siguiente paso natural en la evolución del sistema es añadir un mecanismo de alertas que notifique a los responsables cuando se superen umbrales predefinidos: empleado con carga superior al 120 %, proyecto con índice de riesgo alto durante más de tres días consecutivos, o tarea vencida sin cierre asignada a un empleado de su ámbito. Técnicamente, este módulo podría implementarse como un worker Python periódico (Celery o APScheduler) que consulte las mismas métricas ya implementadas y envíe notificaciones por correo o mediante la API de mensajería corporativa de Netkia. La arquitectura existente no requiere ninguna modificación: el worker consumiría los servicios de métricas exactamente igual que los endpoints HTTP actuales.
 
-**Exportación de informes PDF.** Varios usuarios han solicitado la posibilidad de exportar el estado actual de un panel (métricas, rentabilidad, resumen de proyecto) como un informe PDF que puedan adjuntar a comunicaciones con clientes o a informes de seguimiento de dirección. Esta funcionalidad podría implementarse en el backend mediante una librería como `WeasyPrint` o `ReportLab`, generando el PDF a partir de las mismas respuestas JSON que ya devuelven los endpoints existentes. El subsistema de snapshots ya almacena el payload necesario para reconstruir cualquier panel, por lo que el generador de PDF podría operar directamente sobre el campo `data` de cada snapshot sin necesidad de recalcular.
+**Exportación de informes PDF.** Esta funcionalidad podría implementarse en el backend mediante una librería como WeasyPrint o ReportLab, generando el PDF a partir de las mismas respuestas JSON que ya devuelven los endpoints existentes. El subsistema de snapshots ya almacena el payload necesario para reconstruir cualquier panel, por lo que el generador de PDF podría operar directamente sobre el campo data de cada snapshot sin necesidad de recalcular.
 
 **SSO corporativo e integración con el proveedor de identidad.** A medida que el sistema crezca en número de usuarios y funcionalidades, la gestión de credenciales independientes del módulo analítico se convierte en una fricción creciente. La integración con el protocolo OAuth 2.0 / OpenID Connect del proveedor de identidad corporativo de Netkia permitiría que los usuarios accedieran al módulo con las mismas credenciales que utilizan para el resto de herramientas corporativas, eliminando la necesidad de mantener contraseñas separadas y mejorando la trazabilidad de accesos.
 
