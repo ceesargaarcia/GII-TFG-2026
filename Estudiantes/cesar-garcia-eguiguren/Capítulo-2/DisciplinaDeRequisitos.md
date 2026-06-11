@@ -120,10 +120,10 @@ Cuatro criterios evaluados de 1 a 3 con el manager de Netkia.
 
 | Criterio | Nombre | Descripción |
 |---|---|---|
-| **C1** | Criticidad técnica | ¿Bloquea otros CUs o es prerequisito de infraestructura? |
+| **C1** | Dependencia funcional | ¿Habilita otros casos de uso o resulta necesario para iniciar la interacción con el sistema? |
 | **C2** | Valor de negocio | ¿Apoya decisiones operativas o estratégicas del día a día? |
 | **C3** | Frecuencia de uso | ¿Se ejecuta en cada sesión o de forma esporádica? |
-| **C4** | Complejidad implementada | Peso real del código: capas, validaciones, lógica de scope y fórmulas. |
+| **C4** | Complejidad funcional | Número de reglas, variantes de uso, validaciones de negocio o situaciones alternativas que debe contemplar el caso de uso. |
 
 > Escala: **3** alto · **2** medio · **1** bajo
 
@@ -133,16 +133,16 @@ Cuatro criterios evaluados de 1 a 3 con el manager de Netkia.
 
 | CU | Nombre | C1 | C2 | C3 | C4 | Justificación |
 |---|---|:---:|:---:|:---:|:---:|---|
-| CU-01 | Autenticarse | 3 | 3 | 3 | 3 | Puerta de entrada. Implementa JWT HS256, RBAC con tres roles, cálculo de scope completo (CTE recursiva para subordinados) y embedded claims. Sin esto no arranca nada. |
-| CU-08 | Listar tareas | 3 | 3 | 3 | 3 | Endpoint más complejo del sistema: 3 capas de scope, 10+ filtros combinables, 4 tipos de respuesta distintos (Pending/Completed/Assigned/Generic), batch de horas. Reutilizado por CU-03 y CU-07. |
-| CU-03 | Resumen de empleado | 2 | 3 | 3 | 3 | Orquesta DashboardService → WorkloadService + WIPService + ProductivityService + TaskService. Vista operativa de consulta diaria más compleja del sistema. |
-| CU-02 | Listar empleados | 3 | 2 | 3 | 2 | Dato base para navegación. Implementa paginación server-side, scope en 3 capas y ordenación multi-columna. |
-| CU-21 | Carga de trabajo del equipo | 2 | 3 | 3 | 3 | Página /manager con paginación server-side, get_pending_hours_per_employee sobre todo el equipo, filtrado de estado y ordenación dinámica. Panel principal del responsable. |
-| CU-07 | Resumen de proyecto | 2 | 3 | 3 | 3 | Orquesta ProjectEfficiencyService + RiskIndexService + ProfitabilityService. Pestañas de tareas y equipo con paginación propia. |
-| CU-10 | Catálogo de métricas | 2 | 3 | 3 | 2 | Punto de entrada a 11 métricas. buildMetrics(), apiMap dispatch sin if/elif, caché de resultados. Arquitectura OCP en frontend. |
-| CU-13 | Rentabilidad financiera ★ | 2 | 3 | 2 | 3 | RentabilityService con 6 endpoints distintos, require_director en todas las rutas, cálculo de margen/estado por proyecto y agregación por cliente/responsable. |
-| CU-17 | Guardar snapshot (upsert) | 2 | 3 | 2 | 3 | SnapshotService con SHA-256, normalización canónica de params, upsert sobre MongoDB, SnapshotActor desde JWT claims. Único subsistema con escritura real. |
-| CU-06 | Listar proyectos | 3 | 2 | 3 | 1 | Prerequisito de CU-07 y CU-13. Implementación ligera (lista sin paginación) pero con filtrado de scope y extracción de nombre JSONB multilingüe. |
+| CU-01 | Autenticarse | 3 | 3 | 3 | 3 | Es la puerta de entrada al sistema y condiciona el acceso del resto de casos de uso. Sin identificación del actor no puede garantizarse una experiencia diferenciada para Director y Responsable. |
+| CU-08 | Listar tareas | 3 | 3 | 3 | 3 | Es una consulta operativa central para conocer el estado del trabajo diario. Además, sirve de apoyo a otros resúmenes y permite al actor localizar rápidamente tareas relevantes para su gestión. |
+| CU-03 | Resumen de empleado | 2 | 3 | 3 | 3 | Proporciona una visión consolidada del desempeño y carga de una persona. Es una consulta habitual para seguimiento, detección de desviaciones y toma de decisiones sobre asignación de trabajo. |
+| CU-02 | Listar empleados | 3 | 2 | 3 | 2 | Permite acceder al conjunto de empleados sobre el que se apoyan múltiples consultas posteriores. Es necesario para navegar por el sistema y seleccionar el sujeto de análisis. |
+| CU-21 | Carga de trabajo del equipo | 2 | 3 | 3 | 3 | Ofrece al Responsable una visión agregada de la situación de su equipo. Es clave para equilibrar cargas, anticipar saturación y priorizar acciones de gestión. |
+| CU-07 | Resumen de proyecto | 2 | 3 | 3 | 3 | Reúne la información principal para valorar el estado de un proyecto. Ayuda a identificar riesgos, analizar evolución y apoyar decisiones de seguimiento. |
+| CU-10 | Catálogo de métricas | 2 | 3 | 3 | 2 | Actúa como punto de entrada a los indicadores operativos del sistema. Facilita que el actor seleccione la métrica adecuada según la pregunta de gestión que necesita resolver. |
+| CU-13 | Rentabilidad financiera ★ | 2 | 3 | 2 | 3 | Aporta una perspectiva económica necesaria para el Director. Su prioridad es alta porque relaciona la actividad operativa con la viabilidad y seguimiento financiero de los proyectos. |
+| CU-17 | Guardar snapshot (upsert) | 2 | 3 | 2 | 3 | Permite conservar resultados relevantes para consulta posterior. Es importante para comparar situaciones, justificar decisiones y mantener evidencias de análisis realizados. |
+| CU-06 | Listar proyectos | 3 | 2 | 3 | 1 | Es necesario para acceder a los proyectos que posteriormente se analizan en detalle. Funciona como caso de uso base para la navegación y selección del contexto de trabajo. |
 
 ---
 
@@ -150,20 +150,20 @@ Cuatro criterios evaluados de 1 a 3 con el manager de Netkia.
 
 | CU | Nombre | C1 | C2 | C3 | C4 | Justificación |
 |---|---|:---:|:---:|:---:|:---:|---|
-| CU-22 | Consultar productividad | 2 | 3 | 2 | 2 | Métrica más compleja de P10: subconsulta de horas por empleado, filtrado en timesheet (no en task), ordenación post-query porque el campo es calculado. |
-| CU-25 | Carga de trabajo individual | 2 | 3 | 2 | 2 | WorkloadService.calculate() con modo detailed: dos queries (open + closed), formato de pending tasks con is_overdue, reutilizado por CU-03 y CU-21. |
-| CU-24 | WIP de empleado | 2 | 3 | 2 | 1 | WIPService con umbrales configurados en constants.py. Reutilizado por CU-03. Implementación compacta pero con valor operativo alto. |
-| CU-23 | Cumplimiento de plazos | 1 | 3 | 2 | 2 | ComplianceService con CASE WHEN sobre date_end vs date_deadline. Requiere que ambas fechas existan. |
-| CU-26 | Riesgo de proyecto | 1 | 2 | 2 | 2 | RiskIndexService con lógica _is_at_risk: vencidas + umbral 80% del tiempo transcurrido. Reutilizado por CU-07. |
-| CU-31 | Eficiencia de proyecto | 1 | 2 | 2 | 1 | ProjectEfficiencyService sobre worked_hours_subq. Reutilizado por CU-07 y DashboardService. |
-| CU-32 | Rentabilidad horas est./reales | 1 | 2 | 2 | 2 | ProfitabilityService con coste estimado (planned×hourly_cost) vs coste real (worked×hourly_cost). Reutilizado por CU-07. |
-| CU-05 | Resumen de departamento | 1 | 2 | 2 | 2 | DepartmentService orquesta WorkloadService por cada empleado del departamento + paginación propia de empleados y workload. |
-| CU-04 | Listar departamentos | 2 | 2 | 2 | 1 | Prerequisito de CU-05. Implementación ligera con scope en Capa 3. |
-| CU-11 | Gráficos analíticos | 1 | 2 | 2 | 2 | ChartService con tres endpoints (task-distribution, productivity-trend, task-evolution). Filtrado por entidad (empleado/dpto/proyecto) y agrupación temporal. |
-| CU-12 | Asistencia vs imputaciones | 1 | 2 | 2 | 3 | AttendanceService con dos subqueries (hr_attendance + account_analytic_line), tres modos de vista (equipo/empleado/manager), serie diaria y CTE de subordinados. |
-| CU-14 | Líneas analíticas ★ | 1 | 2 | 1 | 1 | Dos endpoints (per-project/{id}/lines y per-client/{id}/lines). Clasificación por signo del importe. Solo accesible desde CU-13. |
-| CU-18 | Listar snapshots | 1 | 2 | 1 | 1 | SnapshotRepository con paginación, filtros por nombre/tipo y DateBadgePicker de fechas disponibles. Frontend2 independiente. |
-| CU-19 | Detalle de snapshot | 1 | 2 | 1 | 3 | SnapshotDetail.jsx con 18 renderers especializados (MetricVisualizer × 14 tipos + ChartVisualizer × 4 + EntityVisualizer × 4). Sin recálculo contra PostgreSQL. |
+| CU-22 | Consultar productividad | 2 | 3 | 2 | 2 | Permite valorar el rendimiento relativo de los empleados a partir del trabajo registrado. Tiene valor alto para seguimiento periódico, aunque no bloquea el uso básico del sistema. |
+| CU-25 | Carga de trabajo individual | 2 | 3 | 2 | 2 | Ayuda a detectar sobrecarga o disponibilidad de una persona concreta. Complementa los resúmenes principales y apoya decisiones de reasignación. |
+| CU-24 | WIP de empleado | 2 | 3 | 2 | 1 | Muestra el volumen de trabajo activo de un empleado. Es útil para controlar concentración de tareas y evitar acumulaciones que puedan afectar al avance. |
+| CU-23 | Cumplimiento de plazos | 1 | 3 | 2 | 2 | Aporta información directa sobre la capacidad de entregar tareas dentro del plazo previsto. Es relevante para la calidad de la gestión y para detectar desviaciones recurrentes. |
+| CU-26 | Riesgo de proyecto | 1 | 2 | 2 | 2 | Permite anticipar proyectos que requieren atención antes de que el problema sea crítico. Su valor está en apoyar el seguimiento preventivo. |
+| CU-31 | Eficiencia de proyecto | 1 | 2 | 2 | 1 | Ayuda a comparar el esfuerzo empleado con el avance obtenido en cada proyecto. Complementa el resumen de proyecto con una lectura de eficiencia. |
+| CU-32 | Rentabilidad horas est./reales | 1 | 2 | 2 | 2 | Permite contrastar la planificación inicial con el esfuerzo finalmente dedicado. Es útil para evaluar desviaciones y mejorar estimaciones futuras. |
+| CU-05 | Resumen de departamento | 1 | 2 | 2 | 2 | Ofrece una vista agregada por departamento. Es relevante para seguimiento organizativo, aunque su uso es menos inmediato que los resúmenes de empleado o proyecto. |
+| CU-04 | Listar departamentos | 2 | 2 | 2 | 1 | Permite seleccionar el departamento que se desea analizar. Su prioridad media se debe a que habilita consultas agrupadas, pero no constituye por sí solo una decisión de gestión. |
+| CU-11 | Gráficos analíticos | 1 | 2 | 2 | 2 | Facilita la interpretación visual de tendencias y distribuciones. Complementa la información tabular y mejora la comprensión de patrones operativos. |
+| CU-12 | Asistencia vs imputaciones | 1 | 2 | 2 | 3 | Contrasta presencia y trabajo imputado para detectar posibles inconsistencias. Tiene valor de control y seguimiento, aunque no forma parte del flujo mínimo de consulta diaria. |
+| CU-14 | Líneas analíticas ★ | 1 | 2 | 1 | 1 | Permite al Director profundizar en la información económica cuando necesita justificar o revisar una rentabilidad. Es complementario al caso de uso principal de rentabilidad financiera. |
+| CU-18 | Listar snapshots | 1 | 2 | 1 | 1 | Permite localizar análisis guardados previamente. Su valor reside en facilitar la consulta histórica, aunque se espera un uso menos frecuente que las consultas operativas. |
+| CU-19 | Detalle de snapshot | 1 | 2 | 1 | 3 | Permite revisar el contenido de un análisis guardado. Es importante para trazabilidad y comparación, pero depende de que existan snapshots previos. |
 
 ---
 
@@ -171,14 +171,14 @@ Cuatro criterios evaluados de 1 a 3 con el manager de Netkia.
 
 | CU | Nombre | C1 | C2 | C3 | C4 | Justificación |
 |---|---|:---:|:---:|:---:|:---:|---|
-| CU-28 | Exactitud de estimación | 1 | 2 | 1 | 1 | EstimationAccuracyService con ratio planned/actual y clasificación en subestima/sobreestima/preciso. Análisis de calidad esporádico. |
-| CU-27 | Tasa de retrabajo | 1 | 2 | 1 | 2 | ReworkRateService + tracking.py: lectura de mail_tracking_value para detectar transiciones cerrado→abierto. Única métrica que accede al historial de auditoría de Odoo. |
-| CU-29 | Lead time | 1 | 1 | 1 | 1 | LeadTimeService con extract(epoch from date_end - date_assign). Métrica complementaria de ciclo de vida. |
-| CU-30 | Distribución por cliente ★ | 1 | 2 | 1 | 1 | ClientDistributionService con require_director. Análisis de horas por partner. Exclusivo Director. |
-| CU-09 | Detalle de tarea | 1 | 1 | 2 | 2 | TaskService.get_task_detail() con horas, subtareas, empleados asignados y responsable. Scope verificado en ruta. Navegación puntual. |
-| CU-15 | Búsqueda global | 1 | 1 | 2 | 1 | SearchService con tres queries paralelas (tasks/projects/employees) con scope. Atajo de navegación, no imprescindible. |
-| CU-20 | Eliminar snapshot | 1 | 1 | 1 | 1 | DELETE sobre MongoDB por _id. Operación permanente, uso excepcional. Solo Director. |
-| CU-16 | Cerrar sesión | 1 | 1 | 1 | 1 | logout() borra localStorage y cabecera Authorization. Deseable pero no bloqueante. |
+| CU-28 | Exactitud de estimación | 1 | 2 | 1 | 1 | Permite revisar la calidad de las estimaciones frente al trabajo real. Tiene valor para mejora continua, pero su consulta se considera esporádica. |
+| CU-27 | Tasa de retrabajo | 1 | 2 | 1 | 2 | Ayuda a identificar trabajo que ha requerido volver a estados anteriores. Es útil para analizar calidad del proceso, aunque no es imprescindible para el funcionamiento diario. |
+| CU-29 | Lead time | 1 | 1 | 1 | 1 | Aporta una visión complementaria del tiempo transcurrido en el ciclo de una tarea. Su valor es analítico, pero no condiciona otros casos de uso. |
+| CU-30 | Distribución por cliente ★ | 1 | 2 | 1 | 1 | Permite al Director conocer cómo se reparte el esfuerzo entre clientes. Es útil para análisis puntual de cartera, aunque no pertenece al núcleo operativo. |
+| CU-09 | Detalle de tarea | 1 | 1 | 2 | 2 | Ofrece información ampliada sobre una tarea concreta cuando el actor necesita investigarla. Su uso es puntual y depende de una navegación previa. |
+| CU-15 | Búsqueda global | 1 | 1 | 2 | 1 | Actúa como apoyo a la navegación cuando el actor quiere localizar rápidamente una entidad. Mejora la comodidad de uso, pero no es imprescindible. |
+| CU-20 | Eliminar snapshot | 1 | 1 | 1 | 1 | Permite retirar análisis guardados que ya no deben conservarse. Es una operación excepcional y de bajo uso previsto. |
+| CU-16 | Cerrar sesión | 1 | 1 | 1 | 1 | Permite finalizar la sesión de trabajo de forma explícita. Es deseable por cierre de uso, pero no condiciona las funciones principales del sistema. |
 
 ---
 
