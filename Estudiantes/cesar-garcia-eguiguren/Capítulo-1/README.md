@@ -15,7 +15,7 @@ La gestión efectiva de proyectos en consultorías tecnológicas requiere transf
 
 Las soluciones comerciales de Business Intelligence (Power BI, Tableau) presentan limitaciones críticas para este contexto: costes de licenciamiento elevados, ausencia de conectores nativos certificados para Odoo v16 Enterprise, y falta de KPIs especializados para el modelo operativo de la empresa. Igualmente, las opciones open-source (Metabase, Superset) carecen de capas semánticas para definir métricas consistentes y presentan limitaciones funcionales con esquemas complejos.
 
-Este trabajo propone el diseño e implementación de un módulo analítico externo, desacoplado del ERP pero integrado con su base de datos PostgreSQL, que extrae datos operativos, calcula indicadores clave de rendimiento específicamente diseñados para las necesidades directivas, y los presenta mediante paneles de control interactivos e informes exportables. La solución responde a los principios arquitectónicos OLTP/OLAP, garantizando rendimiento operativo sin interferencias en los 110 empleados que utilizan diariamente el sistema transaccional, mientras optimiza costes eliminando licencias recurrentes mediante el uso de tecnologías open-source (Python, FastAPI, React).
+Este trabajo propone el diseño e implementación de un módulo analítico externo, desacoplado del ERP pero integrado con su base de datos PostgreSQL, que extrae datos operativos, calcula indicadores clave de rendimiento específicamente diseñados para las necesidades directivas, y los presenta mediante paneles de control interactivos. La solución responde a los principios arquitectónicos OLTP/OLAP, garantizando rendimiento operativo sin interferencias en los 110 empleados que utilizan diariamente el sistema transaccional, mientras optimiza costes eliminando licencias recurrentes mediante el uso de tecnologías open-source (Python, FastAPI, React).
 
 El proyecto sigue la metodología RUP organizado en tres fases: *Ingeniería de Requisitos*, definiendo el modelo del dominio y casos de uso; *Análisis, Diseño e Implementación* de la arquitectura en capas con datos simulados y por último *Validación y Evaluación* frente a los requisitos. La solución sienta las bases para evoluciones futuras hacia análisis predictivo e integración con sistemas conversacionales corporativos.
 
@@ -206,7 +206,7 @@ Metabase es una plataforma open-source de Business Intelligence enfocada en la d
 - **Sin motor in-memory propio:** Todas las queries se ejecutan directamente en PostgreSQL; dashboards con 10 gráficos pueden tardar 15-30 segundos en cargar
 - **Sistema de caché básico:** Caché por TTL fijo sin invalidación inteligente
 - **Complejidad con esquema Odoo:** Query Builder no abstrae estructura compleja; usuarios deben entender tablas técnicas como `project_task_user_rel`
-- **Sin soporte oficial:** Edición Community sin soporte; resolución de bugs la mediante comunidad
+- **Sin soporte oficial:** Edición Community sin soporte; resolución de bugs la mediante la comunidad
 - **Gobernanza limitada:** Sin auditoría nativa de cambios en queries/dashboards
 
 [⬆️ Volver al índice](#índice)
@@ -231,9 +231,9 @@ Dado que actualmente existe una brecha entre los datos que los sistemas de gesti
 
 ## Solución propuesta
 
-En base al análisis del estado del arte y las limitaciones identificadas, la solución propuesta en este trabajo es un módulo externo a Odoo, desacoplado del ERP, pero conectado a la base de datos del mismo; la cual es PostgreSQL, permitiendo realizar consultas avanzadas sin interferir en el flujo de datos operativo de los 110 empleados. 
+En base al análisis del estado del arte y las limitaciones identificadas, la solución propuesta en este trabajo es un módulo externo a Odoo, desacoplado del ERP, pero conectado a la base de datos del mismo; la cual es PostgreSQL, permitiendo realizar consultas avanzadas sin interferir en el flujo de datos operativo de los 110 empleados.
 
-El módulo extrae los datos operativos de dicha base de datos, los procesa para calcular un conjunto de KPIs diseñados específicamente para las necesidades de los directores y responsables de proyecto, y los presenta a través de dos mecanismos de salida: un panel de control interactivo orientado a la supervisión operativa diaria, y un sistema de informes exportables orientado al análisis histórico y la toma de decisiones estratégicas.
+El módulo extrae los datos operativos de dicha base de datos, los procesa para calcular un conjunto de KPIs diseñados específicamente para las necesidades de los directores y responsables de proyecto, y los presenta a través de paneles de control interactivos. El sistema implementa además un mecanismo de capturas históricas inmutables que permite consultar el estado exacto de cualquier indicador en fechas pasadas, sin necesidad de recalcular.
 
 La solución propuesta resuelve específicamente las limitaciones identificadas:
 
@@ -256,7 +256,7 @@ La solución propuesta resuelve específicamente las limitaciones identificadas:
 Por lo tanto, el proyecto no consiste únicamente en la implementación de un panel de visualización, sino en el diseño de una arquitectura desacoplada, compuesta por una capa de integración con la base de datos PostgreSQL, una capa de lógica de negocio responsable del cálculo de KPIs estratégicos y una capa de presentación orientada a la explotación operativa y directiva de la información.
 
 ### Proyección futura hacia análisis predictivo
-Este proyecto puede integrarse con el MCP de la empresa como fuente de información estratégica, permitiendo que los indicadores calculados (KPIs, métricas de desviación y análisis históricos) sean consultables mediante lenguaje natural a través del sistema conversacional existente. De esta manera, el sistema no solo ofrecerá un panel de control para la empresa, sino que podrá combinarse junto a un modelo de contexto permitiendo el acceso a la información analítica mediante un chat, ampliando los canales de explotación de los datos sin necesidad de desarrollar una nueva interfaz de chat independiente.
+Este proyecto podrá integrarse con el MCP de la empresa como fuente de información estratégica, permitiendo que los indicadores calculados (KPIs, métricas de desviación y análisis históricos) sean consultables mediante lenguaje natural a través del sistema conversacional existente. De esta manera, el sistema no solo ofrecerá un panel de control para la empresa, sino que podrá combinarse junto a un modelo de contexto permitiendo el acceso a la información analítica mediante un chat, ampliando los canales de explotación de los datos sin necesidad de desarrollar una nueva interfaz de chat independiente.
 
 Adicionalmente, esta arquitectura sienta las bases para una posible evolución del sistema hacia modelos de análisis predictivo basados en aprendizaje automático. La acumulación histórica de datos de proyectos incluyendo estimaciones iniciales, desviaciones reales, tipologías de cliente y perfiles de responsables permitiría entrenar modelos capaces de identificar patrones recurrentes asociados a retrasos o sobrecostes.
 
@@ -274,7 +274,7 @@ El **objetivo general** del presente TFG es **disminuir significativamente el ti
 Los objetivos específicos se corresponden con las disciplinas del Proceso Unificado aplicadas al proyecto y se materializan en los capítulos indicados:
   - OE1 — Definir y analizar los requisitos funcionales y no funcionales del módulo de analítica, a partir del estudio del contexto organizativo de Netkia y las necesidades de información de sus responsables de proyecto y dirección.
   - OE2 — Diseñar la arquitectura del sistema y el modelo de datos, definiendo componentes, flujos de información y mecanismos de integración con Odoo, garantizando escalabilidad y mantenibilidad, así como tiempos de respuesta adecuados para la consulta interactiva.
-  - OE3 — Implementar un prototipo funcional que permita el procesamiento, almacenamiento y visualización de la información mediante paneles de control interactivos e informes exportables, y validar su funcionamiento frente a los requisitos definidos, verificando que las consultas complejas se resuelven de forma automática sin intervención del usuario.
+  - OE3 — Implementar un prototipo funcional que permita el procesamiento, almacenamiento y visualización de la información mediante paneles de control interactivos, y validar su funcionamiento frente a los requisitos definidos, verificando que las consultas complejas se resuelven de forma automática sin intervención del usuario.
 
 [⬆️ Volver al índice](#índice)
 
@@ -311,9 +311,11 @@ El capítulo 2, Marco teórico, se justifica el desarrollo mediante una narrativ
 
 El capítulo 3, Requerimientos y requisitos, materializa el OE1, incluyendo el modelo del dominio, la especificación de casos de uso y los requisitos funcionales y no funcionales. 
 
-El capítulo 4, Análisis y diseño, materializa el OE2 con la arquitectura en capas, el modelo de datos y los diagramas UML. 
+Los capítulos 4 y 5, Análisis y diseño, materializan el OE2 con la arquitectura en capas, el modelo de datos y los diagramas UML. 
 
-El capítulo 5, Conclusiones, recoge los resultados, las limitaciones y las futuras líneas de actuación. Finalmente, se incluye la lista de referencias bibliográficas en formato APA y los anexos con material complementario.
+El capítulo 6, Implementación, materializa el OE3, ya que trata de cómo se ha desarrollado e implementado la solución.
+
+El capítulo 7, Conclusiones, recoge los resultados, las limitaciones y las futuras líneas de actuación. Finalmente, se incluye la lista de referencias bibliográficas en formato APA y los anexos con material complementario.
 
 [⬆️ Volver al índice](#índice)
 
