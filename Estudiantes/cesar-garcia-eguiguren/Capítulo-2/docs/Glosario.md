@@ -41,13 +41,11 @@
 | **Cumplimiento de plazos (Compliance)** | Porcentaje de tareas cerradas en las que `date_end ≤ date_deadline` sobre el total de tareas cerradas con ambas fechas informadas. |
 | **Precisión de estimaciones (Estimation Accuracy)** | Ratio medio `(actual / planificado)` de las tareas cerradas de un responsable. Sesgo derivado: `subestima` (>110 %), `sobreestima` (<90 %), `preciso` (90–110 %). |
 | **Tiempo de ciclo (Lead Time)** | Días medios transcurridos entre `date_assign` y `date_end` de las tareas cerradas, utilizado para medir la velocidad de ejecución del trabajo. |
-| **Tiempo por prioridad (Priority Time)** | Horas medias invertidas en tareas cerradas agrupadas por nivel de prioridad (`priority = "0"` Normal / `priority = "1"` Urgente). |
 | **Productividad (Productivity)** | Ratio `(planned_hours / actual_hours) × 100` para cada tarea cerrada con ambos valores mayores de cero. Valores >100 % indican que la tarea se completó en menos tiempo del estimado. |
 | **Rentabilidad por horas (Profitability)** | Diferencia entre el coste estimado (`planned_hours × hourly_cost`) y el coste real (`worked_hours × hourly_cost`) de un proyecto. Porcentaje = `(diferencia / estimado) × 100`. |
 | **Rentabilidad financiera** | Análisis basado en `account_analytic_line.amount`: suma de importes positivos (ingresos) menos importes negativos (gastos), agrupados por proyecto, cliente o responsable. Exclusivo del Director. |
 | **Eficiencia del proyecto (Project Efficiency)** | Ratio `(total_planned_hours / total_actual_hours) × 100` a nivel de proyecto. Desviación en horas = `actual − planificado`; desviación porcentual = `(desviación / planificado) × 100`. |
 | **Tasa de retrabajo (Rework Rate)** | Porcentaje de tareas cerradas que fueron reabiertas posteriormente, detectado mediante el análisis del historial de cambios de etapa en `mail_tracking_value`. |
 | **Índice de riesgo (Risk Index)** | Porcentaje de tareas abiertas con `date_deadline` que están vencidas (`date_deadline < hoy`) o que han consumido ≥80 % del tiempo entre `date_assign` y `date_deadline`. |
-| **Tiempo por estado (State Time)** | Horas medias que una tarea permanece en cada etapa del flujo Kanban, calculado a partir de los cambios consecutivos registrados en `mail_tracking_value`. |
 | **Trabajo en curso (WIP)** | Número de tareas abiertas asignadas a un empleado en un momento dado. Umbrales: óptimo ≤3, aceptable ≤5, sobrecargado >5. |
 | **Carga de trabajo (Workload)** | `(Σ horas_pendientes / 40 h referencia) × 100`, donde las horas pendientes son `max(planned_hours − worked_hours, 0)` por tarea abierta asignada. Estados: sobrecargado >120 %, normal 70–120 %, subcargado <70 %. |
